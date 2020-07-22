@@ -1,2 +1,9 @@
 RewriteEngine On 
 RewriteRule ^([^?]*) index.php?url=$1 [L,QSA]
+
+<Limit GET POST PUT OPTIONS DELETE>
+    Require all granted
+</Limit>
+<LimitExcept GET POST PUT OPTIONS DELETE>
+    Require all denied
+</LimitExcept>

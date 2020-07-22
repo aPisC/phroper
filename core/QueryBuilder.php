@@ -19,7 +19,7 @@ class QueryBuilder {
     return $this;
   }
   public function getSelectQuery(){
-    $query = 'SELECT ' . join(' ,', $this->fields) . ' FROM ' . $this->tableName;
+    $query = 'SELECT ' . join(', ', $this->fields) . ' FROM ' . $this->tableName;
     if(count($this->filters) > 0)
       $query = $query . ' WHERE ' . $this->getFiltersString();
 
@@ -32,7 +32,7 @@ class QueryBuilder {
     return $query;
   }    
   public function getSelectOneQuery(){
-    $query = 'SELECT ' . join(' ,', $this->fields) . ' FROM ' . $this->tableName;
+    $query = 'SELECT ' . join(', ', $this->fields) . ' FROM ' . $this->tableName;
     if(count($this->filters) > 0)
       $query = $query . ' WHERE ' . $this->getFiltersString();
     $query = $query . ' LIMIT 1';
@@ -49,7 +49,7 @@ class QueryBuilder {
   }
 
   public function getInsertQuery(){
-    $query = 'INSERT INTO ' . $this->tableName . '( ' . join(' ,', $this->fields) . ' ) VALUES ( ' . $this->getInsertValuesString() . ' );';
+    $query = 'INSERT INTO ' . $this->tableName . '( ' . join(', ', $this->fields) . ' ) VALUES ( ' . $this->getInsertValuesString() . ' );';
     return $query;
   }
 

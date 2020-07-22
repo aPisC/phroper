@@ -13,7 +13,6 @@ class DefaultService extends Service
   public function find($filter) {
     $entities = $this->model->find($filter);
     $model = $this->model;
-    var_dump($filter);
     if(is_array($entities))
       return array_map(function($entity) use ($model) {
         return $model->sanitizeEntity($entity);

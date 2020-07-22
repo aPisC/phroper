@@ -11,23 +11,34 @@ class DefaultService extends Service
   }
 
   public function find($filter) {
-    return $this->model->find($filter);
+    $entities = $this->model->find($filter);
+    $model = $this->model;
+    var_dump($filter);
+    if(is_array($entities))
+      return array_map(function($entity) use ($model) {
+        return $model->sanitizeEntity($entity);
+      }, $entities );
+    return $entities;
   }
 
   public function findOne($filter) {
-    return $this->model->findOne($filter);
+    $entity = $this->model->findOne($filter);
+    return $this->model->sanitizeEntity($entity);
   }
 
   public function create($entity) {
-    return $this->model->create($entity);
+    $entity2 = $this->model->sanitizeEntity($entity);
+    return $this->model->create($entity2);
   }
 
   public function update($filter, $entity) {
-    return $this->model->update($filter, $entity);
+    $entity2 =  $this->model->update($filter, $entity);
+    return $this->model->sanitizeEntity($entity2);
   }
 
   public function delete($filter) {
-    return $this->model->delete($filter);
+    $entity = $this->model->delete($filter);
+    return $this->model->sanitizeEntity($entity);
   }
 
   public function count($filter) {

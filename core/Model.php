@@ -24,6 +24,21 @@
       $this->tableName = $tableName;
     }
 
+    public function sanitizeEntity($entity){
+      if($entity == null) return $entity;
+      $ne = array();
+      foreach ($this->fields as $key => $field) {
+        if(isset($entity[$key]) && (!isset($field['private']) ||  !$field['private']))
+          $ne[$key] = $entity[$key];
+      }
+      return $ne;
+    }
+
+
+
+    //--------------------------
+    // Data managing functions
+    //--------------------------
     protected function getQueryBuilder($isSelect = true, $entry = null){
       $q = new QueryBuilder($this->tableName);
       $values = array();

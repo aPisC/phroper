@@ -7,7 +7,9 @@ class QueryBuilder {
 
   private string $tableName;
 
-  function __construct($mysqli, $tableName) {
+  function __construct($tableName,$mysqli = null) {
+    if($mysqli == null) $mysqli = Database::instance();
+    
     $this->mysqli = $mysqli;
     $this->tableName = $tableName;
   }

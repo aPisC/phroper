@@ -12,9 +12,6 @@
     // Load core module
     else if (file_exists('core' . DS . $name . '.php')) require_once('core' . DS . $name . '.php');
     else if (file_exists('core' . DS . $name . DS . 'index.php')) require_once('core' . DS . $name . DS . 'index.php');
-
-    else echo 'unable to load: ' . 'core' . DS . $name . '.php';
-
   });
   
 

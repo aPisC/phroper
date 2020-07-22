@@ -16,14 +16,23 @@ class Service{
   public function __construct() {
   }
 
-  function find($filter = null){
+  function find($filter){
     throw new Exception('Find is not implemented in service');
   }  
-  function findOne($filter = null){
+  function findOne($filter){
     throw new Exception('FindOne is not implemented in service');
   }
-  function create($entity = null){
+  function create($entity){
     throw new Exception('FindOne is not implemented in service');
+  }
+  function update($filter, $entity){
+    throw new Exception('FindOne is not implemented in service');
+  }
+  function delete($filter){
+    throw new Exception('Delete is not implemented in service');
+  }
+  function count($filter){
+    throw new Exception('Delete is not implemented in service');
   }
 }
 ?>

@@ -17,10 +17,6 @@
         'type' => 'int',
         'type_size' => '6',
         'dbparams' => 'UNSIGNED AUTO_INCREMENT PRIMARY KEY'
-      ),
-      'idp' => array(
-        'field' => 'id + 3',
-        'virtual' => true
       )
     );
 
@@ -28,17 +24,21 @@
       $this->tableName = $tableName;
     }
 
-    protected function getQueryBuilder($isSelect = true){
+    protected function getQueryBuilder($isSelect = true, $entry = null){
       $q = new QueryBuilder($this->tableName);
-
+      $values = array();
       foreach ($this->fields as $key => $field) {
         if(!$isSelect && isset($field['virtual']) && $field['virtual']) continue;
+        if(is_array($entry) && !isset($entry[$key])) continue;
+
 
         $fieldName = isset($field['field']) 
           ? ($field['field']) . ($isSelect ? ' as ' . $key : '')
           : $key;
         $q->addField($fieldName);
+        if(is_array($entry)) array_push($values, $entry[$key]);
       }
+      $q->setValues($values);
 
       return $q;
     }
@@ -53,10 +53,13 @@
           $isFirst = false;
         }
       }
+      else if(is_string($filter) || is_numeric($filter)){
+        $q->where('id', $filter);
+      }
       else if (is_callable($filter)){
         $filter($q);
       }
-      else{
+      else {
         $q->where('id', $filter);
       }
     }
@@ -98,34 +101,78 @@
       $entity = $result->fetch_all(MYSQLI_ASSOC);
       $result->free_result();
       return $entity;
-    }
+    }    
 
-    public function create($entity){
-      $q = $this->getQueryBuilder(false);
+    public function count($filter){
+      $q = $this->getQueryBuilder();
       $mysqli = Database::instance();
 
-      $values = array();
-      foreach ($this->fields as $key => $field) {
-        if(isset($field['virtual']) && $field['virtual']) continue;
-
-        $fn = isset($field['field']) ? $field['field'] : $key;
-        $values[$fn] = isset($entity[$key]) ? $entity[$key] : null;
-      }
-      $q->setValues($values);
-
-      $sql = $q->getInsertQuery();
+      if($filter) self::useFilter($q, $filter);
+      $sql = $q->getCountQuery();
       $result = $mysqli->query($sql);
       
 
       if(!$result) return null;
+      if( $result->num_rows == 0){
+        $result->free_result();
+        return null;
+      }
+
+      $entity = $result->fetch_array();
+      $result->free_result();
+      return $entity[0];
+    }
+
+    public function create($entity){
+      $q = $this->getQueryBuilder(false, $entity);
+      $mysqli = Database::instance();
+      
+      $sql = $q->getInsertQuery();
+      $result = $mysqli->query($sql);
+      
+
+      if(!$result){
+        error_log($sql . '    ' . $mysqli->error);
+        throw new Exception('Database error ' . $mysqli->error);
+      }
       return $this->findOne($mysqli->insert_id);
     }
 
     public function update($filter, $entity){
-      $q = $this->getQueryBuilder();
+      $q = $this->getQueryBuilder(false, $entity);
       $mysqli = Database::instance();
 
       self::useFilter($q, $filter);
+      $sql = $q->getUpdateQuery();
+      if($sql != null){
+        $result = $mysqli->query($sql);
+ 
+        if(!$result){
+          error_log($sql . '    ' . $mysqli->error);
+          throw new Exception('Database error ' . $mysqli->error);
+        }
+      }
+      return $this->findOne($filter);
+    }
+
+    public function delete($filter){
+      $entry = $this->findOne($filter);
+
+      if($entry != null){
+        $q = $this->getQueryBuilder();
+        $mysqli = Database::instance();
+        
+        self::useFilter($q, $filter);
+        $sql = $q->getDeleteQuery();
+
+        $result = $mysqli->query($sql);
+
+        if(!$result){
+          error_log($sql . '    ' . $mysqli->error);
+          throw new Exception('Database error ' . $mysqli->error);
+        }
+      }
+      return $entry;
     }
   }
 ?>

@@ -15,21 +15,39 @@
       $this->service = $service;
 
       // register handler functions
-      $this->registerJsonHandler('create', function() {return $this->create();});
-      $this->registerJsonHandler(':id', function($u, $p){return $this->findOne($p['id']);});
-      $this->registerJsonHandler(null,function() {return  $this->find();});
+      $this->registerJsonHandler('count', function($u, $p){return $this->count($p);}, 'GET');
+      $this->registerJsonHandler(':id', function($u, $p){return $this->findOne($p);}, 'GET');
+      $this->registerJsonHandler(':id', function($u, $p){return $this->update($p);}, 'PUT');
+      $this->registerJsonHandler(':id', function($u, $p){return $this->delete($p);}, 'DELETE');
+      $this->registerJsonHandler(null, function($u, $p) {return $this->create();}, 'POST');
+      $this->registerJsonHandler(null,function() {return  $this->find();}, 'GET');
     }
 
-    public function findOne($id){
-      return $this->service->findOne($id);
+    public function findOne($params){
+      return $this->service->findOne($params['id']);
     }
 
     public function find(){
-      return $this->service->find();
+      $data = json_load_body();
+      return $this->service->find($data);
     }   
 
     public function create(){
-      return $this->service->create();
+      $data = json_load_body();
+      return $this->service->create($data);
+    }
+
+    public function update($params){
+      $data = json_load_body();
+      return $this->service->update($params['id'], $data);
+    }
+
+    public function delete($params){
+      return $this->service->delete($params['id']);
+    }
+
+    public function count($params){
+      return $this->service->count(null);
     }
   }
 

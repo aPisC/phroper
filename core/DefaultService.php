@@ -10,15 +10,27 @@ class DefaultService extends Service
     $this->model = $model;
   }
 
-  public function find($filter = null) {
+  public function find($filter) {
     return $this->model->find($filter);
   }
 
-  public function findOne($filter = null) {
+  public function findOne($filter) {
     return $this->model->findOne($filter);
   }
 
-  public function create($entity = null) {
+  public function create($entity) {
     return $this->model->create($entity);
+  }
+
+  public function update($filter, $entity) {
+    return $this->model->update($filter, $entity);
+  }
+
+  public function delete($filter) {
+    return $this->model->delete($filter);
+  }
+
+  public function count($filter) {
+    return $this->model->count($filter);
   }
 }

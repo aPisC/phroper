@@ -18,12 +18,17 @@ class QueryBuilder {
     array_push($this->fields, $f);
     return $this;
   }
-
   public function getSelectQuery(){
     $query = 'SELECT ' . join(' ,', $this->fields) . ' FROM ' . $this->tableName;
     if(count($this->filters) > 0)
       $query = $query . ' WHERE ' . $this->getFiltersString();
 
+    return $query;
+  }    
+  public function getCountQuery(){
+    $query = 'SELECT count(*) FROM ' . $this->tableName;
+    if(count($this->filters) > 0)
+      $query = $query . ' WHERE ' . $this->getFiltersString();
     return $query;
   }    
   public function getSelectOneQuery(){
@@ -49,7 +54,11 @@ class QueryBuilder {
   }
 
   public function getUpdateQuery(){
-    $query = 'UPDATE ' . $this->tableName . ' SET ' . $this->getUpdateFieldsString();
+    if(count($this->values) == 0)
+      return null;
+
+    $query = 'UPDATE ' . $this->tableName;
+    $query = $query . ' SET ' . $this->getUpdateFieldsString();
     if(count($this->filters) > 0)
       $query = $query . ' WHERE ' . $this->getFiltersString();
 
@@ -63,13 +72,13 @@ class QueryBuilder {
 
 
   private function getUpdateFieldsString(){
-    $mysqli = $this->mysqli;
-    $v2 = array_map(function($v, $f) use ($mysqli){
-      if(is_string($v))
-        $v = "'". mysqli_real_escape_string($mysqli, $v). "'";
-      return $f . ' = ' . $v;
-    }, $this->values, $this->fields);
-    return join(', ', $v2);
+      $mysqli = $this->mysqli;
+      $v2 = array_map(function($v, $f) use ($mysqli){
+        if(is_string($v))
+          $v = "'". mysqli_real_escape_string($mysqli, $v). "'";
+        return $f . ' = ' . $v;
+      }, $this->values, $this->fields);
+      return join(', ', $v2);
   }
 
 

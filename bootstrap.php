@@ -48,10 +48,7 @@
     
 
     if($payload != null){
-      $parameters['user'] = Service::getService('Auth')->getUser($payload['userid']);
-    }
-    else {
-      $parameters['user'] = null;
+      Context::set('user', Service::getService('Auth')->getUser($payload['userid']));
     }
     
   });

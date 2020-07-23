@@ -48,26 +48,26 @@ class JWT {
     $header = base64_decode($tokenParts[0]);
     $payload = base64_decode($tokenParts[1]);
     $signatureProvided = $tokenParts[2];
-    $decodedToken = json_decode($payload, true);
-
-    // check the expiration time - note this will cause an error if there is no 'exp' claim in the token
-    $expiration = $decodedToken['exp'];
-    $tokenExpired = time() < $expiration;
-
+    
+    
     // build a signature based on the header and payload using the secret
     $base64UrlHeader = self::base64UrlEncode($header);
     $base64UrlPayload = self::base64UrlEncode($payload);
     $signature = hash_hmac('sha256', $base64UrlHeader . "." . $base64UrlPayload, self::$secret, true);
     $base64UrlSignature = self::base64UrlEncode($signature);
-
+    
     // verify it matches the signature provided in the token
     $signatureValid = ($base64UrlSignature === $signatureProvided);
-
+    
+    if (!$signatureValid) 
+    throw new Exception('JWT signature is invalid.');
+    
+    // check the expiration time - note this will cause an error if there is no 'exp' claim in the token
+    $decodedToken = json_decode($payload, true);
+    $expiration = $decodedToken['exp'];
+    $tokenExpired = time() > $expiration;
     if ($tokenExpired) 
       throw new Exception('JWT token has expired.');
-
-    if ($signatureValid) 
-      throw new Exception('JWT signature is invalid.');
 
     return $decodedToken;
   }

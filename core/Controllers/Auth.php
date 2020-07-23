@@ -12,7 +12,8 @@ class Auth extends Controller{
 
     $this->service = Service::getService('Auth');
 
-    $this->registerJsonHandler(null, function() {return $this->login();});
+    $this->registerJsonHandler("me", function($u, $params) {return $params['user'];});
+    $this->registerJsonHandler("login", function() {return $this->login();}, 'POST');
   }
 
   public function login(){

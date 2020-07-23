@@ -1,8 +1,9 @@
 <?php
   class Router{
 
-    private $routes = Array();
+    private $routes = array();
     private $parameters;
+    private $middlewares = array();
   
     public function __construct($parameters = array()) {
       $this->parameters = $parameters;
@@ -23,6 +24,10 @@
         'method' => '*',
         'isNamespace' => true
       ));
+    }
+
+    public function addMiddleware($function){
+      array_push($this->middlewares, $function);
     }
   
     public function run($url, $parameters = array()){
@@ -69,6 +74,11 @@
         }
 
         if($isMatching){
+          foreach ($this->middlewares as $middleware) {
+            if(is_callable($middleware)){
+              $middleware($this->parameters);
+            }
+          }
           $u = array_values(
             array_filter($url, function($v, $k) use ($i) { return $k >= $i; } , ARRAY_FILTER_USE_BOTH)
           );

@@ -2,7 +2,7 @@
 namespace Models;
 use Model;
 
-class Role extends Model{
+class Auth_Role extends Model{
   public function __construct() {    
     parent::__construct('role');
 
@@ -12,13 +12,13 @@ class Role extends Model{
     );
     $this->fields['users'] = array(
       'type' => 'relation',
-      'model' => 'User',
+      'model' => 'Auth_User',
       'via' => 'role',
     );
   }
 
   public function allowDefaultService()
   {
-    return true;
+    return false;
   }
 }

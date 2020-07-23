@@ -65,6 +65,9 @@
 
     public static function fieldValueProcessor($value, $type){
       if($type == 'password') return password_hash($value, PASSWORD_BCRYPT);
+      else if($type == 'email' && !filter_var($value, FILTER_VALIDATE_EMAIL)) {
+        throw new Exception("Email format is invalid");
+      }
       return $value;
     }
 
@@ -96,6 +99,7 @@
       if(is_array($filter)){
         $isFirst = true;
         foreach ($filter as $key => $value) {
+          if(!isset($this->fields[$key])) continue;
           if(isset($this->fields[$key]['field']))
             $key = $this->fields[$key]['field'];
           if($isFirst) $q->where($key, $value);
@@ -151,7 +155,7 @@
       }
       if( $result->num_rows == 0){
         $result->free_result();
-        return null;
+        return [];
       }
 
       $entity = $result->fetch_all(MYSQLI_ASSOC);

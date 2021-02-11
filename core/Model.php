@@ -18,7 +18,9 @@
       )
     );
 
-    public function __construct($tableName) {
+    public function __construct($tableName = null) {
+      if($tableName == null)
+        $tableName = strtolower(end(explode('/', get_class($this))));
       $this->tableName = $tableName;
     }
 

@@ -13,7 +13,7 @@ class Auth extends Controller{
 
     $this->service = Service::getService('Auth');
 
-    $this->registerJsonHandler("me", function($u, $params) {return Context::get('user'); });
+    $this->registerJsonHandler("me", function() {return Context::get('user'); }, 'GET');
     $this->registerJsonHandler("login", function() {return $this->login();}, 'POST');
     $this->registerJsonHandler("register", function() {return $this->register();}, 'POST');
   }

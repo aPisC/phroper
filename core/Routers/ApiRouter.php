@@ -9,11 +9,11 @@ class ApiRouter extends Router{
     parent::__construct($p);
   }
 
-  function run($url, $parameters = array()) {
+  function run($parameters, $next = null) {
     $cn = $parameters['controller'];
 
     $controller = Controller::getController($cn);
-    $controller->run($url, $parameters);
+    $controller->run($parameters, $next);
   }
 }
 

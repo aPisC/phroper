@@ -33,19 +33,23 @@ class Controller {
   }
 
   protected function registerHandler($name,$fun,$method = 'GET'){
-    $this->router->add($name, $fun, $method);
+    $this->router->add($name, function($url, $params) use ($fun, $name){
+      
+      $this->havePermission(strtolower($params['method'] . '_' . $name), true);
+
+      $fun($url, $params);
+    }, $method);
   }
 
   protected function registerJsonHandler($name,$fun,$method = 'GET'){
 
-    $this->router->add($name, function($url, $params) use ($fun, $name){
+    $this->router->add($name, function($params, $next) use ($fun, $name){
       header('Content-Type: application/json');
       try{
         // Throwing exception when user has no permission
-        var_dump(strtolower($params['method'] . '_' . $name));
         $this->havePermission(strtolower($params['method'] . '_' . $name), true);
 
-        $result = $fun($url, $params);
+        $result = $fun($params);
         if($result == null){
           http_response_code(404);
         }

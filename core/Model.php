@@ -5,13 +5,19 @@
     }
 
     public static function getModel($modelName){
+      if(is_subclass_of($modelName, 'Model'))
+        return $modelName;
       $mcn= 'Models\\'. ucfirst($modelName);
       $model = new $mcn();
       return $model;
     }
 
+    function getTableName() {
+      return $this->tableName;
+    }
+
     protected string $tableName;
-    protected array $fields = array(
+    public array $fields = array(
       'id' => array(
         'type' => 'int',
         'sqltype' => 'INT UNSIGNED AUTO_INCREMENT PRIMARY KEY',
@@ -45,21 +51,32 @@
       return $ne;
     }
 
-    public function populateEntity($entity, $populate = null){
-      if($populate == null) {
-        if(is_array($populate)) return $entity;
-        $populate = array_keys($this->fields);
-      }
+    public function restoreEntity($assoc, $populate, $prefix=""){
+      $entity = array();
 
-      foreach ($populate as $key) {
-        if(isset($this->fields[$key]) && $this->fields[$key]['type'] == 'relation'){
-          $field = $this->fields[$key];
-          $model = Model::getModel($field['model']);
-          if(isset($field['via'])){
-            $entity[$key] = $model->find(array($field['via']=> $entity['id']), []);
-          }
-          else if (isset($entity[$key]) && is_scalar($entity[$key]))
-            $entity[$key] = $model->findOne($entity[$key], []);
+      // First of all, restore id, because it may be required for relation loading
+      $memberName = $prefix == "" ? "id" : ($prefix . ".id" );
+      if(isset($assoc[$memberName]))
+        $entity["id"] = $assoc[$memberName];
+      else if (isset($assoc[$prefix])) return $assoc[$prefix];
+      else return null;
+
+      // Restore other fields
+      foreach ($this->fields as $key => $field) {
+        $memberName = $prefix == "" ? $key : ($prefix . "." . $key);
+        if(isset($assoc[$memberName]))
+          $entity[$key] = $assoc[$memberName];
+        
+        if(!$populate || !in_array($memberName, $populate) || $field["type"] !== "relation") 
+          continue;
+
+        $model = Model::getModel($field['model']);
+
+        if(!isset($field["via"])){
+          $entity[$key] = $model->restoreEntity($assoc, $populate, $memberName);
+        }
+        else{
+          $entity[$key] = $model->find(array($field['via']=> $entity['id']));
         }
       }
       return $entity;
@@ -77,103 +94,82 @@
     //--------------------------
     // Data managing functions
     //--------------------------
-    protected function getQueryBuilder($isSelect = true, $entity = null){
-      $q = new QueryBuilder($this->tableName);
-      $values = array();
-      foreach ($this->fields as $key => $field) {
-        if($field['type'] == 'relation' && isset($field['via'])) continue;
-        if(!$isSelect && isset($field['virtual']) && $field['virtual']) continue;
-        if(is_array($entity) && !isset($entity[$key])) continue;
-
-
-        $fieldName = isset($field['field']) 
-          ? ($field['field']) . ($isSelect ? ' as ' . $key : '')
-          : $key;
-        $q->addField($fieldName);
-        if(is_array($entity)) array_push($values, self::fieldValueProcessor($entity[$key], $field['type']));
-      }
-      $q->setValues($values);
-
-      return $q;
-    }
 
     private function useFilter($q, $filter){
       if(is_array($filter)){
-        $isFirst = true;
         foreach ($filter as $key => $value) {
-          if(!isset($this->fields[$key])) continue;
-          if(isset($this->fields[$key]['field']))
-            $key = $this->fields[$key]['field'];
-          if($isFirst) $q->where($key, $value);
-          else $q->andWhere($key, $value);
-          
-          $isFirst = false;
+          $q->addFilter("=", $q->ref($key), $value);
         }
       }
       else if(is_string($filter) || is_numeric($filter)){
-        $q->where('id', $filter);
-      }
-      else if (is_callable($filter)){
-        $filter($q);
-      }
-      else {
-        $q->where('id', $filter);
+        $q->addFilter("=", $q->ref('id'), $filter);
       }
     }
 
     public function findOne($filter, $populate = null){
-      $q = $this->getQueryBuilder();
+      $q = new QueryBuilder($this, "select");
       $mysqli = Database::instance();
 
+      if($populate == null && !is_array($populate)) {
+        $populate = array_keys($this->fields);
+      }
+      $q->populate($populate);
+
       $this->useFilter($q, $filter);
-      $sql = $q->getSelectOneQuery();
-      $result = $mysqli->query($sql);
+      $result = $q->execute($mysqli);
     
       if(!$result){
-        error_log($sql . '    ' . $mysqli->error);
+        error_log($q->lastSql . '    ' . $mysqli->error);
         throw new Exception('Database error ' . $mysqli->error);
       }
-      if( $result->num_rows == 0){
+      if($result->num_rows == 0){
         $result->free_result();
         return null;
       }
 
-      $entity = $result->fetch_assoc();
+      $assoc = $result->fetch_assoc();
       $result->free_result();
-      //return $entity;
-      return $this->populateEntity($entity, $populate);
+
+      return $this->restoreEntity($assoc, $populate);
     }
 
     public function find($filter, $populate = null){
-      $q = $this->getQueryBuilder();
+      $q = new QueryBuilder($this, "select");
       $mysqli = Database::instance();
 
+      if($populate == null && !is_array($populate)) {
+        $populate = array_keys($this->fields);
+      }
+      $q->populate($populate);
+
       $this->useFilter($q, $filter);
-      $sql = $q->getSelectQuery();
-      $result = $mysqli->query($sql);
+      
+      $result = $q->execute($mysqli);
+      
       if(!$result){
-        error_log($sql . '    ' . $mysqli->error);
+        error_log($q->lastSql . '    ' . $mysqli->error);
         throw new Exception('Database error ' . $mysqli->error);
       }
+
       if( $result->num_rows == 0){
         $result->free_result();
         return [];
       }
 
-      $entity = $result->fetch_all(MYSQLI_ASSOC);
+      $assocs = $result->fetch_all(MYSQLI_ASSOC);
       $result->free_result();
       $model = $this;
-      return array_map(function($entity) use ($populate, $model) {return $model->populateEntity($entity, $populate);}, $entity);
+      return array_map(function($assoc) use ($populate, $model) {return $model->restoreEntity($assoc, $populate);}, $assocs);
     }    
 
     public function count($filter){
-      $q = $this->getQueryBuilder();
+      $q = new QueryBuilder($this, "count");
       $mysqli = Database::instance();
 
-      if($filter) $this->useFilter($q, $filter);
-      $sql = $q->getCountQuery();
-      $result = $mysqli->query($sql);
+      $this->useFilter($q, $filter);
       
+      $result = $q->execute($mysqli);
+
       if(!$result){
         error_log($sql . '    ' . $mysqli->error);
         throw new Exception('Database error ' . $mysqli->error);
@@ -189,13 +185,13 @@
     }
 
     public function create($entity){
-      $q = $this->getQueryBuilder(false, $entity);
+      $q = new QueryBuilder($this, "insert");
       $mysqli = Database::instance();
-      
-      $sql = $q->getInsertQuery();
-      $result = $mysqli->query($sql);
-      
 
+      $query = $q->setAllValue($entity, false);
+
+      $result = $q->execute($mysqli);
+      
       if(!$result){
         error_log($sql . '    ' . $mysqli->error);
         throw new Exception('Database error ' . $mysqli->error);
@@ -204,39 +200,42 @@
     }
 
     public function update($filter, $entity){
-      $q = $this->getQueryBuilder(false, $entity);
+      $q = new QueryBuilder($this, "update");
       $mysqli = Database::instance();
 
       $this->useFilter($q, $filter);
-      $sql = $q->getUpdateQuery();
-      if($sql != null){
-        $result = $mysqli->query($sql);
- 
-        if(!$result){
-          error_log($sql . '    ' . $mysqli->error);
-          throw new Exception('Database error ' . $mysqli->error);
-        }
+      
+      $q->setAllValue($entity);
+
+      $result = $q->execute($mysqli);
+
+      if(!$result){
+        error_log($sql . '    ' . $mysqli->error);
+        throw new Exception('Database error ' . $mysqli->error);
       }
+
       return $this->findOne($filter);
     }
 
     public function delete($filter){
-      $entity = $this->findOne($filter);
+      $entity = $this->find($filter);
 
       if($entity != null){
-        $q = $this->getQueryBuilder();
+        $q = new QueryBuilder($this, "delete");
         $mysqli = Database::instance();
         
         $this->useFilter($q, $filter);
-        $sql = $q->getDeleteQuery();
 
-        $result = $mysqli->query($sql);
+
+        $result = $q->execute($mysqli);
 
         if(!$result){
           error_log($sql . '    ' . $mysqli->error);
           throw new Exception('Database error ' . $mysqli->error);
         }
       }
+      if(count($entity) == 0) return null;
+      if(count($entity) == 1) return $entity[0];
       return $entity;
     }
   }

@@ -13,6 +13,9 @@
     protected function matchUrl($expression, $url, $isNamespace = false) {
       // returns matched parameters if mathes, false otherwise
 
+      if(count($url) == 0 and $expression == null) 
+        return array();
+
       $routeParts = explode('/', $expression);
       $parameters = array();
       $isMatching = true;
@@ -56,7 +59,7 @@
     }
 
     protected function matchMethod($methodExpression, $method) {
-      return $methodExpression = '*' ||
+      return $methodExpression == '*' ||
         $methodExpression == $method ||
         (is_array( $methodExpression) && in_array($method,  $methodExpression));
     }
@@ -66,7 +69,7 @@
         if(!$this->matchMethod($method, $parameters['method'])) return $next();
         
         $np = $this->matchUrl($expression, $parameters['url'], false);
-        if(!$np) return $next();
+        if($np === false) return $next();
 
         $this->runHandler($handler,array_merge($parameters, $np), $next);
       });
@@ -74,7 +77,7 @@
     public function addNamspace($expression, $handler){
       $this->addHandler(function ($parameters, $next) use ($expression, $handler) {  
         $np = $this->matchUrl($expression, $parameters['url'], true);
-        if(!$np) return $next();
+        if($np === false) return $next();
 
         $this->runHandler($handler,array_merge($parameters, $np), $next);
       });

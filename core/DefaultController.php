@@ -15,11 +15,11 @@
       $this->service = $service;
 
       // register handler functions
-      $this->registerJsonHandler('count', function($u, $p){return $this->count($p);}, 'GET');
-      $this->registerJsonHandler(':id', function($u, $p){return $this->findOne($p);}, 'GET');
-      $this->registerJsonHandler(':id', function($u, $p){return $this->update($p);}, 'PUT');
-      $this->registerJsonHandler(':id', function($u, $p){return $this->delete($p);}, 'DELETE');
-      $this->registerJsonHandler(null, function($u, $p) {return $this->create();}, 'POST');
+      $this->registerJsonHandler('count', function($p){return $this->count($p);}, 'GET');
+      $this->registerJsonHandler(':id', function($p){return $this->findOne($p);}, 'GET');
+      $this->registerJsonHandler(':id', function($p){return $this->update($p);}, 'PUT');
+      $this->registerJsonHandler(':id', function($p){return $this->delete($p);}, 'DELETE');
+      $this->registerJsonHandler(null, function($p) {return $this->create();}, 'POST');
       $this->registerJsonHandler(null,function() {return  $this->find();}, 'GET');
     }
 

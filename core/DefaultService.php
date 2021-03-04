@@ -10,6 +10,10 @@ class DefaultService extends Service
     $this->model = $model;
   }
 
+  public function getName(){
+    return $this->model->getName();
+  }
+
   public function find($filter) {
     $entities = $this->model->find($filter);
     $model = $this->model;

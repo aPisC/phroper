@@ -12,6 +12,9 @@ class Service{
     return $service;
   }
 
+  public function getName(){
+    return strtolower(str_replace('\\', '_', get_class($this) ));
+  }
 
   public function __construct() {
   }

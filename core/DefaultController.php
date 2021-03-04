@@ -23,6 +23,10 @@
       $this->registerJsonHandler(null,function() {return  $this->find();}, 'GET');
     }
 
+    public function getName(){
+      return $this->service->getName();
+    }
+
     public function findOne($params){
       return $this->service->findOne($params['id']);
     }

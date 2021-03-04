@@ -21,10 +21,14 @@ class Controller {
     $this->router->run($u, $p);
   }
 
+  protected function getName(){
+    return strtolower(str_replace('\\', '_', get_class($this) ));
+  }
+
   protected function havePermission($action, $throw = false){
     $user = Context::get('user');
     $auth = Service::getService('Auth');
-    $permName = strtolower(str_replace('\\', '_', get_class($this) ) . '_' . $action);
+    $permName = strtolower($this->getName() . '_' . $action);
 
     $have = $auth->havePermission($user, $permName);
     if(!$have && $throw)

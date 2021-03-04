@@ -60,6 +60,11 @@ class Auth extends Service{
   }
 
   public function havePermission($user, $permName){
+    if($user == null)
+      return $this->permModel->findOne([
+        'role.isDefault' => true,
+        'name' => $permName,
+      ]) != null;
     return $this->permModel->findOne([
       'role' => is_array($user['role']) ? $user['role']['id'] : $user['role'],
       'name' => $permName,

@@ -12,6 +12,10 @@
       return $model;
     }
 
+    public function getName() {
+      return strtolower(str_replace('\\', '_', get_class($this) ));
+    }
+
     function getTableName() {
       return $this->tableName;
     }

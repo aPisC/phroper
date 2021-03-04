@@ -15,6 +15,11 @@ class Auth_Role extends Model{
       'model' => 'Auth_User',
       'via' => 'role',
     );
+    $this->fields['isDefault'] = array(
+      "type" => 'bool',
+      "field" => "is_default",
+      "sqltype" => "BOOLEAN",
+    );
   }
 
   public function allowDefaultService()

@@ -36,7 +36,7 @@
     }
 
     public function ref($field){
-      return new QueryBuilder\FieldReference($field, $this);
+      return new QB_Ref($field);
     }
     
     public function addFilter(...$filter){
@@ -245,7 +245,7 @@
     }
 
     private function composeFilterValue($value){
-      if($value instanceof QueryBuilder\FieldReference){
+      if($value instanceof QB_Ref){
         return $this->resolve($value->alias);
       } 
       return $this->bindings_filter->push($value);
@@ -269,7 +269,7 @@
           foreach($filter as $index => $arg) {
             if($index < 1) continue;
             if($index > 1 && $index < count($filter)) $resolved .= " OR ";
-            if(is_array($arg)) $resolved .= "(" . $this->composeFilter($arg, tableMap, $bind_params) . ")";
+            if(is_array($arg)) $resolved .= "(" . $this->composeFilter($arg) . ")";
             else $resolved .= $this->composeFilterValue($arg);
           }
           break;
@@ -354,14 +354,6 @@
   }
 
   namespace QueryBuilder;
-
-  class FieldReference {
-    public $alias;
-
-    function __construct($fieldname){
-      $this->alias = $fieldname;
-    }
-  }
 
   class BindCollector {
     private $bindStr = "";

@@ -35,11 +35,12 @@
       $this->collectFields($model->fields);
     }
 
-    public function ref($field){
-      return new QB_Ref($field);
+    public function addFilter($filter){
+      $rf = $this->composeRawFilterByObject($filter);
+      $this->addRawFilter(...$rf);
     }
     
-    public function addFilter(...$filter){
+    public function addRawFilter(...$filter){
       if(strtoupper($this->cmd_type) == 'INSERT') 
         throw new Exception("Filters are disabled in insert mode");
 
@@ -242,6 +243,53 @@
         }
       }
       throw new Exception("Field " . $key . " clould not be resolved");
+    }
+
+    private function composeRawFilterByKey($key, $value){
+      if($key === "_or"){
+        $args = ["or"];
+        foreach($value as $part){
+          $sq = $this->composeRawFilterByObject($part);
+          $args[] = $sq;
+        }
+        return $args;
+      }
+      else if($key === "_and"){
+        $args = ["and"];
+        foreach($value as $part){
+          $sq = $this->composeRawFilterByObject($part);
+          $args[] = $sq;
+        }
+        return $args;
+      }
+      else if(str_ends_with($key, "_ne"))
+        return ["<>", new QB_Ref(str_drop_end($key, 3)), $value];
+      else if(str_ends_with($key, "_ge"))
+        return [">=", new QB_Ref(str_drop_end($key, 3)), $value];
+      else if(str_ends_with($key, "_le"))
+        return ["<=", new QB_Ref(str_drop_end($key, 3)), $value];
+      else if(str_ends_with($key, "_gt"))
+        return [">", new QB_Ref(str_drop_end($key, 3)), $value];
+      else if(str_ends_with($key, "_lt"))
+        return ["<", new QB_Ref(str_drop_end($key, 3)), $value];
+      else if(str_ends_with($key, "_in"))
+        return ["in", new QB_Ref(str_drop_end($key, 3)), ...$value];
+      else if(str_ends_with($key, "_null"))
+        return [$value ? "null" : "notnull", new QB_Ref(str_drop_end($key, 5))];
+      return ["=", new QB_Ref($key), $value];
+    }
+
+    private function composeRawFilterByObject($query){
+      if(count($query) == 0) return false;
+      $args = ["and"];
+      foreach ($query as $key => $value){
+        $sq = $this->composeRawFilterByKey($key, $value);
+        if(count($query) == 1) 
+          $args = $sq;
+        else
+          $args[] = $sq;
+      }
+      return $args;
     }
 
     private function composeFilterValue($value){

@@ -99,14 +99,13 @@
     // Data managing functions
     //--------------------------
 
+
     private function useFilter($q, $filter){
-      if(is_array($filter)){
-        foreach ($filter as $key => $value) {
-          $q->addFilter("=", $q->ref($key), $value);
-        }
+      if(is_array($filter) && count($filter) > 0){
+        $q->addFilter($filter);
       }
       else if(is_string($filter) || is_numeric($filter)){
-        $q->addFilter("=", $q->ref('id'), $filter);
+        $q->addRawFilter("=", new QB_Ref('id'), $filter);
       }
     }
 

@@ -1,7 +1,10 @@
 <?php
+
 namespace Models;
+
 use Model;
-class Auth_Permission extends Model{
+
+class Auth_Permission extends Model {
   public function __construct() {
     parent::__construct('permission');
 
@@ -16,8 +19,7 @@ class Auth_Permission extends Model{
     ];
   }
 
-  public function allowDefaultService()
-  {
+  public function allowDefaultService() {
     return true;
   }
 }

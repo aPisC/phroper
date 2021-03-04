@@ -16,5 +16,3 @@ class ApiRouter extends Router{
     $controller->run($parameters, $next);
   }
 }
-
-?>

@@ -54,5 +54,3 @@
       return $this->service->count(null);
     }
   }
-
-?>

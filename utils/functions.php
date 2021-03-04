@@ -19,4 +19,3 @@
     $input = json_decode($inputJSON, TRUE);
     return $input;
   }
-?>

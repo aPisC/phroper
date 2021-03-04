@@ -1,9 +1,11 @@
-<?php 
+<?php
+
 namespace Models;
+
 use Model;
 
-class Auth_Role extends Model{
-  public function __construct() {    
+class Auth_Role extends Model {
+  public function __construct() {
     parent::__construct('role');
 
     $this->fields['name'] = array(
@@ -22,8 +24,7 @@ class Auth_Role extends Model{
     );
   }
 
-  public function allowDefaultService()
-  {
+  public function allowDefaultService() {
     return false;
   }
 }

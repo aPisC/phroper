@@ -7,12 +7,10 @@ use Service;
 use Model;
 use JWT;
 
-class Auth extends Service
-{
+class Auth extends Service {
   private Model $userModel, $roleModel, $permModel;
 
-  public function __construct()
-  {
+  public function __construct() {
     parent::__construct();
 
     $this->userModel = Model::getModel("Auth_User");
@@ -20,8 +18,7 @@ class Auth extends Service
     $this->permModel = Model::getModel("Auth_Permission");
   }
 
-  public function login($username, $password)
-  {
+  public function login($username, $password) {
     $user = $this->userModel->findOne(array('username' => $username));
     if ($user == null || !password_verify($password, $user['password']))
       throw new Exception('The given credentials are incorrect', 403);
@@ -33,15 +30,13 @@ class Auth extends Service
     ];
   }
 
-  public function getUser($userId)
-  {
+  public function getUser($userId) {
     return $this->userModel->sanitizeEntity(
       $this->userModel->findOne(['id' => $userId])
     );
   }
 
-  public function register($username, $email, $password)
-  {
+  public function register($username, $email, $password) {
     $username = trim($username);
     $email = trim($email);
 
@@ -69,8 +64,7 @@ class Auth extends Service
     return $this->userModel->sanitizeEntity($entity);
   }
 
-  public function havePermission($user, $permName)
-  {
+  public function havePermission($user, $permName) {
     if ($user == null)
       return $this->permModel->findOne([
         'role.isDefault' => true,

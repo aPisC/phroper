@@ -1,26 +1,25 @@
 <?php
-class DefaultService extends Service
-{
+class DefaultService extends Service {
   public Model $model;
 
   public function __construct($modelName) {
     $model = Model::getModel($modelName);
-    if($model == null || !$model->allowDefaultService())
+    if ($model == null || !$model->allowDefaultService())
       throw new Exception("Auto model usage is not available for " . $modelName);
     $this->model = $model;
   }
 
-  public function getName(){
+  public function getName() {
     return $this->model->getName();
   }
 
   public function find($filter) {
     $entities = $this->model->find($filter);
     $model = $this->model;
-    if(is_array($entities))
-      return array_map(function($entity) use ($model) {
+    if (is_array($entities))
+      return array_map(function ($entity) use ($model) {
         return $model->sanitizeEntity($entity);
-      }, $entities );
+      }, $entities);
     return $entities;
   }
 

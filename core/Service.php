@@ -38,4 +38,3 @@ class Service{
     throw new Exception('Delete is not implemented in service');
   }
 }
-?>

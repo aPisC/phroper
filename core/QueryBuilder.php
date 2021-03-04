@@ -1,6 +1,5 @@
 <?php
-class QueryBuilder
-{
+class QueryBuilder {
 
   private Model $model;
 
@@ -20,8 +19,7 @@ class QueryBuilder
   public string $lastSql = "";
 
 
-  function __construct($model, $type)
-  {
+  function __construct($model, $type) {
     $this->cmd_type = $type;
     $this->model = Model::getModel($model);
 
@@ -37,14 +35,12 @@ class QueryBuilder
     $this->collectFields($model->fields);
   }
 
-  public function addFilter($filter)
-  {
+  public function addFilter($filter) {
     $rf = $this->composeRawFilterByObject($filter);
     $this->addRawFilter(...$rf);
   }
 
-  public function addRawFilter(...$filter)
-  {
+  public function addRawFilter(...$filter) {
     if (strtoupper($this->cmd_type) == 'INSERT')
       throw new Exception("Filters are disabled in insert mode");
 
@@ -55,8 +51,7 @@ class QueryBuilder
     $this->cmd_filter .= "(" . $this->composeFilter($filter) . ") \n";
   }
 
-  function join($join, $collFields = true)
-  {
+  function join($join, $collFields = true) {
     if (!isset($this->tableMap[$join])) {
 
       try {
@@ -85,21 +80,18 @@ class QueryBuilder
     }
   }
 
-  function populate($populate)
-  {
+  function populate($populate) {
     foreach ($populate as $p) {
       $this->join($p);
     }
   }
 
-  public function setValue($key, $value)
-  {
+  public function setValue($key, $value) {
     $key = $this->resolve($key);
     $this->values[$key] = $value;
   }
 
-  public function setAllValue($values, $deepUpdate = false, $prefix = "")
-  {
+  public function setAllValue($values, $deepUpdate = false, $prefix = "") {
     foreach ($values as $key => $value) {
       $memberName = $prefix == "" ? $key : $prefix . "." . $key;
       if (is_array($value) && isset($value["id"])) {
@@ -113,8 +105,7 @@ class QueryBuilder
     }
   }
 
-  public function execute($mysqli)
-  {
+  public function execute($mysqli) {
     $this->lastSql = $this->getQuery();
     $stmt = $mysqli->prepare($this->lastSql);
 
@@ -135,8 +126,7 @@ class QueryBuilder
     return $exec;
   }
 
-  private function getQuery()
-  {
+  private function getQuery() {
     if (strtoupper($this->cmd_type) == "SELECT") {
       // Fields and aliases
       $fieldList = "";
@@ -213,8 +203,7 @@ class QueryBuilder
     throw new Exception("Invalid query type " . $this->cmd_type);
   }
 
-  private function resolve($key)
-  {
+  private function resolve($key) {
     if (isset($this->fields[$key]))
       return $this->fields[$key]["source"];
 
@@ -253,8 +242,7 @@ class QueryBuilder
     throw new Exception("Field " . $key . " clould not be resolved");
   }
 
-  private function composeRawFilterByKey($key, $value)
-  {
+  private function composeRawFilterByKey($key, $value) {
     if ($key === "_or") {
       $args = ["or"];
       foreach ($value as $key => $part) {
@@ -301,8 +289,7 @@ class QueryBuilder
     return ["=", new QB_Ref($key), $value];
   }
 
-  private function composeRawFilterByObject($query)
-  {
+  private function composeRawFilterByObject($query) {
     if (count($query) == 0) return false;
     $args = ["and"];
     foreach ($query as $key => $value) {
@@ -315,16 +302,14 @@ class QueryBuilder
     return $args;
   }
 
-  private function composeFilterValue($value)
-  {
+  private function composeFilterValue($value) {
     if ($value instanceof QB_Ref) {
       return $this->resolve($value->alias);
     }
     return $this->bindings_filter->push($value);
   }
 
-  private function composeFilter($filter)
-  {
+  private function composeFilter($filter) {
     $operator = strtolower($filter[0]);
     $resolved = "";
     switch ($operator) {
@@ -410,8 +395,7 @@ class QueryBuilder
     return $resolved;
   }
 
-  private function collectFields($fields, $prefix = "")
-  {
+  private function collectFields($fields, $prefix = "") {
     foreach ($fields as $key => $field) {
       if ($field["type"] == "relation" && isset($field["via"])) continue;
       if (isset($field["field"])) $fieldName = $field["field"];
@@ -432,13 +416,11 @@ class QueryBuilder
 
 namespace QueryBuilder;
 
-class BindCollector
-{
+class BindCollector {
   private $bindStr = "";
   private $bindValues = array();
 
-  function push($value)
-  {
+  function push($value) {
     if ($value === true) return "TRUE";
     if ($value === false) return "FALSE";
     if ($value === null) return "NULL";
@@ -452,12 +434,10 @@ class BindCollector
     return "?";
   }
 
-  function getBindStr()
-  {
+  function getBindStr() {
     return $this->bindStr;
   }
-  function getBindValues()
-  {
+  function getBindValues() {
     return $this->bindValues;
   }
 }

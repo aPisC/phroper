@@ -15,5 +15,3 @@
       return self::$_instance;
     }
   }
-
-?>

@@ -20,5 +20,3 @@ class Log extends Model {
     );
   }
 }
-
-?>

@@ -24,5 +24,3 @@
   $router->addHandler(function() {http_response_code(404);});
 
   $router->run($parameters);
-  
-?>

@@ -5,5 +5,5 @@
   
   $url = isset($_GET['url']) ? explode('/', trim($_GET['url'], '/')) : [];
 
+  require_once('functions.php');
   require_once(ROOT . DS . 'bootstrap.php');
-?>

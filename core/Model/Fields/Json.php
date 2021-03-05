@@ -7,6 +7,10 @@ class Json extends Field {
     parent::__construct($data);
   }
 
+  public function getSQLType() {
+    return 'VARCHAR(MAX)';
+  }
+
   public function onLoad($value) {
     return json_decode($value, true);
   }

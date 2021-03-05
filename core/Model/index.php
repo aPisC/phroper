@@ -40,6 +40,7 @@ class Model {
     $this->tableName = $tableName;
     $this->fields["id"] = new Model\Fields\Integer();
     $this->fields["updated_by"] = new Model\Fields\UpdatedBy();
+    $this->fields["created_at"] = new Model\Fields\CreatedAt();
   }
 
   public function sanitizeEntity($entity) {
@@ -76,7 +77,7 @@ class Model {
     foreach ($this->fields as $key => $field) {
       $memberName = $prefix == "" ? $key : ($prefix . "." . $key);
       if (isset($assoc[$memberName]))
-        $entity[$key] = $field->readValue($assoc[$memberName]);
+        $entity[$key] = $field->onLoad($assoc[$memberName]);
       else if (!($field instanceof Model\Fields\RelationToMany)) $entity[$key] = null;
 
       if (!$populate || !in_array($memberName, $populate) || !($field instanceof Model\Fields\Relation))

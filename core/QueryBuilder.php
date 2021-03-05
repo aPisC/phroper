@@ -89,10 +89,17 @@ class QueryBuilder {
   public function setValue($key, $value) {
     $key_resolved = $this->resolve($key);
     $field = $this->fields[$key]["field"];
-    if ($field->isReadonly() && $this->mode !== "INSERT")
+    if ($field->isReadonly() && $this->cmd_type !== "INSERT")
       return;
 
-    $this->values[$key_resolved] = $field->savedValue($value);
+    $newValue = $field->onSave($value);
+
+    if ($field->isRequired() && $newValue == null)
+      $this->values[$key_resolved] = new Exception(
+        "Field " . $key . " is required!"
+      );
+    else
+      $this->values[$key_resolved] = $newValue;
   }
 
   public function setAllValue($values, $deepUpdate = false, $prefix = "") {
@@ -179,6 +186,11 @@ class QueryBuilder {
       $index = 0;
       foreach ($this->values as $key => $value) {
         if ($index++ !== 0) $setList .= ", ";
+
+        // Exceptions is stored to indicate it has to be overwritten
+        if ($value instanceof Exception)
+          throw $value;
+
         $setList .= $key . "=" . $this->bindings_values->push($value);
       }
 
@@ -198,6 +210,11 @@ class QueryBuilder {
           $valueList .= ", ";
         }
         $columnList .= $key;
+
+        // Exceptions is stored to indicate it has to be overwritten
+        if ($value instanceof Exception)
+          throw $value;
+
         $valueList .= $this->bindings_values->push($value);
       }
 
@@ -413,12 +430,12 @@ class QueryBuilder {
 
       // default and forceUpdated field values
       if ($prefix == "") {
-        $value = null;
         if ($this->cmd_type == "INSERT" && $field->hasDefault()) {
-          $value = $field->getDefault();
-          $this->setValue($alias, $value);
+          $this->setValue($alias, $field->getDefault());
         } else if (($this->cmd_type == "INSERT" || $this->cmd_type == "UPDATE") && $field->forceUpdate()) {
-          $this->setValue($alias, $value);
+          $this->setValue($alias, null);
+        } else if ($this->cmd_type == "INSERT" && $field->isRequired()) {
+          $this->setValue($alias, null);
         }
       }
     }

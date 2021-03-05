@@ -14,7 +14,7 @@ class UpdatedBy extends RelationToOne {
     return true;
   }
 
-  public function savedValue($value) {
+  public function onSave($value) {
     $user = Context::get('user');
     if ($user) return $user["id"];
     return null;

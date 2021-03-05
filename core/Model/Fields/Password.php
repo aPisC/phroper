@@ -11,8 +11,8 @@ class Password extends Field {
     return 'VARCHAR(255)';
   }
 
-  public function savedValue($value) {
-    $value = parent::savedValue($value);
+  public function onSave($value) {
+    $value = parent::onSave($value);
     if ($value == null) return null;
     return password_hash($value, PASSWORD_DEFAULT);
   }

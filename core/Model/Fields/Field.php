@@ -5,12 +5,14 @@ namespace Model\Fields;
 abstract class Field {
   private bool $private = false;
   private bool $readonly = false;
+  private bool $required = false;
   private $field = null;
 
   public function __construct(array $data = null) {
     if (!$data) return;
     if (isset($data["private"])) $this->private = $data["private"];
     if (isset($data["readonly"])) $this->readonly = $data["readonly"];
+    if (isset($data["required"])) $this->required = $data["required"];
     if (isset($data["field"])) $this->field = $data["field"];
   }
 
@@ -30,6 +32,10 @@ abstract class Field {
     return $this->readonly;
   }
 
+  public function isRequired() {
+    return $this->required;
+  }
+
   public function forceUpdate() {
     return false;
   }
@@ -42,11 +48,11 @@ abstract class Field {
     return null;
   }
 
-  public function savedValue($value) {
+  public function onSave($value) {
     return $value;
   }
 
-  public function readValue($value) {
+  public function onLoad($value) {
     return $value;
   }
 }

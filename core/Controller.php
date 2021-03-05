@@ -3,6 +3,8 @@
 class Controller {
   protected Router $router;
 
+  private $registeredHandlerInfos = [];
+
   public static function getController($controllerName) {
     try {
       if ($controllerName instanceof Controller)
@@ -42,22 +44,28 @@ class Controller {
     return $have;
   }
 
+  protected function getRoutePermName($name, $method) {
+    return strtolower(
+      $method . ($name ? ('_' . str_replace('/', '_', $name)) : '')
+    );
+  }
+
   protected function registerHandler($name, $fun, $method = 'GET') {
     $this->router->add($name, function ($url, $params) use ($fun, $name) {
 
-      $this->havePermission(strtolower($params['method'] . '_' . $name), true);
+      $this->havePermission($this->getRoutePermName($name, $params['method']), true);
 
       $fun($url, $params);
     }, $method);
+    $this->registeredHandlerInfos[] = [$name, $method];
   }
 
   protected function registerJsonHandler($name, $fun, $method = 'GET') {
-
     $this->router->add($name, function ($params, $next) use ($fun, $name) {
       header('Content-Type: application/json');
       try {
         // Throwing exception when user has no permission
-        $this->havePermission(strtolower($params['method'] . '_' . $name), true);
+        $this->havePermission($this->getRoutePermName($name, $params['method']), true);
 
         $result = $fun($params);
         if ($result == null) {
@@ -76,5 +84,29 @@ class Controller {
         ));
       }
     }, $method);
+
+    $this->registeredHandlerInfos[] = [$name, $method];
+  }
+
+  public function getAvailablePermissions() {
+    $perms = [];
+
+    foreach ($this->registeredHandlerInfos as $info) {
+      $method = $info[1];
+      $name = str_replace('/', '_', $info[0]);
+      if ($method === "*") {
+        $perms[] = strtolower($this->getName()) . '_' .  $this->getRoutePermName($name, "GET");
+        $perms[] = strtolower($this->getName()) . '_' . $this->getRoutePermName($name, "POST");
+        $perms[] = strtolower($this->getName()) . '_' . $this->getRoutePermName($name, "PUT");
+        $perms[] = strtolower($this->getName()) . '_' . $this->getRoutePermName($name, "DELETE");
+      } else if (is_string($method))
+        $perms[] = strtolower($this->getName()) . '_' . $this->getRoutePermName($name, $method);
+      else if (is_array($method)) {
+        foreach ($method as $m)
+          $perms[] = strtolower($this->getName()) . '_' . $this->getRoutePermName($name, $m);
+      }
+    }
+    sort($perms);
+    return $perms;
   }
 }

@@ -3,6 +3,7 @@
 namespace Services;
 
 use Exception;
+use Controller;
 use Service;
 use Model;
 use JWT;
@@ -16,6 +17,36 @@ class Auth extends Service {
     $this->userModel = Model::getModel("Auth_User");
     $this->roleModel = Model::getModel("Auth_Role");
     $this->permModel = Model::getModel("Auth_Permission");
+  }
+
+  public function grant($role, $perm) {
+    $entity = $this->permModel->findOne([
+      "role" => $role,
+      "permission" => $perm
+    ]);
+
+    if (!$entity) {
+      $entity = $this->permModel->create([
+        "role" => $role,
+        "permission" => $perm
+      ]);
+    }
+    return $entity;
+  }
+
+  public function revoke($role, $perm) {
+    $entity = $this->permModel->delete([
+      "role" => $role,
+      "permission" => $perm
+    ]);
+    return $entity;
+  }
+
+  public function listControllerPerms($controller) {
+    $controller = Controller::getController($controller);
+    if (!$controller) return [];
+
+    return $controller->getAvailablePermissions();
   }
 
   public function login($username, $password) {
@@ -68,11 +99,11 @@ class Auth extends Service {
     if ($user == null)
       return $this->permModel->findOne([
         'role.isDefault' => true,
-        'name' => $permName,
+        'permission' => $permName,
       ], []) != null;
     return $this->permModel->findOne([
       'role' => is_array($user['role']) ? $user['role']['id'] : $user['role'],
-      'name' => $permName,
+      'permission' => $permName,
     ], []) != null;
   }
 }

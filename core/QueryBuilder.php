@@ -7,6 +7,9 @@ class QueryBuilder {
   private string $cmd_from = "";
   private string $cmd_join = "";
   private string $cmd_filter = "";
+  private string $cmd_order = "";
+  private $cmd_limit = "";
+  private $cmd_offset = "";
 
   private QueryBuilder\BindCollector $bindings_filter;
   private QueryBuilder\BindCollector $bindings_values;
@@ -36,8 +39,33 @@ class QueryBuilder {
   }
 
   public function addQueryObject($filter) {
-    $rf = $this->composeRawFilterByObject($filter);
-    $this->addRawFilter(...$rf);
+    $rf = $this->composeRawFilterByObject($filter, true);
+    if ($rf) $this->addRawFilter(...$rf);
+  }
+
+  public function addOrderBy($field, $isDesc = false) {
+    foreach (explode(',', $field) as $f) {
+      $id = $isDesc;
+      if (str_ends_with(strtolower($f), ":desc")) {
+        $f = str_drop_end($f, 5);
+        $id = true;
+      } else if (str_ends_with(strtolower($f), ":asc")) {
+        $f = str_drop_end($f, 4);
+        $id = false;
+      }
+      $key = $this->resolve($f);
+      if ($this->cmd_order) $this->cmd_order .= ", ";
+      $this->cmd_order .=
+        $key . ($id ? " DESC" : " ASC");
+    }
+  }
+
+  public function setLimit($amount) {
+    $this->cmd_limit = intval($amount);
+  }
+
+  public function setOffset($amount) {
+    $this->cmd_offset = intval($amount);
   }
 
   public function addRawFilter(...$filter) {
@@ -142,7 +170,13 @@ class QueryBuilder {
         $fieldList .= $field["source"] . " as '" . $field["alias"] . "'";
       }
 
-      return "SELECT " . $fieldList . " \n FROM " . $this->cmd_from . $this->cmd_join . $this->cmd_filter;
+      return "SELECT " . $fieldList
+        . " \n FROM " . $this->cmd_from
+        . $this->cmd_join
+        . $this->cmd_filter
+        . ($this->cmd_order ? ("\n ORDER BY " . $this->cmd_order) : "")
+        . ($this->cmd_limit ? ("\n LIMIT " . $this->cmd_limit) : '')
+        . ($this->cmd_offset ? ("\n OFFSET " . $this->cmd_offset) : '');
     }
 
     if (strtoupper($this->cmd_type) == "COUNT") {
@@ -254,7 +288,7 @@ class QueryBuilder {
     throw new Exception("Field " . $key . " clould not be resolved");
   }
 
-  private function composeRawFilterByKey($key, $value) {
+  private function composeRawFilterByKey($key, $value, $isRoot = false) {
     if ($key === "_or") {
       $args = ["or"];
       foreach ($value as $key => $part) {
@@ -280,6 +314,17 @@ class QueryBuilder {
         $args[] = $sq;
       }
       return $args;
+    } else if ($key === "_sort" && $isRoot) {
+      if (is_string($value))
+        $this->addOrderBy($value);
+      else if (is_array($value)) {
+        foreach ($value as $v)
+          $this->addOrderBy($v);
+      }
+    } else if ($key === "_limit" && $isRoot) {
+      $this->setLimit($value);
+    } else if ($key === "_start" && $isRoot) {
+      $this->setOffset($value);
     } else if (str_ends_with($key, "_ne"))
       return ["<>", new QB_Ref(str_drop_end($key, 3)), $value];
     else if (str_ends_with($key, "_ge"))
@@ -298,19 +343,20 @@ class QueryBuilder {
       return ["notlike", new QB_Ref(str_drop_end($key, 5)), $value];
     else if (str_ends_with($key, "_null"))
       return [$value ? "null" : "notnull", new QB_Ref(str_drop_end($key, 5))];
-    return ["=", new QB_Ref($key), $value];
+    else return ["=", new QB_Ref($key), $value];
+    return false;
   }
 
-  private function composeRawFilterByObject($query) {
+  private function composeRawFilterByObject($query, $isRoot = false) {
     if (count($query) == 0) return false;
     $args = ["and"];
     foreach ($query as $key => $value) {
-      $sq = $this->composeRawFilterByKey($key, $value);
-      if (count($query) == 1)
-        $args = $sq;
-      else
-        $args[] = $sq;
+      $sq = $this->composeRawFilterByKey($key, $value, $isRoot);
+      if ($sq) $args[] = $sq;
     }
+
+    if (count($args) == 2) return $args[1];
+    if (count($args) == 1) return false;
     return $args;
   }
 

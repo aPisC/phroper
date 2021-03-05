@@ -1,40 +1,46 @@
-<?php 
-class Service{
+<?php
+class Service {
 
-  public function allowDefaultController(){
+  public function allowDefaultController() {
     return true;
   }
 
-  public static function getService($serviceName){
-    $scn= 'Services\\'. ucfirst($serviceName);
-    if(class_exists($scn)) $service = new $scn();
-    else $service = new DefaultService($serviceName);
-    return $service;
+  public static function getService($serviceName) {
+    try {
+      if ($serviceName instanceof Service)
+        return $serviceName;
+      $scn = 'Services\\' . ucfirst($serviceName);
+      if (class_exists($scn)) $service = new $scn();
+      else $service = new DefaultService($serviceName);
+      return $service;
+    } catch (Error $e) {
+      return null;
+    }
   }
 
-  public function getName(){
-    return strtolower(str_replace('\\', '_', get_class($this) ));
+  public function getName() {
+    return strtolower(str_replace('\\', '_', get_class($this)));
   }
 
   public function __construct() {
   }
 
-  function find($filter){
+  function find($filter) {
     throw new Exception('Find is not implemented in service');
-  }  
-  function findOne($filter){
+  }
+  function findOne($filter) {
     throw new Exception('FindOne is not implemented in service');
   }
-  function create($entity){
+  function create($entity) {
     throw new Exception('FindOne is not implemented in service');
   }
-  function update($filter, $entity){
+  function update($filter, $entity) {
     throw new Exception('FindOne is not implemented in service');
   }
-  function delete($filter){
+  function delete($filter) {
     throw new Exception('Delete is not implemented in service');
   }
-  function count($filter){
+  function count($filter) {
     throw new Exception('Delete is not implemented in service');
   }
 }

@@ -1,10 +1,12 @@
 <?php
+
 namespace Routers;
 
 use Controller;
 use Router;
+use Exception;
 
-class ApiRouter extends Router{
+class ApiRouter extends Router {
   public function __construct($p = array()) {
     parent::__construct($p);
   }
@@ -12,7 +14,20 @@ class ApiRouter extends Router{
   function run($parameters, $next = null) {
     $cn = $parameters['controller'];
 
-    $controller = Controller::getController($cn);
-    $controller->run($parameters, $next);
+    try {
+      $controller = Controller::getController($cn);
+      $controller->run($parameters, $next);
+    } catch (Exception $ex) {
+      if ($ex->getCode() != 0)
+        http_response_code($ex->getCode());
+      else
+        http_response_code(500);
+
+      header('Content-Type: application/json');
+      echo json_encode(array(
+        'status' => 'ERROR',
+        'message' => $ex->getMessage()
+      ));
+    }
   }
 }

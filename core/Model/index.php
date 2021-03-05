@@ -5,11 +5,15 @@ class Model {
   }
 
   public static function getModel($modelName) {
-    if (is_subclass_of($modelName, 'Model'))
-      return $modelName;
-    $mcn = 'Models\\' . ucfirst($modelName);
-    $model = new $mcn();
-    return $model;
+    try {
+      if (is_subclass_of($modelName, 'Model'))
+        return $modelName;
+      $mcn = 'Models\\' . ucfirst($modelName);
+      $model = new $mcn();
+      return $model;
+    } catch (Error $e) {
+      return null;
+    }
   }
 
   public function getName() {

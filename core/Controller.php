@@ -1,66 +1,71 @@
-<?php 
+<?php
 
 class Controller {
   protected Router $router;
 
-  public static function getController($controllerName){
-    $ccn = 'Controllers\\'. ucfirst($controllerName);
-    if(class_exists($ccn))
-      $controller = new $ccn();
-    else{
-      $controller = new DefaultController($controllerName);
+  public static function getController($controllerName) {
+    try {
+      if ($controllerName instanceof Controller)
+        return $controllerName;
+      $ccn = 'Controllers\\' . ucfirst($controllerName);
+      if (class_exists($ccn))
+        $controller = new $ccn();
+      else {
+        $controller = new DefaultController($controllerName);
+      }
+      return $controller;
+    } catch (Error $ex) {
+      return null;
     }
-    return $controller;
   }
 
   public function __construct() {
-      $this->router =  new Router();
+    $this->router =  new Router();
   }
 
-  public function run($u, $p){
+  public function run($u, $p) {
     $this->router->run($u, $p);
   }
 
-  protected function getName(){
-    return strtolower(str_replace('\\', '_', get_class($this) ));
+  protected function getName() {
+    return strtolower(str_replace('\\', '_', get_class($this)));
   }
 
-  protected function havePermission($action, $throw = false){
+  protected function havePermission($action, $throw = false) {
     $user = Context::get('user');
     $auth = Service::getService('Auth');
     $permName = strtolower($this->getName() . '_' . $action);
 
     $have = $auth->havePermission($user, $permName);
-    if(!$have && $throw)
+    if (!$have && $throw)
       throw new Exception('User has no permission to use ' . $permName, 403);
     return $have;
   }
 
-  protected function registerHandler($name,$fun,$method = 'GET'){
-    $this->router->add($name, function($url, $params) use ($fun, $name){
-      
+  protected function registerHandler($name, $fun, $method = 'GET') {
+    $this->router->add($name, function ($url, $params) use ($fun, $name) {
+
       $this->havePermission(strtolower($params['method'] . '_' . $name), true);
 
       $fun($url, $params);
     }, $method);
   }
 
-  protected function registerJsonHandler($name,$fun,$method = 'GET'){
+  protected function registerJsonHandler($name, $fun, $method = 'GET') {
 
-    $this->router->add($name, function($params, $next) use ($fun, $name){
+    $this->router->add($name, function ($params, $next) use ($fun, $name) {
       header('Content-Type: application/json');
-      try{
+      try {
         // Throwing exception when user has no permission
         $this->havePermission(strtolower($params['method'] . '_' . $name), true);
 
         $result = $fun($params);
-        if($result == null){
+        if ($result == null) {
           http_response_code(404);
         }
         echo json_encode($result);
-      }
-      catch(Exception $ex){
-        if($ex->getCode() != 0)
+      } catch (Exception $ex) {
+        if ($ex->getCode() != 0)
           http_response_code($ex->getCode());
         else
           http_response_code(500);

@@ -5,7 +5,7 @@ class DefaultService extends Service {
   public function __construct($modelName) {
     $model = Model::getModel($modelName);
     if ($model == null || !$model->allowDefaultService())
-      throw new Exception("Auto model usage is not available for " . $modelName);
+      throw new Exception("Service " . $modelName . " is not available.");
     $this->model = $model;
   }
 

@@ -102,17 +102,10 @@ class QueryBuilder {
       $this->values[$key_resolved] = $newValue;
   }
 
-  public function setAllValue($values, $deepUpdate = false, $prefix = "") {
+  public function setAllValue($values, $prefix = "") {
     foreach ($values as $key => $value) {
       $memberName = $prefix == "" ? $key : $prefix . "." . $key;
-      if (is_array($value) && isset($value["id"])) {
-        $this->setValue($memberName, $value["id"]);
-        if ($deepUpdate) {
-          $this->setAllValue($value, $deepUpdate, $memberName);
-        }
-      } else if (!is_array($value)) {
-        $this->setValue($memberName, $value);
-      }
+      $this->setValue($memberName, $value);
     }
   }
 

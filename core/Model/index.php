@@ -202,7 +202,7 @@ class Model {
     $q = new QueryBuilder($this, "insert");
     $mysqli = Database::instance();
 
-    $query = $q->setAllValue($entity, false);
+    $query = $q->setAllValue($entity);
 
     $result = $q->execute($mysqli);
 

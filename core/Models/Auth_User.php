@@ -8,25 +8,10 @@ class Auth_User extends Model {
   public function __construct() {
     parent::__construct('user');
 
-    $this->fields['username'] = array(
-      'type' => 'text',
-      'sqltype' => 'VARCHAR(100)',
-    );
-    $this->fields['role'] = array(
-      'type' => 'relation',
-      'model' => 'Auth_Role',
-      'sqltype' => 'INT',
-      'field' => 'role_id',
-    );
-    $this->fields['password'] = array(
-      'type' => 'password',
-      'sqltype' => 'VARCHAR(255)',
-      'private' => true,
-    );
-    $this->fields['email'] = array(
-      'type' => 'email',
-      'sqltype' => 'VARCHAR(255)',
-    );
+    $this->fields["username"] = new Model\Fields\Text();
+    $this->fields["role"] = new Model\Fields\RelationToOne("Auth_Role", ["field" => "role_id"]);
+    $this->fields["password"] = new Model\Fields\Password();
+    $this->fields["email"] = new Model\Fields\Text();
   }
 
   public function allowDefaultService() {

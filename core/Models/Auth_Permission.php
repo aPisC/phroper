@@ -8,15 +8,8 @@ class Auth_Permission extends Model {
   public function __construct() {
     parent::__construct('permission');
 
-    $this->fields['role'] = [
-      'type' => 'relation',
-      'model' => 'Auth_Role',
-      'sqltype' => 'INT',
-    ];
-    $this->fields['name'] = [
-      'type' => 'text',
-      'sqltype' => 'VARCHAR(100)',
-    ];
+    $this->fields["role"] = new Model\Fields\RelationToOne("Auth_Role");
+    $this->fields["name"] = new Model\Fields\Text();
   }
 
   public function allowDefaultService() {

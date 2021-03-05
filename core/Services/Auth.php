@@ -56,7 +56,7 @@ class Auth extends Service {
 
     $entity = $this->userModel->create([
       'username' => $username,
-      'password' => password_hash($password, PASSWORD_DEFAULT),
+      'password' => $password,
       'email' => $email,
       'role' => 1,
     ]);

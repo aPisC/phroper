@@ -20,7 +20,7 @@ class QueryBuilder {
 
 
   function __construct($model, $type) {
-    $this->cmd_type = $type;
+    $this->cmd_type = strtoupper($type);
     $this->model = Model::getModel($model);
 
     $this->bindings_filter = new QueryBuilder\BindCollector();
@@ -35,7 +35,7 @@ class QueryBuilder {
     $this->collectFields($model->fields);
   }
 
-  public function addFilter($filter) {
+  public function addQueryObject($filter) {
     $rf = $this->composeRawFilterByObject($filter);
     $this->addRawFilter(...$rf);
   }
@@ -59,10 +59,10 @@ class QueryBuilder {
       } catch (Exception $ex) {
         return;
       }
-      if ($this->fields[$join]["type"] !== "relation" or isset($this->fields[$join]["via"]))
+      if (!($this->fields[$join]["field"] instanceof Model\Fields\RelationToOne))
         return;
 
-      $model = Model::getModel($this->fields[$join]["model"]);
+      $model = Model::getModel($this->fields[$join]["field"]->getModel());
 
       $this->joins[$join] = $model;
 
@@ -70,8 +70,8 @@ class QueryBuilder {
 
       $this->tableMap[$join] = $tableName . "_" . count($this->tableMap);
 
-      $this->cmd_join .= "INNER JOIN " . $tableName . " as " . $this->tableMap[$join] . " ";
-      $this->cmd_join .= "ON " . $this->fields[$join]["source"] . " = " . $this->tableMap[$join] . ".id \n";
+      $this->cmd_join .= "LEFT OUTER JOIN " . $tableName . " as " . $this->tableMap[$join] . " ";
+      $this->cmd_join .= "ON " . $this->tableMap[$join] . ".id = " . $this->fields[$join]["source"] . " \n";
     }
 
     if ($collFields) {
@@ -87,8 +87,12 @@ class QueryBuilder {
   }
 
   public function setValue($key, $value) {
-    $key = $this->resolve($key);
-    $this->values[$key] = $value;
+    $key_resolved = $this->resolve($key);
+    $field = $this->fields[$key]["field"];
+    if ($field->isReadonly() && $this->mode !== "INSERT")
+      return;
+
+    $this->values[$key_resolved] = $field->savedValue($value);
   }
 
   public function setAllValue($values, $deepUpdate = false, $prefix = "") {
@@ -109,7 +113,7 @@ class QueryBuilder {
     $this->lastSql = $this->getQuery();
     $stmt = $mysqli->prepare($this->lastSql);
 
-    if ($stmt === false) throw new Exception("Statement could not be prepared");
+    if ($stmt === false) throw new Exception("Statement could not be prepared \n" . $this->lastSql);
 
     $bindValues = array_merge($this->bindings_values->getBindValues(), $this->bindings_filter->getBindValues());
     if (count($bindValues) > 0)
@@ -132,7 +136,7 @@ class QueryBuilder {
       $fieldList = "";
       $index = 0;
       foreach ($this->fields as $field) {
-        if (isset($field["via"])) continue;
+        if ($field["field"] instanceof Model\Fields\RelationToMany) continue;
         if ($field["hidden"]) continue;
         if ($index++ > 0) $fieldList .= ", ";
         $fieldList .= $field["source"] . " as '" . $field["alias"] . "'";
@@ -214,7 +218,7 @@ class QueryBuilder {
     $fn = substr($key, $pos + 1);
 
     $this->resolve($rel);
-    if ($this->fields[$rel]["type"] == "relation") {
+    if ($this->fields[$rel]["field"] instanceof Model\Fields\RelationToOne) {
       if (!isset($this->joins[$rel])) {
         $this->join($rel, false);
       }
@@ -222,17 +226,15 @@ class QueryBuilder {
       if (isset($this->joins[$rel]->fields[$fn])) {
         $field = $this->joins[$rel]->fields[$fn];
 
-        if ($field["type"] == "relation" && isset($field["via"]))
+        if ($field instanceof Model\Fields\RelationToMany)
           throw  new Exception("Field " . $key . " clould not be resolved");
 
-        if (isset($field["field"])) $fieldName = $field["field"];
-        else $fieldName = $fn;
+        $fieldName = $field->getFieldName($key);
 
         $this->fields[$key] =  array(
           "source" => $this->tableMap[$rel] . "." . $fieldName,
           "alias" => $key,
-          "type" => $field["type"],
-          "model" => isset($field["model"]) ? $field["model"] : null,
+          "field" => $field,
           "hidden" => true,
         );
 
@@ -397,19 +399,28 @@ class QueryBuilder {
 
   private function collectFields($fields, $prefix = "") {
     foreach ($fields as $key => $field) {
-      if ($field["type"] == "relation" && isset($field["via"])) continue;
-      if (isset($field["field"])) $fieldName = $field["field"];
-      else $fieldName = $key;
+      if ($field instanceof Model\Fields\RelationToMany) continue;
 
+      $fieldName = $field->getFieldName($key);
       $alias = $prefix . ($prefix != "" ?  "." : "") . $key;
 
       $this->fields[$alias] =  array(
         "source" => $this->tableMap[$prefix] . "." . $fieldName,
         "alias" => $alias,
-        "type" => $field["type"],
-        "model" => isset($field["model"]) ? $field["model"] : null,
+        "field" => $field,
         "hidden" => false,
       );
+
+      // default and forceUpdated field values
+      if ($prefix == "") {
+        $value = null;
+        if ($this->cmd_type == "INSERT" && $field->hasDefault()) {
+          $value = $field->getDefault();
+          $this->setValue($alias, $value);
+        } else if (($this->cmd_type == "INSERT" || $this->cmd_type == "UPDATE") && $field->forceUpdate()) {
+          $this->setValue($alias, $value);
+        }
+      }
     }
   }
 }

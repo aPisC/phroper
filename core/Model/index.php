@@ -20,30 +20,38 @@ class Model {
     return $this->tableName;
   }
 
+  function getPopulateList($populate = null) {
+    if (is_array($populate)) return $populate;
+
+    $populate = [];
+    foreach ($this->fields as $key => $field) {
+      if ($field instanceof Model\Fields\Relation && $field->isDefaultPopulated())
+        $populate[] = $key;
+    }
+    return $populate;
+  }
+
   protected string $tableName;
-  public array $fields = array(
-    'id' => array(
-      'type' => 'int',
-      'sqltype' => 'INT UNSIGNED AUTO_INCREMENT PRIMARY KEY',
-    )
-  );
+  public array $fields = array();
 
   public function __construct($tableName = null) {
     if ($tableName == null)
       $tableName = strtolower(end(explode('/', get_class($this))));
     $this->tableName = $tableName;
+    $this->fields["id"] = new Model\Fields\Integer();
+    $this->fields["updated_by"] = new Model\Fields\UpdatedBy();
   }
 
   public function sanitizeEntity($entity) {
     if ($entity == null) return $entity;
     $ne = array();
     foreach ($this->fields as $key => $field) {
-      if (isset($entity[$key]) && (!isset($field['private']) ||  !$field['private'])) {
-        if (is_array($entity[$key]) && $field['type'] == 'relation' && !isset($field['via'])) {
-          $model = Model::getModel($field['model']);
+      if (array_key_exists($key, $entity) && !$field->isPrivate()) {
+        if (is_array($entity[$key]) && $field instanceof Model\Fields\RelationToOne) {
+          $model = $field->getModel();
           $ne[$key] = $model->sanitizeEntity($entity[$key]);
-        } else if (is_array($entity[$key]) && $field['type'] == 'relation' && isset($field['via'])) {
-          $model = Model::getModel($field['model']);
+        } else if (is_array($entity[$key]) && $field instanceof Model\Fields\RelationToMany) {
+          $model = $field->getModel();
           $ne[$key] = array_map(function ($entity) use ($model) {
             return $model->sanitizeEntity($entity);
           }, ($entity[$key]));
@@ -68,17 +76,24 @@ class Model {
     foreach ($this->fields as $key => $field) {
       $memberName = $prefix == "" ? $key : ($prefix . "." . $key);
       if (isset($assoc[$memberName]))
-        $entity[$key] = $assoc[$memberName];
+        $entity[$key] = $field->readValue($assoc[$memberName]);
+      else if (!($field instanceof Model\Fields\RelationToMany)) $entity[$key] = null;
 
-      if (!$populate || !in_array($memberName, $populate) || $field["type"] !== "relation")
+      if (!$populate || !in_array($memberName, $populate) || !($field instanceof Model\Fields\Relation))
         continue;
 
-      $model = Model::getModel($field['model']);
+      $model = $field->getModel();
 
-      if (!isset($field["via"])) {
+      if ($field instanceof Model\Fields\RelationToOne && isset($entity[$key]) && $entity[$key] != null) {
         $entity[$key] = $model->restoreEntity($assoc, $populate, $memberName);
-      } else {
-        $entity[$key] = $model->find(array($field['via'] => $entity['id']));
+      } else if ($field instanceof Model\Fields\RelationToMany) {
+        $pop2 = array_filter($populate, function ($value) use ($memberName) {
+          return str_starts_with($value, $memberName . ".");
+        });
+        $pop2 = array_map(function ($value) use ($memberName) {
+          return substr($value, strlen($memberName) + 1);
+        }, $pop2);
+        $entity[$key] = $model->find([$field->getVia() => $entity['id']], $pop2);
       }
     }
     return $entity;
@@ -100,19 +115,17 @@ class Model {
 
   private function useFilter($q, $filter) {
     if (is_array($filter) && count($filter) > 0) {
-      $q->addFilter($filter);
+      $q->addQueryObject($filter);
     } else if (is_string($filter) || is_numeric($filter)) {
       $q->addRawFilter("=", new QB_Ref('id'), $filter);
     }
   }
 
   public function findOne($filter, $populate = null) {
+    $populate = $this->getPopulateList($populate);
     $q = new QueryBuilder($this, "select");
     $mysqli = Database::instance();
 
-    if ($populate == null && !is_array($populate)) {
-      $populate = array_keys($this->fields);
-    }
     $q->populate($populate);
 
     $this->useFilter($q, $filter);
@@ -134,12 +147,10 @@ class Model {
   }
 
   public function find($filter, $populate = null) {
+    $populate = $this->getPopulateList($populate);
     $q = new QueryBuilder($this, "select");
     $mysqli = Database::instance();
 
-    if ($populate == null && !is_array($populate)) {
-      $populate = array_keys($this->fields);
-    }
     $q->populate($populate);
 
     $this->useFilter($q, $filter);

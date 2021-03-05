@@ -25,6 +25,7 @@ class Model {
 
     $populate = [];
     foreach ($this->fields as $key => $field) {
+      if (!$field) continue;
       if ($field instanceof Model\Fields\Relation && $field->isDefaultPopulated())
         $populate[] = $key;
     }
@@ -41,12 +42,14 @@ class Model {
     $this->fields["id"] = new Model\Fields\Integer();
     $this->fields["updated_by"] = new Model\Fields\UpdatedBy();
     $this->fields["created_at"] = new Model\Fields\CreatedAt();
+    $this->fields["updated_at"] = new Model\Fields\UpdatedAt();
   }
 
   public function sanitizeEntity($entity) {
     if ($entity == null) return $entity;
     $ne = array();
     foreach ($this->fields as $key => $field) {
+      if (!$field) continue;
       if (array_key_exists($key, $entity) && !$field->isPrivate()) {
         if (is_array($entity[$key]) && $field instanceof Model\Fields\RelationToOne) {
           $model = $field->getModel();
@@ -75,6 +78,7 @@ class Model {
 
     // Restore other fields
     foreach ($this->fields as $key => $field) {
+      if (!$field) continue;
       $memberName = $prefix == "" ? $key : ($prefix . "." . $key);
       if (isset($assoc[$memberName]))
         $entity[$key] = $field->onLoad($assoc[$memberName]);

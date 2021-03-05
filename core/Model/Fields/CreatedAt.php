@@ -14,6 +14,7 @@ class CreatedAt extends Timestamp {
   public function hasDefault() {
     return true;
   }
+
   public function getDefault() {
     return time();
   }

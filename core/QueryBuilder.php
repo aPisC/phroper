@@ -409,6 +409,7 @@ class QueryBuilder {
 
   private function collectFields($fields, $prefix = "") {
     foreach ($fields as $key => $field) {
+      if (!$field) continue;
       if ($field instanceof Model\Fields\RelationToMany) continue;
 
       $fieldName = $field->getFieldName($key);

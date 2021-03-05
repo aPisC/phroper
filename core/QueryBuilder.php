@@ -86,13 +86,13 @@ class QueryBuilder {
     }
   }
 
-  public function setValue($key, $value) {
+  public function setValue($key, $value, $rawUpdate = false) {
     $key_resolved = $this->resolve($key);
     $field = $this->fields[$key]["field"];
     if ($field->isReadonly() && $this->cmd_type !== "INSERT")
       return;
 
-    $newValue = $field->onSave($value);
+    $newValue = $rawUpdate ? $value : $field->onSave($value);
 
     if ($field->isRequired() && $newValue == null)
       $this->values[$key_resolved] = new Exception(
@@ -428,7 +428,7 @@ class QueryBuilder {
         } else if (($this->cmd_type == "INSERT" || $this->cmd_type == "UPDATE") && $field->forceUpdate()) {
           $this->setValue($alias, null);
         } else if ($this->cmd_type == "INSERT" && $field->isRequired()) {
-          $this->setValue($alias, null);
+          $this->setValue($alias, null, true);
         }
       }
     }

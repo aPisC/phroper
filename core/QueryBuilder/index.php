@@ -59,6 +59,7 @@ class QueryBuilder {
         $id = false;
       }
       $key = $this->resolve($f);
+      if (!$key) continue;
       if ($this->cmd_order) $this->cmd_order .= ", ";
       $this->cmd_order .=
         $key . ($id ? " DESC" : " ASC");
@@ -87,11 +88,8 @@ class QueryBuilder {
   function join($join, $collFields = true) {
     if (!isset($this->tableMap[$join])) {
 
-      try {
-        $this->resolve($join);
-      } catch (Exception $ex) {
-        return;
-      }
+      if (!$this->resolve($join)) return;
+
       if (!($this->fields[$join]["field"] instanceof Model\Fields\RelationToOne))
         return;
 
@@ -121,6 +119,7 @@ class QueryBuilder {
 
   public function setValue($key, $value, $rawUpdate = false) {
     $key_resolved = $this->resolve($key);
+    if (!$key_resolved) return;
     $field = $this->fields[$key]["field"];
     if ($field->isReadonly() && $this->cmd_type !== "INSERT")
       return;
@@ -146,7 +145,7 @@ class QueryBuilder {
     //var_dump($this->lastSql);
     $stmt = $mysqli->prepare($this->lastSql);
 
-    if ($stmt === false) throw new Exception("Statement could not be prepared \n" . $this->lastSql);
+    if ($stmt === false) throw new Exception("Statement could not be prepared \n" . $this->lastSql . "\n" . $mysqli->error);
 
     $bindValues = array_merge($this->bindings_values->getBindValues(), $this->bindings_filter->getBindValues());
     if (count($bindValues) > 0)
@@ -267,7 +266,7 @@ class QueryBuilder {
     $rel = substr($key, 0, $pos);
     $fn = substr($key, $pos + 1);
 
-    $this->resolve($rel);
+    if (!$this->resolve($rel)) return;
     if ($this->fields[$rel]["field"] instanceof Model\Fields\RelationToOne) {
       if (!isset($this->joins[$rel])) {
         $this->join($rel, false);
@@ -276,10 +275,17 @@ class QueryBuilder {
       if (isset($this->joins[$rel]->fields[$fn])) {
         $field = $this->joins[$rel]->fields[$fn];
 
-        if ($field->isVirtual())
-          throw  new Exception("Field " . $key . " clould not be resolved");
+        if ($field->isVirtual()) {
+          $this->fields[$key] =  array(
+            "source" => false,
+            "alias" => $key,
+            "field" => $field,
+            "hidden" => true,
+          );
+          return null;
+        }
 
-        $fieldName = $field->getFieldName($key);
+        $fieldName = $field->getFieldName($fn);
 
         $this->fields[$key] =  array(
           "source" => $this->tableMap[$rel] . "." . $fieldName,
@@ -368,7 +374,9 @@ class QueryBuilder {
 
   private function composeFilterValue($value) {
     if ($value instanceof QueryBuilder\QB_Ref) {
-      return $this->resolve($value->alias);
+      $resolved = $this->resolve($value->alias);
+      if (!$resolved) throw new Exception("Field '" . $value->alias . "' could not be resolved.");
+      return $resolved;
     }
     return $this->bindings_filter->push($value);
   }
@@ -462,11 +470,20 @@ class QueryBuilder {
   private function collectFields($fields, $prefix = "") {
     foreach ($fields as $key => $field) {
       if (!$field) continue;
-      if ($field->isVirtual()) continue;
 
       $fieldName = $field->getFieldName($key);
       $alias = $prefix . ($prefix != "" ?  "." : "") . $key;
       $source = $this->tableMap[$prefix] . "." . $fieldName;
+
+      if ($field->isVirtual()) {
+        $this->fields[$alias] =  array(
+          "source" => false,
+          "alias" => $alias,
+          "field" => $field,
+          "hidden" => true,
+        );
+        continue;
+      }
 
       $this->fields[$alias] =  array(
         "source" => $source,

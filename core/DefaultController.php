@@ -40,7 +40,7 @@ class DefaultController extends Controller {
   }
 
   public function findOne($params) {
-    return $this->service->findOne($params['id']);
+    return $this->service->findOne(["id" => $params['id']]);
   }
 
   public function find() {
@@ -55,11 +55,11 @@ class DefaultController extends Controller {
 
   public function update($params) {
     $data = json_load_body();
-    return $this->service->update($params['id'], $data);
+    return $this->service->update(["id" => $params['id']], $data);
   }
 
   public function delete($params) {
-    return $this->service->delete($params['id']);
+    return $this->service->delete(["id" => $params['id']]);
   }
 
   public function count($params) {

@@ -53,9 +53,11 @@ class Model {
 
   public function sanitizeEntity($entity) {
     if ($entity == null) return null;
+    if (is_scalar($entity)) return $entity;
     $ne = array();
     foreach ($this->fields as $key => $field) {
       if (!$field) continue;
+      if (!array_key_exists($key, $entity)) continue;
       $sv = $field->getSanitizedValue($entity[$key]);
       if (!($sv instanceof Model\Fields\IgnoreField))
         $ne[$key] = $sv;
@@ -71,14 +73,16 @@ class Model {
     if (isset($assoc[$memberName]))
       $entity["id"] = $assoc[$memberName];
     else if (isset($assoc[$prefix])) return $assoc[$prefix];
-    else return null;
+    else if (isset($this->fields["id"])) return null;
 
     // Restore other fields
     foreach ($this->fields as $key => $field) {
       if (!$field) continue;
 
+      $v = null;
       $memberName = $prefix == "" ? $key : ($prefix . "." . $key);
-      if (isset($assoc[$memberName]))
+
+      if (array_key_exists($memberName, $assoc))
         $v = $field->onLoad($assoc[$memberName], $memberName, $assoc, $populate);
       else if ($field->isVirtual()) {
         $v = $field->onLoad($entity["id"], $memberName, $assoc, $populate);
@@ -205,12 +209,22 @@ class Model {
   }
 
   public function create($entity) {
+    return $this->createMulti([$entity])[0];
+  }
+
+  public function createMulti($entities) {
     $q = new QueryBuilder($this, "insert");
     $mysqli = Database::instance();
 
-    $this->preUpdate($entity);
+    foreach ($entities as $entity) {
+      $this->preUpdate($entity);
+    }
 
-    $q->setAllValue($entity);
+    foreach ($entities as $index => $entity) {
+      if ($index > 0) $q->nextInsert();
+      $q->setAllValue($entity);
+    }
+
     $result = $q->execute($mysqli);
 
     if (!$result) {
@@ -218,10 +232,19 @@ class Model {
       throw new Exception('Database error ' . $mysqli->error);
     }
 
-    $entity['id'] = $mysqli->insert_id;
-    $this->postUpdate($entity);
+    foreach ($entities as $i => $entity) {
+      $entity['id'] = $mysqli->insert_id + $i;
+      $this->postUpdate($entity);
+    }
 
-    return $this->findOne($mysqli->insert_id);
+    if (!isset($this->fields["id"])) {
+      return $entities;
+    }
+
+    return $this->find([
+      "_limit" => count($entities),
+      "id_ge" => $mysqli->insert_id
+    ]);
   }
 
   public function update($filter, $entity) {
@@ -240,7 +263,10 @@ class Model {
       throw new Exception('Database error ' . $mysqli->error);
     }
 
-    $this->postUpdate($entity);
+    if (isset($filter["id"])) {
+      $entity["id"] = $filter["id"];
+      $this->postUpdate($entity);
+    }
 
     return $this->findOne($filter);
   }

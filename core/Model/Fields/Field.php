@@ -7,6 +7,7 @@ abstract class Field {
   private bool $readonly = false;
   private bool $required = false;
   private $field = null;
+  private $defaultValue;
 
   public function __construct(array $data = null) {
     if (!$data) return;
@@ -14,6 +15,8 @@ abstract class Field {
     if (isset($data["readonly"])) $this->readonly = $data["readonly"];
     if (isset($data["required"])) $this->required = $data["required"];
     if (isset($data["field"])) $this->field = $data["field"];
+    if (isset($data["default"])) $this->defaultValue = $data["default"];
+    else $this->defaultValue = IgnoreField::instance();
   }
 
   public function getSQLType() {
@@ -41,7 +44,7 @@ abstract class Field {
   }
 
   public function getDefault() {
-    return IgnoreField::instance();
+    return $this->defaultValue;
   }
 
   public function onSave($value) {

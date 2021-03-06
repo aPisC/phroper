@@ -16,7 +16,7 @@ class Boolean extends Field {
     return !!$value;
   }
 
-  public function onLoad($value) {
+  public function onLoad($value, $key, $assoc, $populates) {
     if ($value == null) return null;
     return !!$value;
   }

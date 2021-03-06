@@ -83,26 +83,13 @@ class Model {
     // Restore other fields
     foreach ($this->fields as $key => $field) {
       if (!$field) continue;
+
       $memberName = $prefix == "" ? $key : ($prefix . "." . $key);
       if (isset($assoc[$memberName]))
-        $entity[$key] = $field->onLoad($assoc[$memberName]);
-      else if (!($field instanceof Model\Fields\RelationToMany)) $entity[$key] = null;
-
-      if (!$populate || !in_array($memberName, $populate) || !($field instanceof Model\Fields\Relation))
-        continue;
-
-      $model = $field->getModel();
-
-      if ($field instanceof Model\Fields\RelationToOne && isset($entity[$key]) && $entity[$key] != null) {
-        $entity[$key] = $model->restoreEntity($assoc, $populate, $memberName);
-      } else if ($field instanceof Model\Fields\RelationToMany) {
-        $pop2 = array_filter($populate, function ($value) use ($memberName) {
-          return str_starts_with($value, $memberName . ".");
-        });
-        $pop2 = array_map(function ($value) use ($memberName) {
-          return substr($value, strlen($memberName) + 1);
-        }, $pop2);
-        $entity[$key] = $model->find([$field->getVia() => $entity['id']], $pop2);
+        $entity[$key] = $field->onLoad($assoc[$memberName], $memberName, $assoc, $populate);
+      else if ($field instanceof Model\Fields\RelationToMany) {
+        $arr = $field->onLoad($entity["id"], $memberName, $assoc, $populate);
+        if (is_array($arr)) $entity[$key] = $arr;
       }
     }
     return $entity;

@@ -21,7 +21,7 @@ class Enum extends Text {
     return $value;
   }
 
-  public function onLoad($value) {
+  public function onLoad($value, $key, $assoc, $populates) {
     if (!in_array($value, $this->allowedValues))
       return null;
     return $value;

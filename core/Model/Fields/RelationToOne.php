@@ -18,4 +18,9 @@ class RelationToOne extends Relation {
     }
     return $value;
   }
+
+  public function onLoad($value, $key, $assoc, $populates) {
+    if (!in_array($key, $populates) || $value == null) return $value;
+    return $this->getModel()->restoreEntity($assoc, $populates, $key);
+  }
 }

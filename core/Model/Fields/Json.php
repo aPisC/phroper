@@ -11,7 +11,7 @@ class Json extends Field {
     return 'VARCHAR(MAX)';
   }
 
-  public function onLoad($value) {
+  public function onLoad($value, $key, $assoc, $populates) {
     return json_decode($value, true);
   }
 

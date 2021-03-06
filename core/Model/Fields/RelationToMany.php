@@ -13,8 +13,12 @@ class RelationToMany extends Relation {
     return $this->via;
   }
 
+  public function isVirtual() {
+    return true;
+  }
+
   public function onLoad($value, $key, $assoc, $populates) {
-    if (!in_array($key, $populates)) return null;
+    if (!in_array($key, $populates)) return IgnoreField::instance();
 
     $pop2 = array_filter($populates, function ($value) use ($key) {
       return str_starts_with($value, $key . ".");
@@ -24,5 +28,19 @@ class RelationToMany extends Relation {
     }, $pop2);
 
     return $this->getModel()->find([$this->via => $value], $pop2);
+  }
+
+  public function getSanitizedValue($value) {
+    if ($this->isPrivate())
+      return IgnoreField::instance();
+    if (is_array($value)) {
+      $model = $this->getModel();
+      return parent::getSanitizedValue(
+        array_map(function ($entity) use ($model) {
+          return $model->sanitizeEntity($entity);
+        }, $value)
+      );
+    }
+    return IgnoreField::instance();
   }
 }

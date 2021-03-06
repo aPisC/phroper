@@ -16,7 +16,7 @@ class QueryBuilder {
 
   private array $fields = array();
   private array $tableMap = array();
-  private array $values = array();
+  private QueryBuilder\QBModificationCollector $values;
   private array $joins = array();
 
   public string $lastSql = "";
@@ -28,6 +28,7 @@ class QueryBuilder {
 
     $this->bindings_filter = new QueryBuilder\BindCollector();
     $this->bindings_values = new QueryBuilder\BindCollector();
+    $this->values = new QueryBuilder\QBModificationCollector();
 
     $tableName = $model->getTableName();
     $this->tableMap = array(
@@ -36,6 +37,10 @@ class QueryBuilder {
     $this->cmd_from = $tableName . " as " . $this->tableMap[""] . " \n";
 
     $this->collectFields($model->fields);
+  }
+
+  public function nextInsert() {
+    $this->values->next();
   }
 
   public function addQueryObject($filter) {
@@ -123,11 +128,10 @@ class QueryBuilder {
     $newValue = $rawUpdate ? $value : $field->onSave($value);
 
     if ($field->isRequired() && $newValue == null)
-      $this->values[$key_resolved] = new Exception(
+      $newValue = new Exception(
         "Field " . $key . " is required!"
       );
-    else
-      $this->values[$key_resolved] = $newValue;
+    $this->values->setValue($key_resolved, $newValue);
   }
 
   public function setAllValue($values, $prefix = "") {
@@ -139,6 +143,7 @@ class QueryBuilder {
 
   public function execute($mysqli) {
     $this->lastSql = $this->getQuery();
+    //var_dump($this->lastSql);
     $stmt = $mysqli->prepare($this->lastSql);
 
     if ($stmt === false) throw new Exception("Statement could not be prepared \n" . $this->lastSql);
@@ -164,7 +169,7 @@ class QueryBuilder {
       $fieldList = "";
       $index = 0;
       foreach ($this->fields as $field) {
-        if ($field["field"] instanceof Model\Fields\RelationToMany) continue;
+        if ($field["field"]->isVirtual()) continue;
         if ($field["hidden"]) continue;
         if ($index++ > 0) $fieldList .= ", ";
         $fieldList .= $field["source"] . " as '" . $field["alias"] . "'";
@@ -206,14 +211,12 @@ class QueryBuilder {
     }
 
     if (strtoupper($this->cmd_type) == "UPDATE") {
-      $query = "UPDATE ";
       $this->bindings_values = new QueryBuilder\BindCollector();
 
       $setList = "";
-      $index = 0;
-      foreach ($this->values as $key => $value) {
+      foreach ($this->values->getFields() as $index => $key) {
         if ($index++ !== 0) $setList .= ", ";
-
+        $value = $this->values->getValue($key, 0);
         // Exceptions is stored to indicate it has to be overwritten
         if ($value instanceof Exception)
           throw $value;
@@ -225,27 +228,30 @@ class QueryBuilder {
     }
 
     if (strtoupper($this->cmd_type) == "INSERT") {
-      $query = "INSERT ";
       $this->bindings_values = new QueryBuilder\BindCollector();
 
       $columnList = "";
       $valueList = "";
-      $index = 0;
-      foreach ($this->values as $key => $value) {
-        if ($index++ !== 0) {
-          $columnList .= ", ";
-          $valueList .= ", ";
-        }
+      foreach ($this->values->getFields() as $index => $key) {
+        if ($index++ !== 0) $columnList .= ", ";
         $columnList .= $key;
-
-        // Exceptions is stored to indicate it has to be overwritten
-        if ($value instanceof Exception)
-          throw $value;
-
-        $valueList .= $this->bindings_values->push($value);
+      }
+      $entityCount = $this->values->getEntityCount();
+      for ($eid = 0; $eid < $entityCount; $eid++) {
+        if ($eid !== 0) $valueList .= ", ";
+        $valueList .= "(";
+        foreach ($this->values->getFields() as $index => $key) {
+          if ($index++ !== 0) $valueList .= ", ";
+          $value = $this->values->getValue($key, $eid);
+          // Exceptions is stored to indicate it has to be overwritten
+          if ($value instanceof Exception)
+            throw $value;
+          $valueList .= $this->bindings_values->push($value);
+        }
+        $valueList .= ")";
       }
 
-      return "INSERT INTO " . $this->tableMap[""] . " (" . $columnList . ") \n VALUES (" . $valueList . ") \n";
+      return "INSERT INTO " . $this->tableMap[""] . " (" . $columnList . ") \n VALUES " . $valueList . " \n";
     }
 
     throw new Exception("Invalid query type " . $this->cmd_type);
@@ -270,7 +276,7 @@ class QueryBuilder {
       if (isset($this->joins[$rel]->fields[$fn])) {
         $field = $this->joins[$rel]->fields[$fn];
 
-        if ($field instanceof Model\Fields\RelationToMany)
+        if ($field->isVirtual())
           throw  new Exception("Field " . $key . " clould not be resolved");
 
         $fieldName = $field->getFieldName($key);
@@ -456,13 +462,14 @@ class QueryBuilder {
   private function collectFields($fields, $prefix = "") {
     foreach ($fields as $key => $field) {
       if (!$field) continue;
-      if ($field instanceof Model\Fields\RelationToMany) continue;
+      if ($field->isVirtual()) continue;
 
       $fieldName = $field->getFieldName($key);
       $alias = $prefix . ($prefix != "" ?  "." : "") . $key;
+      $source = $this->tableMap[$prefix] . "." . $fieldName;
 
       $this->fields[$alias] =  array(
-        "source" => $this->tableMap[$prefix] . "." . $fieldName,
+        "source" => $source,
         "alias" => $alias,
         "field" => $field,
         "hidden" => false,
@@ -470,12 +477,13 @@ class QueryBuilder {
 
       // default and forceUpdated field values
       if ($prefix == "") {
-        if ($this->cmd_type == "INSERT" && $field->hasDefault()) {
-          $this->setValue($alias, $field->getDefault());
+        $def = $this->cmd_type == "INSERT" ?  $field->getDefault() : null;
+        if ($this->cmd_type == "INSERT" && !($def instanceof Model\Fields\IgnoreField)) {
+          $this->values->setDefaultValue($source, $field->onSave($def));
         } else if (($this->cmd_type == "INSERT" || $this->cmd_type == "UPDATE") && $field->forceUpdate()) {
-          $this->setValue($alias, null);
+          $this->values->setDefaultValue($source, $field->onSave(null));
         } else if ($this->cmd_type == "INSERT" && $field->isRequired()) {
-          $this->setValue($alias, null, true);
+          $this->values->setDefaultValue($source, new Exception("Field '" . $alias . "' is required."));
         }
       }
     }

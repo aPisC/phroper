@@ -1,4 +1,6 @@
 <?php
+
+
 class Model {
   public function allowDefaultService() {
     return true;
@@ -50,22 +52,13 @@ class Model {
   }
 
   public function sanitizeEntity($entity) {
-    if ($entity == null) return $entity;
+    if ($entity == null) return null;
     $ne = array();
     foreach ($this->fields as $key => $field) {
       if (!$field) continue;
-      if (array_key_exists($key, $entity) && !$field->isPrivate()) {
-        if (is_array($entity[$key]) && $field instanceof Model\Fields\RelationToOne) {
-          $model = $field->getModel();
-          $ne[$key] = $model->sanitizeEntity($entity[$key]);
-        } else if (is_array($entity[$key]) && $field instanceof Model\Fields\RelationToMany) {
-          $model = $field->getModel();
-          $ne[$key] = array_map(function ($entity) use ($model) {
-            return $model->sanitizeEntity($entity);
-          }, ($entity[$key]));
-        } else
-          $ne[$key] = $entity[$key];
-      }
+      $sv = $field->getSanitizedValue($entity[$key]);
+      if (!($sv instanceof Model\Fields\IgnoreField))
+        $ne[$key] = $sv;
     }
     return $ne;
   }
@@ -86,11 +79,11 @@ class Model {
 
       $memberName = $prefix == "" ? $key : ($prefix . "." . $key);
       if (isset($assoc[$memberName]))
-        $entity[$key] = $field->onLoad($assoc[$memberName], $memberName, $assoc, $populate);
-      else if ($field instanceof Model\Fields\RelationToMany) {
-        $arr = $field->onLoad($entity["id"], $memberName, $assoc, $populate);
-        if (is_array($arr)) $entity[$key] = $arr;
+        $v = $field->onLoad($assoc[$memberName], $memberName, $assoc, $populate);
+      else if ($field->isVirtual()) {
+        $v = $field->onLoad($entity["id"], $memberName, $assoc, $populate);
       }
+      if (!($v instanceof Model\Fields\IgnoreField)) $entity[$key] = $v;
     }
     return $entity;
   }
@@ -108,6 +101,24 @@ class Model {
   // Data managing functions
   //--------------------------
 
+  protected function preUpdate($entity) {
+    foreach ($this->fields as $key => $field) {
+      if (!$field) continue;
+      if (array_key_exists($key, $entity))
+        $field->preUpdate($entity[$key], $key, $entity);
+      else if ($field->forceUpdate())
+        $field->preUpdate(null, $key, $entity);
+    }
+  }
+  protected function postUpdate($entity) {
+    foreach ($this->fields as $key => $field) {
+      if (!$field) continue;
+      if (array_key_exists($key, $entity))
+        $field->postUpdate($entity[$key], $key, $entity);
+      else if ($field->forceUpdate())
+        $field->postUpdate(null, $key, $entity);
+    }
+  }
 
   private function useFilter($q, $filter) {
     if (is_array($filter) && count($filter) > 0) {
@@ -197,14 +208,19 @@ class Model {
     $q = new QueryBuilder($this, "insert");
     $mysqli = Database::instance();
 
-    $query = $q->setAllValue($entity);
+    $this->preUpdate($entity);
 
+    $q->setAllValue($entity);
     $result = $q->execute($mysqli);
 
     if (!$result) {
       error_log($q->lastSql . '    ' . $mysqli->error);
       throw new Exception('Database error ' . $mysqli->error);
     }
+
+    $entity['id'] = $mysqli->insert_id;
+    $this->postUpdate($entity);
+
     return $this->findOne($mysqli->insert_id);
   }
 
@@ -212,8 +228,9 @@ class Model {
     $q = new QueryBuilder($this, "update");
     $mysqli = Database::instance();
 
-    $this->useFilter($q, $filter);
+    $this->preUpdate($entity);
 
+    $this->useFilter($q, $filter);
     $q->setAllValue($entity);
 
     $result = $q->execute($mysqli);
@@ -222,6 +239,8 @@ class Model {
       error_log($q->lastSql . '    ' . $mysqli->error);
       throw new Exception('Database error ' . $mysqli->error);
     }
+
+    $this->postUpdate($entity);
 
     return $this->findOne($filter);
   }

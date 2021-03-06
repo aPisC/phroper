@@ -40,12 +40,8 @@ abstract class Field {
     return false;
   }
 
-  public function hasDefault() {
-    return false;
-  }
-
   public function getDefault() {
-    return null;
+    return IgnoreField::instance();
   }
 
   public function onSave($value) {
@@ -54,5 +50,20 @@ abstract class Field {
 
   public function onLoad($value, $key, $assoc, $populates) {
     return $value;
+  }
+
+  public function preUpdate($value, $key, $entity) {
+  }
+
+  public function postUpdate($value, $key, $entity) {
+  }
+
+  public function getSanitizedValue($value) {
+    if ($this->isPrivate()) return IgnoreField::instance();
+    return $value;
+  }
+
+  public function isVirtual() {
+    return false;
   }
 }

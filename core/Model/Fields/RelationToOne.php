@@ -23,4 +23,14 @@ class RelationToOne extends Relation {
     if (!in_array($key, $populates) || $value == null) return $value;
     return $this->getModel()->restoreEntity($assoc, $populates, $key);
   }
+
+  public function getSanitizedValue($value) {
+    if ($this->isPrivate())
+      return IgnoreField::instance();
+    if (is_array($value)) {
+      $model = $this->getModel();
+      $value = $model->sanitizeEntity($value);
+    }
+    return parent::getSanitizedValue($value);
+  }
 }

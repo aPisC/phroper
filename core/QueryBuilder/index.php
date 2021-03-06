@@ -326,24 +326,24 @@ class QueryBuilder {
     } else if ($key === "_start" && $isRoot) {
       $this->setOffset($value);
     } else if (str_ends_with($key, "_ne"))
-      return ["<>", new QB_Ref(str_drop_end($key, 3)), $value];
+      return ["<>", new QueryBuilder\QB_Ref(str_drop_end($key, 3)), $value];
     else if (str_ends_with($key, "_ge"))
-      return [">=", new QB_Ref(str_drop_end($key, 3)), $value];
+      return [">=", new QueryBuilder\QB_Ref(str_drop_end($key, 3)), $value];
     else if (str_ends_with($key, "_le"))
-      return ["<=", new QB_Ref(str_drop_end($key, 3)), $value];
+      return ["<=", new QueryBuilder\QB_Ref(str_drop_end($key, 3)), $value];
     else if (str_ends_with($key, "_gt"))
-      return [">", new QB_Ref(str_drop_end($key, 3)), $value];
+      return [">", new QueryBuilder\QB_Ref(str_drop_end($key, 3)), $value];
     else if (str_ends_with($key, "_lt"))
-      return ["<", new QB_Ref(str_drop_end($key, 3)), $value];
+      return ["<", new QueryBuilder\QB_Ref(str_drop_end($key, 3)), $value];
     else if (str_ends_with($key, "_in"))
-      return ["in", new QB_Ref(str_drop_end($key, 3)), ...$value];
+      return ["in", new QueryBuilder\QB_Ref(str_drop_end($key, 3)), ...$value];
     else if (str_ends_with($key, "_like"))
-      return ["like", new QB_Ref(str_drop_end($key, 5)), $value];
+      return ["like", new QueryBuilder\QB_Ref(str_drop_end($key, 5)), $value];
     else if (str_ends_with($key, "_notlike"))
-      return ["notlike", new QB_Ref(str_drop_end($key, 5)), $value];
+      return ["notlike", new QueryBuilder\QB_Ref(str_drop_end($key, 5)), $value];
     else if (str_ends_with($key, "_null"))
-      return [$value ? "null" : "notnull", new QB_Ref(str_drop_end($key, 5))];
-    else return ["=", new QB_Ref($key), $value];
+      return [$value ? "null" : "notnull", new QueryBuilder\QB_Ref(str_drop_end($key, 5))];
+    else return ["=", new QueryBuilder\QB_Ref($key), $value];
     return false;
   }
 
@@ -361,7 +361,7 @@ class QueryBuilder {
   }
 
   private function composeFilterValue($value) {
-    if ($value instanceof QB_Ref) {
+    if ($value instanceof QueryBuilder\QB_Ref) {
       return $this->resolve($value->alias);
     }
     return $this->bindings_filter->push($value);

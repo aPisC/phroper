@@ -113,7 +113,7 @@ class Model {
     if (is_array($filter) && count($filter) > 0) {
       $q->addQueryObject($filter);
     } else if (is_string($filter) || is_numeric($filter)) {
-      $q->addRawFilter("=", new QB_Ref('id'), $filter);
+      $q->addRawFilter("=", new QueryBuilder\QB_Ref('id'), $filter);
     }
   }
 

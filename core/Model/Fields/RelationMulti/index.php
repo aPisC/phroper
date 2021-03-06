@@ -31,7 +31,8 @@ class RelationMulti extends Relation {
 
   public function postUpdate($value, $key, $entity) {
     if (is_array($value)) {
-      return $this->connectionModel->setOthers($entity["id"], $value);
+      $this->connectionModel->setOthers($entity["id"], $value);
+      return true;
     }
   }
 
@@ -53,5 +54,3 @@ class RelationMulti extends Relation {
     return IgnoreField::instance();
   }
 }
-
-namespace Models\Fields\RelationMulti;

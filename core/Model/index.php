@@ -114,14 +114,16 @@ class Model {
         $field->preUpdate(null, $key, $entity);
     }
   }
-  protected function postUpdate($entity) {
+  protected function postUpdate($entity, $updated) {
+    $hadPostUpdate = false;
     foreach ($this->fields as $key => $field) {
       if (!$field) continue;
       if (array_key_exists($key, $entity))
-        $field->postUpdate($entity[$key], $key, $entity);
+        $hadPostUpdate = $hadPostUpdate || $field->postUpdate($entity[$key], $key, $updated);
       else if ($field->forceUpdate())
-        $field->postUpdate(null, $key, $entity);
+        $hadPostUpdate = $hadPostUpdate || $field->postUpdate(null, $key, $updated);
     }
+    return $hadPostUpdate;
   }
 
   private function useFilter($q, $filter) {
@@ -232,19 +234,28 @@ class Model {
       throw new Exception('Database error ' . $mysqli->error);
     }
 
+    $updated = $entities;
+    $insid = $mysqli->insert_id;
+    if (isset($this->fields["id"])) {
+      $updated = $this->find([
+        "_limit" => count($entities),
+        "id_ge" => $insid
+      ]);
+    }
+
+    $hadPostUpdate = false;
     foreach ($entities as $i => $entity) {
-      $entity['id'] = $mysqli->insert_id + $i;
-      $this->postUpdate($entity);
+      $hadPostUpdate = $hadPostUpdate || $this->postUpdate($entity, $updated[$i]);
     }
 
-    if (!isset($this->fields["id"])) {
-      return $entities;
+    if ($hadPostUpdate && isset($this->fields["id"])) {
+      $updated = $this->find([
+        "_limit" => count($entities),
+        "id_ge" => $insid
+      ], []);
     }
 
-    return $this->find([
-      "_limit" => count($entities),
-      "id_ge" => $mysqli->insert_id
-    ]);
+    return $updated;
   }
 
   public function update($filter, $entity) {
@@ -263,12 +274,19 @@ class Model {
       throw new Exception('Database error ' . $mysqli->error);
     }
 
-    if (isset($filter["id"])) {
-      $entity["id"] = $filter["id"];
-      $this->postUpdate($entity);
+    $updated = $this->find($filter);
+
+    $hadPostUpdate = false;
+    foreach ($updated as $u) {
+      $hadPostUpdate = $hadPostUpdate || $this->postUpdate($entity, $u);
     }
 
-    return $this->findOne($filter);
+    if ($hadPostUpdate) $updated = $this->find($filter);
+
+    if (count($updated) == 0) return null;
+    if (count($updated) == 1) return $updated[0];
+
+    return $updated;
   }
 
   public function delete($filter) {

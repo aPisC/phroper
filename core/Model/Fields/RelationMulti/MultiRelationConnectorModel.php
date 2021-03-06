@@ -65,9 +65,14 @@ class MultiRelationConnectorModel extends Model {
       "model_2" => $this->fields["model_2"]->getDefault(),
       "type" => $this->fields["type"]->getDefault(),
     ], $pop2);
-    return array_map(function ($e) {
-      return isset($e["other"]) ? $e["other"] : $e;
-    }, $entities);
+    return array_filter(
+      array_map(function ($e) {
+        return isset($e["other"]) ? $e["other"] : $e;
+      }, $entities),
+      function ($e) {
+        return is_array($e);
+      }
+    );
   }
 
   public function setOthers($item, $others) {

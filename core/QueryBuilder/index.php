@@ -102,7 +102,9 @@ class QueryBuilder {
       $this->tableMap[$join] = $tableName . "_" . count($this->tableMap);
 
       $this->cmd_join .= "LEFT OUTER JOIN " . $tableName . " as " . $this->tableMap[$join] . " ";
-      $this->cmd_join .= "ON " . $this->tableMap[$join] . ".id = " . $this->fields[$join]["source"] . " \n";
+      if ($this->fields[$join]["field"]->useDefaultJoin())
+        $this->cmd_join .= "ON " . $this->tableMap[$join] . ".id = " . $this->fields[$join]["source"] . " \n";
+      else $this->cmd_join .= "ON TRUE \n";
     }
 
     if ($collFields) {
@@ -468,12 +470,19 @@ class QueryBuilder {
   }
 
   private function collectFields($fields, $prefix = "") {
+    $fieldFilters = [];
+
     foreach ($fields as $key => $field) {
       if (!$field) continue;
 
       $fieldName = $field->getFieldName($key);
       $alias = $prefix . ($prefix != "" ?  "." : "") . $key;
       $source = $this->tableMap[$prefix] . "." . $fieldName;
+
+      if ($prefix == "" && $this->cmd_type !== "INSERT") {
+        $filter = $field->getFilter($key, $prefix, $alias);
+        if ($filter) $fieldFilters[] = $filter;
+      }
 
       if ($field->isVirtual()) {
         $this->fields[$alias] =  array(
@@ -504,6 +513,9 @@ class QueryBuilder {
         }
       }
     }
+    foreach ($fieldFilters as $filter) {
+      $this->addRawFilter(...$filter);
+    }
   }
 }
 
@@ -514,6 +526,8 @@ class BindCollector {
   private $bindValues = array();
 
   function push($value) {
+    if ($value instanceof QB_Const)
+      return $value->getResolved();
     if ($value === true) return "TRUE";
     if ($value === false) return "FALSE";
     if ($value === null) return "NULL";

@@ -69,4 +69,8 @@ abstract class Field {
   public function isVirtual() {
     return false;
   }
+
+  public function getFilter($fieldName, $prefix, $memberName) {
+    return null;
+  }
 }

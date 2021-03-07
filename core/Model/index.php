@@ -289,10 +289,10 @@ class Model {
     return $updated;
   }
 
-  public function delete($filter) {
-    $entity = $this->find($filter);
+  public function delete($filter, $returnEntities = true) {
+    $entity = $returnEntities ?  $this->find($filter) : null;
 
-    if ($entity != null) {
+    if ($entity || !$returnEntities) {
       $q = new QueryBuilder($this, "delete");
       $mysqli = Database::instance();
 
@@ -306,7 +306,7 @@ class Model {
         throw new Exception('Database error ' . $mysqli->error);
       }
     }
-    if (count($entity) == 0) return null;
+    if (!$returnEntities || count($entity) == 0) return null;
     if (count($entity) == 1) return $entity[0];
     return $entity;
   }

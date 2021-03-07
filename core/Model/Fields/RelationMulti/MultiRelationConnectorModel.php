@@ -4,7 +4,7 @@
 namespace Model\Fields\RelationMulti;
 
 use Model;
-use Text;
+use QueryBuilder\QB_Const;
 
 class MultiRelationConnectorModel extends Model {
 
@@ -21,35 +21,32 @@ class MultiRelationConnectorModel extends Model {
 
 
     $this->fields = [];
-    $this->fields["model_1"] = new Model\Fields\Text(
+    $this->fields["type"] = new Model\Fields\ConstFilter(
+      new Model\Fields\Text(["default" => $type])
+    );
+    $this->fields["table_1"] = new Model\Fields\Text(
       [
-        "field" => $this->isReversed  ? "table_2" : "table_1",
         "default" => $this->model->getTableName(),
         "required" => true
       ]
     );
-    $this->fields["model_2"] = new Model\Fields\Text(
+    $this->fields["table_2"] = new Model\Fields\Text(
       [
-        "field" => $this->isReversed  ? "table_1" : "table_2",
         "default" => $this->model2->getTableName(),
         "required" => true
       ]
     );
-    $this->fields["item"] = new Model\Fields\Integer([
-      "field" => $this->isReversed  ? "item_2" : "item_1",
+    $this->fields["item_1"] = new Model\Fields\Integer([
+      "field" => "item_1",
       "required" => true
     ]);
-    $this->fields["other"] = new Model\Fields\RelationToOne($this->model2, [
-      "field" => $this->isReversed  ? "item_1" : "item_2",
+    $this->fields["item_2"] = new Model\Fields\Integer([
+      "field" => "item_2",
       "required" => true
     ]);
-    $this->fields["type"] = new Model\Fields\Text(
-      [
-        "field" => "type",
-        "default" => $type,
-        "required" => true
-      ]
-    );
+    $this->fields["other"] = new MultiConnectionRelation($this->model2, [
+      "field" => "item_2",
+    ]);
   }
 
   public function getOthers($item, $populates) {
@@ -59,12 +56,16 @@ class MultiRelationConnectorModel extends Model {
     }
     $pop2[] = "other";
 
-    $entities = $this->find([
-      "item" => $item,
-      "model_1" => $this->fields["model_1"]->getDefault(),
-      "model_2" => $this->fields["model_2"]->getDefault(),
-      "type" => $this->fields["type"]->getDefault(),
-    ], $pop2);
+    $entities = $this->find(["_or" => [
+      [
+        "table_1" => new QB_Const($this->fields["table_1"]->getDefault()),
+        "item_1" => $item,
+      ],
+      [
+        "table_2" => new QB_Const($this->fields["table_1"]->getDefault()),
+        "item_2" => $item,
+      ]
+    ]], $pop2);
     return array_filter(
       array_map(function ($e) {
         return isset($e["other"]) ? $e["other"] : $e;
@@ -77,23 +78,26 @@ class MultiRelationConnectorModel extends Model {
 
   public function setOthers($item, $others) {
     $insert = [];
-    foreach ($others as $i => $v) {
+    foreach ($others as $v) {
       if (is_array($v) && isset($v["id"])) $v = $v["id"];
       $insert[] = [
-        "item" => $item,
-        "model_1" => $this->fields["model_1"]->getDefault(),
-        "model_2" => $this->fields["model_2"]->getDefault(),
-        "type" => $this->fields["type"]->getDefault(),
-        "other" => $v
+        "item_1" => $item,
+        "item_2" => $v,
+        "table_1" => new QB_Const($this->fields["table_1"]->getDefault()),
+        "table_2" => new QB_Const($this->fields["table_2"]->getDefault()),
       ];
     }
 
-    $this->delete([
-      "item" => $item,
-      "model_1" => $this->fields["model_1"]->getDefault(),
-      "model_2" => $this->fields["model_2"]->getDefault(),
-      "type" => $this->fields["type"]->getDefault(),
-    ]);
+    $this->delete(["_or" => [
+      [
+        "table_1" => new QB_Const($this->fields["table_1"]->getDefault()),
+        "item_1" => $item,
+      ],
+      [
+        "table_2" => new QB_Const($this->fields["table_1"]->getDefault()),
+        "item_2" => $item,
+      ]
+    ]], false);
 
     $this->createMulti($insert);
   }

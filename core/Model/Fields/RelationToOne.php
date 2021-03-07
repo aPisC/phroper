@@ -33,4 +33,8 @@ class RelationToOne extends Relation {
     }
     return parent::getSanitizedValue($value);
   }
+
+  public function useDefaultJoin() {
+    return true;
+  }
 }

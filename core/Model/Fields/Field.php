@@ -73,4 +73,12 @@ abstract class Field {
   public function getFilter($fieldName, $prefix, $memberName, $sql_mode) {
     return null;
   }
+
+  public function isJoinable() {
+    return false;
+  }
+
+  public function isDefaultPopulated() {
+    return false;
+  }
 }

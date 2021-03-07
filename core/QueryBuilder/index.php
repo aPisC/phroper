@@ -90,7 +90,7 @@ class QueryBuilder {
 
       if (!$this->resolve($join)) return;
 
-      if (!($this->fields[$join]["field"] instanceof Model\Fields\RelationToOne))
+      if (!($this->fields[$join]["field"] && $this->fields[$join]["field"]->isJoinable()))
         return;
 
       $model = Model::getModel($this->fields[$join]["field"]->getModel());
@@ -286,7 +286,7 @@ class QueryBuilder {
     $fn = substr($key, $pos + 1);
 
     if (!$this->resolve($rel)) return;
-    if ($this->fields[$rel]["field"] instanceof Model\Fields\RelationToOne) {
+    if ($this->fields[$rel]["field"] && $this->fields[$rel]["field"]->isJoinable()) {
       if (!isset($this->joins[$rel])) {
         $this->join($rel, false);
       }

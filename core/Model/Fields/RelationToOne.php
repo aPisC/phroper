@@ -2,6 +2,7 @@
 
 namespace Model\Fields;
 
+use Model\Entity;
 use Model\LazyResult;
 
 class RelationToOne extends Relation {
@@ -32,7 +33,7 @@ class RelationToOne extends Relation {
   public function getSanitizedValue($value) {
     if ($this->isPrivate())
       return IgnoreField::instance();
-    if (is_array($value)) {
+    if ($value instanceof Entity) {
       $model = $this->getModel();
       $value = $model->sanitizeEntity($value);
     }
@@ -40,6 +41,10 @@ class RelationToOne extends Relation {
   }
 
   public function useDefaultJoin() {
+    return true;
+  }
+
+  public function isJoinable() {
     return true;
   }
 }

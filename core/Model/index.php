@@ -1,5 +1,6 @@
 <?php
 
+use Model\Entity;
 
 class Model {
   public function allowDefaultService() {
@@ -32,7 +33,7 @@ class Model {
     $populate = [];
     foreach ($this->fields as $key => $field) {
       if (!$field) continue;
-      if ($field instanceof Model\Fields\Relation && $field->isDefaultPopulated())
+      if ($field->isDefaultPopulated())
         $populate[] = $key;
     }
     return $populate;
@@ -59,7 +60,8 @@ class Model {
     $ne = array();
     foreach ($this->fields as $key => $field) {
       if (!$field) continue;
-      if (!array_key_exists($key, $entity)) continue;
+      if (is_array($entity) && !array_key_exists($key, $entity)) continue;
+      if ($entity instanceof Entity && !$entity->offsetExists($key)) continue;
       $sv = $entity[$key];
       if ($sv instanceof Model\LazyResult)
         $sv = $sv->get();
@@ -71,7 +73,7 @@ class Model {
   }
 
   public function restoreEntity($assoc, $populate, $prefix = "") {
-    $entity = array();
+    $entity = new Model\Entity();
 
     // First of all, restore id, because it may be required for relation loading
     $memberName = $prefix == "" ? "id" : ($prefix . ".id");

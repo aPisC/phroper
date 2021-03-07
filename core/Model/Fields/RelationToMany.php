@@ -2,6 +2,7 @@
 
 namespace Model\Fields;
 
+use Exception;
 use Model\LazyResult;
 
 class RelationToMany extends Relation {
@@ -17,6 +18,14 @@ class RelationToMany extends Relation {
 
   public function isVirtual() {
     return true;
+  }
+
+  public function isReadonly() {
+    return true;
+  }
+
+  public function onSave($value) {
+    return new Exception("Saving to array relation is not allowed");
   }
 
   public function onLoad($value, $key, $assoc, $populates) {

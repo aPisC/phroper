@@ -55,7 +55,7 @@ class Controller {
 
       $this->havePermission($this->getRoutePermName($name, $params['method']), true);
 
-      $fun($params);
+      $fun($params, $next);
     }, $method);
     $this->registeredHandlerInfos[] = [$name, $method];
   }
@@ -67,7 +67,13 @@ class Controller {
         // Throwing exception when user has no permission
         $this->havePermission($this->getRoutePermName($name, $params['method']), true);
 
-        $result = $fun($params);
+        $nextCalled = false;
+        $result = $fun($params, function () use (&$nextCalled, $next) {
+          $nextCalled = true;
+          $next();
+        });
+        if ($nextCalled)
+          return;
         if ($result == null) {
           http_response_code(404);
         }

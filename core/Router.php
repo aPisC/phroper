@@ -74,7 +74,6 @@ class Router {
       if (!$this->matchMethod($method, $parameters['method'])) return $next();
 
       $np = $this->matchUrl($expression, $parameters['url'], false);
-      var_dump(!!$np, $expression, $parameters["url"]);
       if ($np === false) return $next();
 
       $this->runHandler($handler, array_merge($parameters, $np), $next);

@@ -15,16 +15,16 @@ class DefaultController extends Controller {
     $this->service = $service;
 
     // register handler functions
-    $this->registerJsonHandler('count', function ($p) {
-      return $this->count($p);
-    }, 'GET');
-    $this->registerJsonHandler(':id', function ($p) {
+    $this->registerJsonHandler(':id', function ($p, $next) {
+      if (!is_numeric($p['id'])) $next();
       return $this->findOne($p);
     }, 'GET');
-    $this->registerJsonHandler(':id', function ($p) {
+    $this->registerJsonHandler(':id', function ($p, $next) {
+      if (!is_numeric($p['id'])) $next();
       return $this->update($p);
     }, 'PUT');
-    $this->registerJsonHandler(':id', function ($p) {
+    $this->registerJsonHandler(':id', function ($p, $next) {
+      if (!is_numeric($p['id'])) $next();
       return $this->delete($p);
     }, 'DELETE');
     $this->registerJsonHandler(null, function ($p) {
@@ -32,6 +32,9 @@ class DefaultController extends Controller {
     }, 'POST');
     $this->registerJsonHandler(null, function () {
       return  $this->find();
+    }, 'GET');
+    $this->registerJsonHandler('count', function ($p) {
+      return $this->count($p);
     }, 'GET');
   }
 

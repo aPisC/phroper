@@ -25,8 +25,8 @@ class Controller {
     $this->router =  new Router();
   }
 
-  public function run($u, $p) {
-    $this->router->run($u, $p);
+  public function run($p, $next) {
+    $this->router->run($p, $next);
   }
 
   protected function getName() {

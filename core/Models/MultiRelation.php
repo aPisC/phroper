@@ -66,9 +66,9 @@ class MultiRelation extends Model {
       ]
     ]], $pop2);
     return array_filter(
-      array_map(function ($e) {
+      $entities->map(function ($e) {
         return isset($e["other"]) ? $e["other"] : $e;
-      }, $entities),
+      }),
       function ($e) {
         return !is_scalar($e) && $e;
       }

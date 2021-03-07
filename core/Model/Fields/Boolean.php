@@ -12,12 +12,12 @@ class Boolean extends Field {
   }
 
   public function onSave($value) {
-    if ($value == null) return null;
+    if ($value === null) return null;
     return !!$value;
   }
 
   public function onLoad($value, $key, $assoc, $populates) {
-    if ($value == null) return null;
+    if ($value === null) return null;
     return !!$value;
   }
 }

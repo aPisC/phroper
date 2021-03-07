@@ -36,7 +36,9 @@ class DefaultController extends Controller {
   }
 
   public function getName() {
-    return $this->service->getName();
+    if (parent::getName() === "defaultcontroller")
+      return $this->service->getName();
+    return parent::getName();
   }
 
   public function findOne($params) {

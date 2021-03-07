@@ -19,36 +19,6 @@ class Auth extends Service {
     $this->permModel = Model::getModel("Auth_Permission");
   }
 
-  public function grant($role, $perm) {
-    $entity = $this->permModel->findOne([
-      "role" => $role,
-      "permission" => $perm
-    ]);
-
-    if (!$entity) {
-      $entity = $this->permModel->create([
-        "role" => $role,
-        "permission" => $perm
-      ]);
-    }
-    return $entity;
-  }
-
-  public function revoke($role, $perm) {
-    $entity = $this->permModel->delete([
-      "role" => $role,
-      "permission" => $perm
-    ]);
-    return $entity;
-  }
-
-  public function listControllerPerms($controller) {
-    $controller = Controller::getController($controller);
-    if (!$controller) return [];
-
-    return $controller->getAvailablePermissions();
-  }
-
   public function login($username, $password) {
     $user = $this->userModel->findOne(array('username' => $username));
     if ($user == null || !password_verify($password, $user['password']))
@@ -85,11 +55,13 @@ class Auth extends Service {
     if ($entity != null)
       throw new Exception('Email or username is already in use.', 403);
 
+    $role = $this->roleModel->findOne(["isDefault" => true], []);
+
     $entity = $this->userModel->create([
       'username' => $username,
       'password' => $password,
       'email' => $email,
-      'role' => 1,
+      'role' => $role,
     ]);
 
     return $this->userModel->sanitizeEntity($entity);
@@ -101,6 +73,13 @@ class Auth extends Service {
         'role.isDefault' => true,
         'permission' => $permName,
       ], []) != null;
+    if (is_array($user) && $user["isAdmin"] === true) return true;
+    else if (
+      is_scalar($user)
+      && $user
+      &&  $this->userModel->findOne(["id" => $user, "isAdmin" => true], []) !== null
+    ) return true;
+
     return $this->permModel->findOne([
       'role' => is_array($user['role']) ? $user['role']['id'] : $user['role'],
       'permission' => $permName,

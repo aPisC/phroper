@@ -10,7 +10,9 @@ class DefaultService extends Service {
   }
 
   public function getName() {
-    return $this->model->getName();
+    if (parent::getName() == "defaultservice")
+      return $this->model->getName();
+    return parent::getName();
   }
 
   public function find($filter) {

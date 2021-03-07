@@ -14,10 +14,11 @@ class Auth_User extends Model {
     $this->fields["role"] = new Model\Fields\RelationToOne("Auth_Role");
     $this->fields["password"] = new Model\Fields\Password();
     $this->fields["email"] = new Model\Fields\Text();
+    $this->fields["isAdmin"] = new Model\Fields\Boolean(["default" => false]);
   }
 
   public function allowDefaultService() {
-    return false;
+    return true;
   }
 
   public function init() {
@@ -27,5 +28,10 @@ class Auth_User extends Model {
       return true;
     }
     return false;
+  }
+
+  public function getPopulateList($populate = null) {
+    if (is_array($populate)) return $populate;
+    return [];
   }
 }

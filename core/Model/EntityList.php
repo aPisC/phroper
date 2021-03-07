@@ -3,7 +3,7 @@
 namespace Model;
 
 class EntityList extends Entity {
-  public function __construct($entities) {
+  public function __construct($entities = null) {
     parent::__construct(null);
     if (is_array($entities)) $this->values = $entities;
   }

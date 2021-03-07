@@ -184,7 +184,7 @@ class Model {
 
     if ($result->num_rows == 0) {
       $result->free_result();
-      return [];
+      return new Model\EntityList();
     }
 
     $assocs = $result->fetch_all(MYSQLI_ASSOC);
@@ -292,8 +292,8 @@ class Model {
 
     if ($hadPostUpdate) $updated = $this->find($filter);
 
-    if (count($updated) == 0) return null;
-    if (count($updated) == 1) return $updated[0];
+    if ($updated->count() == 0) return null;
+    if ($updated->count() == 1) return $updated[0];
 
     return $updated;
   }
@@ -315,8 +315,8 @@ class Model {
         throw new Exception('Database error ' . $mysqli->error);
       }
     }
-    if (!$returnEntities || count($entity) == 0) return null;
-    if (count($entity) == 1) return $entity[0];
+    if (!$returnEntities || $entity->count() == 0) return null;
+    if ($entity->count() == 1) return $entity[0];
     return $entity;
   }
 

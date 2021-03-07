@@ -62,7 +62,6 @@ class Controller {
 
   protected function registerJsonHandler($name, $fun, $method = 'GET') {
     $this->router->add($name, function ($params, $next) use ($fun, $name) {
-      header('Content-Type: application/json');
       try {
         // Throwing exception when user has no permission
         $this->havePermission($this->getRoutePermName($name, $params['method']), true);
@@ -72,13 +71,15 @@ class Controller {
           $nextCalled = true;
           $next();
         });
-        if ($nextCalled)
-          return;
+        if ($nextCalled) return;
+
         if ($result == null) {
           http_response_code(404);
         }
         if ($result instanceof Model\Entity)
           $result = $result->sanitizeEntity();
+
+        header('Content-Type: application/json');
         echo json_encode($result);
       } catch (Exception $ex) {
         if ($ex->getCode() != 0)
@@ -86,6 +87,7 @@ class Controller {
         else
           http_response_code(500);
 
+        header('Content-Type: application/json');
         echo json_encode(array(
           'status' => 'ERROR',
           'message' => $ex->getMessage()

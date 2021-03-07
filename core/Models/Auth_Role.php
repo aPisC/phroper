@@ -10,12 +10,12 @@ class Auth_Role extends Model {
 
 
     $this->fields["name"] = new Model\Fields\Text();
-    $this->fields["users"] = new Model\Fields\RelationToMany("Auth_User", "role");
     $this->fields["isDefault"] = new Model\Fields\Boolean(["field" => "is_default"]);
     $this->fields["permissions"] = new Model\Fields\ArrayMapper(
       "permission",
       new Model\Fields\RelationToMany("Auth_Permission", "role")
     );
+    $this->fields["users"] = new Model\Fields\RelationToMany("Auth_User", "role");
   }
 
   public function init() {

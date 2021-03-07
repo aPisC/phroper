@@ -8,4 +8,6 @@ class Config {
     'port' => null,
     'database' => 'test'
   ];
+
+  public static bool $serveFallbackAsIndex = true;
 }

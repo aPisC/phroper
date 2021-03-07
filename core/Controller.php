@@ -71,6 +71,8 @@ class Controller {
         if ($result == null) {
           http_response_code(404);
         }
+        if ($result instanceof Model\Entity)
+          $result = $result->sanitizeEntity();
         echo json_encode($result);
       } catch (Exception $ex) {
         if ($ex->getCode() != 0)

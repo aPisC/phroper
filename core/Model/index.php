@@ -73,7 +73,7 @@ class Model {
   }
 
   public function restoreEntity($assoc, $populate, $prefix = "") {
-    $entity = new Model\Entity();
+    $entity = new Model\Entity($this);
 
     // First of all, restore id, because it may be required for relation loading
     $memberName = $prefix == "" ? "id" : ($prefix . ".id");
@@ -190,9 +190,9 @@ class Model {
     $assocs = $result->fetch_all(MYSQLI_ASSOC);
     $result->free_result();
     $model = $this;
-    return array_map(function ($assoc) use ($populate, $model) {
+    return new Model\EntityList(array_map(function ($assoc) use ($populate, $model) {
       return $model->restoreEntity($assoc, $populate);
-    }, $assocs);
+    }, $assocs));
   }
 
   public function count($filter) {

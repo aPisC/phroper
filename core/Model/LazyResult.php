@@ -12,8 +12,10 @@ class LazyResult {
     $_get = $this->_get;
     if (is_callable($_get)) {
       $val = $_get();
-      if ($val instanceof LazyResult)
+      if ($val instanceof LazyResult) {
         $val = $val->get();
+      }
+      $this->_get = $val;
       return $val;
     }
     return $_get;

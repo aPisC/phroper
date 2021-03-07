@@ -5,9 +5,11 @@ namespace Model;
 use ArrayAccess;
 
 class Entity implements ArrayAccess {
-  private $values = array();
+  protected $values = array();
+  private $model;
 
-  public function __construct() {
+  public function __construct($model) {
+    $this->model = $model;
   }
 
   public function offsetSet($offset, $value) {
@@ -26,5 +28,9 @@ class Entity implements ArrayAccess {
     $val = $this->values[$offset];
     if ($val instanceof LazyResult) return $val->get();
     return $val;
+  }
+
+  public function sanitizeEntity() {
+    return $this->model->sanitizeEntity($this);
   }
 }

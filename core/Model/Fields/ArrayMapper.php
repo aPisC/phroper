@@ -5,6 +5,7 @@ namespace Model\Fields;
 use Exception;
 use Model\LazyResult;
 use Model\Entity;
+use Model\EntityList;
 
 class ArrayMapper extends FieldExtension {
   protected $mapper;
@@ -31,14 +32,14 @@ class ArrayMapper extends FieldExtension {
       if ($val instanceof LazyResult)  $val = $val->get();
 
 
-      if (!is_array($val)) IgnoreField::instance();
+      if ($val instanceof EntityList) IgnoreField::instance();
 
-      if (is_callable($mapper)) return array_map($mapper, $val);
-      if (is_scalar($mapper)) return array_map(function ($e) use ($mapper) {
+      if (is_callable($mapper)) return $val->map($mapper);
+      if (is_scalar($mapper)) return $val->map(function ($e) use ($mapper) {
         if ($e instanceof Entity && $e->offsetExists($mapper))
           return $e[$mapper];
         return null;
-      }, $val);
+      });
       return null;
     });
   }

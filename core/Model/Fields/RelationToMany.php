@@ -2,6 +2,8 @@
 
 namespace Model\Fields;
 
+use Model\LazyResult;
+
 class RelationToMany extends Relation {
   private $via;
   public function __construct($model, $via, array $data = null) {
@@ -20,14 +22,17 @@ class RelationToMany extends Relation {
   public function onLoad($value, $key, $assoc, $populates) {
     if (!in_array($key, $populates)) return IgnoreField::instance();
 
-    $pop2 = array_filter($populates, function ($value) use ($key) {
-      return str_starts_with($value, $key . ".");
-    });
-    $pop2 = array_map(function ($value) use ($key) {
-      return substr($value, strlen($key) + 1);
-    }, $pop2);
+    $model = $this->getModel();
+    return new LazyResult(function () use ($model, $value, $key, $assoc, $populates) {
+      $pop2 = array_filter($populates, function ($value) use ($key) {
+        return str_starts_with($value, $key . ".");
+      });
+      $pop2 = array_map(function ($value) use ($key) {
+        return substr($value, strlen($key) + 1);
+      }, $pop2);
 
-    return $this->getModel()->find([$this->via => $value], $pop2);
+      return $model->find([$this->via => $value], $pop2);
+    });
   }
 
   public function getSanitizedValue($value) {

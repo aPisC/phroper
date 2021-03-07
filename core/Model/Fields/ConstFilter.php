@@ -43,8 +43,10 @@ class ConstFilter extends Field {
   }
 
   public function onSave($value) {
-    return $this->base->onSave(
-      $this->getDefault()
+    return new QB_Const(
+      $this->base->onSave(
+        $this->getDefault()
+      )
     );
   }
 
@@ -70,6 +72,6 @@ class ConstFilter extends Field {
   }
 
   public function getFilter($fieldName, $prefix, $memberName) {
-    return ["=", new QB_Ref($memberName), new QB_Const($this->onSave(null))];
+    return ["=", new QB_Ref($memberName), $this->onSave(null)];
   }
 }

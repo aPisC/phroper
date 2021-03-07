@@ -5,6 +5,7 @@ namespace Model\Fields\RelationMulti;
 
 use Model;
 use QueryBuilder\QB_Const;
+use Model\LazyResult;
 
 class MultiRelationConnectorModel extends Model {
 
@@ -71,7 +72,7 @@ class MultiRelationConnectorModel extends Model {
         return isset($e["other"]) ? $e["other"] : $e;
       }, $entities),
       function ($e) {
-        return is_array($e);
+        return !is_scalar($e) && $e;
       }
     );
   }

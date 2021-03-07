@@ -52,13 +52,18 @@ class Model {
   }
 
   public function sanitizeEntity($entity) {
+    if ($entity instanceof Model\LazyResult)
+      $entity = $entity->get();
     if ($entity == null) return null;
     if (is_scalar($entity)) return $entity;
     $ne = array();
     foreach ($this->fields as $key => $field) {
       if (!$field) continue;
       if (!array_key_exists($key, $entity)) continue;
-      $sv = $field->getSanitizedValue($entity[$key]);
+      $sv = $entity[$key];
+      if ($sv instanceof Model\LazyResult)
+        $sv = $sv->get();
+      $sv = $field->getSanitizedValue($sv);
       if (!($sv instanceof Model\Fields\IgnoreField))
         $ne[$key] = $sv;
     }
@@ -215,6 +220,8 @@ class Model {
   }
 
   public function createMulti($entities) {
+    if (count($entities) == 0) return [];
+
     $q = new QueryBuilder($this, "insert");
     $mysqli = Database::instance();
 

@@ -6,6 +6,7 @@ namespace Model\Fields;
 
 use Model;
 use Model\Fields\RelationMulti\MultiRelationConnectorModel;
+use Model\LazyResult;
 
 class RelationMulti extends Relation {
 
@@ -19,20 +20,23 @@ class RelationMulti extends Relation {
   public function onLoad($value, $key, $assoc, $populates) {
     if (!in_array($key, $populates)) return IgnoreField::instance();
 
-    $pop2 = array_filter($populates, function ($value) use ($key) {
-      return str_starts_with($value, $key . ".");
-    });
-    $pop2 = array_map(function ($value) use ($key) {
-      return substr($value, strlen($key) + 1);
-    }, $pop2);
+    $model = $this->connectionModel;
+    return new LazyResult(function () use ($model, $value, $key, $assoc, $populates) {
+      $pop2 = array_filter($populates, function ($value) use ($key) {
+        return str_starts_with($value, $key . ".");
+      });
+      $pop2 = array_map(function ($value) use ($key) {
+        return substr($value, strlen($key) + 1);
+      }, $pop2);
 
-    return $this->connectionModel->getOthers($value, $pop2);
+      return $model->getOthers($value, $pop2);
+    });
   }
 
   public function postUpdate($value, $key, $entity) {
     if (is_array($value)) {
       $this->connectionModel->setOthers($entity["id"], $value);
-      return true;
+      return false;
     }
   }
 

@@ -2,6 +2,8 @@
 
 namespace Model\Fields;
 
+use Model\LazyResult;
+
 class RelationToOne extends Relation {
   public function __construct($model, array $data = null) {
     parent::__construct($model, $data);
@@ -21,7 +23,10 @@ class RelationToOne extends Relation {
 
   public function onLoad($value, $key, $assoc, $populates) {
     if (!in_array($key, $populates) || $value == null) return $value;
-    return $this->getModel()->restoreEntity($assoc, $populates, $key);
+    $model = $this->getModel();
+    return new LazyResult(function () use ($model, $value, $key, $assoc, $populates) {
+      return $model->restoreEntity($assoc, $populates, $key);
+    });
   }
 
   public function getSanitizedValue($value) {

@@ -9,7 +9,7 @@ class Timestamp extends Field {
   }
 
   public function getSQLType() {
-    return 'TIMESTAMP';
+    return 'TIMESTAMP NULL DEFAULT NULL';
   }
 
   public function onSave($value) {

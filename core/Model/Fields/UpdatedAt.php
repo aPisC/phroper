@@ -14,4 +14,9 @@ class UpdatedAt extends Timestamp {
   public function onSave($value) {
     return parent::onSave(time());
   }
+
+
+  public function getSQLType() {
+    return 'TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP';
+  }
 }

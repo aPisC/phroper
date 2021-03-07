@@ -45,7 +45,7 @@ class Model {
     if ($tableName == null)
       $tableName = strtolower(end(explode('/', get_class($this))));
     $this->tableName = $tableName;
-    $this->fields["id"] = new Model\Fields\Integer();
+    $this->fields["id"] = new Model\Fields\Identity();
     $this->fields["updated_by"] = new Model\Fields\UpdatedBy();
     $this->fields["created_at"] = new Model\Fields\CreatedAt();
     $this->fields["updated_at"] = new Model\Fields\UpdatedAt();
@@ -316,5 +316,17 @@ class Model {
     if (!$returnEntities || count($entity) == 0) return null;
     if (count($entity) == 1) return $entity[0];
     return $entity;
+  }
+
+  public function init() {
+    try {
+      $this->findOne([]);
+    } catch (Exception $ex) {
+      $q = new QueryBuilder($this, "create_table");
+      $mysqli = Database::instance();
+      $q->execute($mysqli);
+      return true;
+    }
+    return false;
   }
 }

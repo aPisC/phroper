@@ -17,4 +17,19 @@ class Auth_Role extends Model {
   public function allowDefaultService() {
     return false;
   }
+
+  public function init() {
+    if (parent::init()) {
+      $this->create([
+        "name" => "default",
+        "isDefault" => true,
+      ]);
+
+      Model::getModel("Auth_Permission")->init();
+      Model::getModel("Auth_User")->init();
+
+      return true;
+    }
+    return false;
+  }
 }

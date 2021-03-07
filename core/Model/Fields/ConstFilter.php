@@ -71,7 +71,7 @@ class ConstFilter extends Field {
     return false;
   }
 
-  public function getFilter($fieldName, $prefix, $memberName) {
+  public function getFilter($fieldName, $prefix, $memberName, $sql_mode) {
     return ["=", new QB_Ref($memberName), $this->onSave(null)];
   }
 }

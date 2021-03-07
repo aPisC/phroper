@@ -70,7 +70,7 @@ abstract class Field {
     return false;
   }
 
-  public function getFilter($fieldName, $prefix, $memberName) {
+  public function getFilter($fieldName, $prefix, $memberName, $sql_mode) {
     return null;
   }
 }

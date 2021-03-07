@@ -19,4 +19,13 @@ class Auth_User extends Model {
   public function allowDefaultService() {
     return false;
   }
+
+  public function init() {
+    if (parent::init()) {
+      $rMod = Model::getModel("Auth_Role");
+      $rMod->init();
+      return true;
+    }
+    return false;
+  }
 }

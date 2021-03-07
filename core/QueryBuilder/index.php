@@ -172,7 +172,7 @@ class QueryBuilder {
       foreach ($this->fields as $field) {
         if ($field["field"]->isVirtual()) continue;
         if ($field["hidden"]) continue;
-        if ($index++ > 0) $fieldList .= ", ";
+        if ($fieldList) $fieldList .= ", ";
         $fieldList .= $field["source"] . " as '" . $field["alias"] . "'";
       }
 
@@ -253,6 +253,23 @@ class QueryBuilder {
       }
 
       return "INSERT INTO " . $this->tableMap[""] . " (" . $columnList . ") \n VALUES " . $valueList . " \n";
+    }
+
+    if ($this->cmd_type == "CREATE_TABLE") {
+      $fieldList = "";
+      foreach ($this->fields as $key => $field) {
+        if (!$field["source"]) continue;
+        if (strpos($field["alias"], ".") !== strrpos($field["alias"], ".")) continue;
+        if ($field["field"]->isVirtual()) continue;
+        $fn = $field['field']->getFieldName($key);
+        $tp = $field['field']->getSQLType();
+
+        if (!$fn || !$tp) continue;
+
+        if ($fieldList) $fieldList .= ", \n";
+        $fieldList .= $fn . " " . $tp;
+      }
+      return "CREATE TABLE " . $this->tableMap[""] . " (" . $fieldList . ")";
     }
 
     throw new Exception("Invalid query type " . $this->cmd_type);
@@ -480,7 +497,7 @@ class QueryBuilder {
       $source = $this->tableMap[$prefix] . "." . $fieldName;
 
       if ($prefix == "" && $this->cmd_type !== "INSERT") {
-        $filter = $field->getFilter($key, $prefix, $alias);
+        $filter = $field->getFilter($key, $prefix, $alias, $this->cmd_type);
         if ($filter) $fieldFilters[] = $filter;
       }
 

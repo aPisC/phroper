@@ -5,7 +5,7 @@
 namespace Model\Fields;
 
 use Model;
-use Model\Fields\RelationMulti\MultiRelationConnectorModel;
+use Models\MultiRelation;
 use Model\LazyResult;
 
 class RelationMulti extends Relation {
@@ -14,7 +14,7 @@ class RelationMulti extends Relation {
 
   public function __construct($model, $model2, $type = "default") {
     $this->model = $model2;
-    $this->connectionModel = new MultiRelationConnectorModel($model, $model2, $type);
+    $this->connectionModel = new MultiRelation($model, $model2, $type);
   }
 
   public function onLoad($value, $key, $assoc, $populates) {

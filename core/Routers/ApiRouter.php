@@ -16,6 +16,8 @@ class ApiRouter extends Router {
 
     try {
       $controller = Controller::getController($cn);
+      if (!$controller)
+        throw new Exception('Service ' . $cn . ' is not available.');
       $controller->run($parameters, $next);
     } catch (Exception $ex) {
       if ($ex->getCode() != 0)

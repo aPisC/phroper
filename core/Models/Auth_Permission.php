@@ -20,4 +20,23 @@ class Auth_Permission extends Model {
   public function allowDefaultService() {
     return false;
   }
+
+  public function init() {
+    if (parent::init()) {
+      $rMod = Model::getModel("Auth_Role");
+
+      $rMod->init();
+
+      $role = $rMod->findOne(["isDefault" => true]);
+
+      if ($role) {
+        $this->create([
+          "role" => $role,
+          "permission" => "controllers_auth_post_grant"
+        ]);
+      }
+      return true;
+    }
+    return false;
+  }
 }

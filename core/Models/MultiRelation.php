@@ -1,25 +1,23 @@
 <?php
 
 
-namespace Model\Fields\RelationMulti;
+namespace Models;
 
 use Model;
 use QueryBuilder\QB_Const;
-use Model\LazyResult;
+use Model\Fields\RelationMulti\MultiConnectionRelation;
 
-class MultiRelationConnectorModel extends Model {
+class MultiRelation extends Model {
 
   private $model;
   private $model2;
   private bool $isReversed = false;
 
-  public function __construct($model, $model2, $type = "default") {
+  public function __construct($model = null, $model2 = null, $type = "default") {
     parent::__construct("relation_multi_connections");
 
     $this->model = Model::getModel($model);
     $this->model2 = Model::getModel($model2);
-    $this->isReversed = strcmp($this->model->getTableName(), $this->model2->getTableName()) > 0;
-
 
     $this->fields = [];
     $this->fields["type"] = new Model\Fields\ConstFilter(
@@ -27,13 +25,13 @@ class MultiRelationConnectorModel extends Model {
     );
     $this->fields["table_1"] = new Model\Fields\Text(
       [
-        "default" => $this->model->getTableName(),
+        "default" => $this->model ? $this->model->getTableName() : null,
         "required" => true
       ]
     );
     $this->fields["table_2"] = new Model\Fields\Text(
       [
-        "default" => $this->model2->getTableName(),
+        "default" => $this->model2 ? $this->model2->getTableName() : null,
         "required" => true
       ]
     );
@@ -45,7 +43,7 @@ class MultiRelationConnectorModel extends Model {
       "field" => "item_2",
       "required" => true
     ]);
-    $this->fields["other"] = new MultiConnectionRelation($this->model2, [
+    if ($this->model2) $this->fields["other"] = new MultiConnectionRelation($this->model2, [
       "field" => "item_2",
     ]);
   }
@@ -101,5 +99,9 @@ class MultiRelationConnectorModel extends Model {
     ]], false);
 
     $this->createMulti($insert);
+  }
+
+  public function allowDefaultService() {
+    return false;
   }
 }

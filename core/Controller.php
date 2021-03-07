@@ -51,11 +51,11 @@ class Controller {
   }
 
   protected function registerHandler($name, $fun, $method = 'GET') {
-    $this->router->add($name, function ($url, $params) use ($fun, $name) {
+    $this->router->add($name, function ($params, $next) use ($fun, $name) {
 
       $this->havePermission($this->getRoutePermName($name, $params['method']), true);
 
-      $fun($url, $params);
+      $fun($params);
     }, $method);
     $this->registeredHandlerInfos[] = [$name, $method];
   }

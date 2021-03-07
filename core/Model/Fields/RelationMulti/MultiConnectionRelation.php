@@ -7,8 +7,8 @@ use QueryBuilder\QB_Ref;
 use QueryBuilder\QB_Const;
 
 class MultiConnectionRelation extends RelationToOne {
-  public function getFilter($fieldName, $prefix, $memberName) {
-    return [
+  public function getFilter($fieldName, $prefix, $memberName, $sql_mode) {
+    if ($sql_mode === 'SELECT') return [
       "or",
       [
         "and",

@@ -38,6 +38,41 @@ class Phapi {
         });
     }
 
+    public function run() {
+        // Explode url
+        $url = isset($_GET['url']) ? explode('/', trim($_GET['url'], '/')) : [];
+
+        // Compose parameters array
+        $parameters = array();
+        $parameters['method'] = $_SERVER['REQUEST_METHOD'];
+        $parameters['url'] = $url;
+
+        // Start router, redirect fallback to 404
+        $this->router->run($parameters, function ($p, $next) {
+            http_response_code(404);
+        });
+    }
+
+    /* ------------------
+    Mysqli
+    ------------------ */
+
+    private ?mysqli $mysqli = null;
+
+    public function setMysqli($mysqli) {
+        $this->mysqli = $mysqli;
+    }
+
+    public function getMysqli() {
+        if ($this->mysqli == null)
+            throw new Exception("Mysqli must be set in phapi instance!");
+        return $this->mysqli;
+    }
+
+    /* ------------------
+    Content serving functions
+    ------------------ */
+
     function serveApi($apiPrefix = "") {
         $this->router->addNamspace($apiPrefix . ":controller", "Routers\ApiRouter");
     }
@@ -71,21 +106,6 @@ class Phapi {
                 header('Content-Type: ' . mime_content_type($fn));
                 readfile($fn);
             } else $next();
-        });
-    }
-
-    public function run() {
-        // Explode url
-        $url = isset($_GET['url']) ? explode('/', trim($_GET['url'], '/')) : [];
-
-        // Compose parameters array
-        $parameters = array();
-        $parameters['method'] = $_SERVER['REQUEST_METHOD'];
-        $parameters['url'] = $url;
-
-        // Start router, redirect fallback to 404
-        $this->router->run($parameters, function ($p, $next) {
-            http_response_code(404);
         });
     }
 }

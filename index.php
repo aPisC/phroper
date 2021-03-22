@@ -6,6 +6,13 @@ require_once("phapi/Phapi.php");
 
 $engine = Phapi::instance();
 
+$engine->setMysqli(new mysqli(
+    "localhost",
+    "bendeguz",
+    "sqlpas",
+    "test"
+));
+
 $engine->serveApi("api/");
 $engine->serveFolder(ROOT . DS . "public");
 $engine->serveFallbackFile(ROOT . DS . "public" . DS . "index.html");

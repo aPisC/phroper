@@ -144,7 +144,7 @@ class Model {
   public function findOne($filter, $populate = null) {
     $populate = $this->getPopulateList($populate);
     $q = new QueryBuilder($this, "select");
-    $mysqli = Database::instance();
+    $mysqli = Phapi::instance()->getMysqli();
 
     $q->populate($populate);
 
@@ -169,7 +169,7 @@ class Model {
   public function find($filter, $populate = null) {
     $populate = $this->getPopulateList($populate);
     $q = new QueryBuilder($this, "select");
-    $mysqli = Database::instance();
+    $mysqli = Phapi::instance()->getMysqli();
 
     $q->populate($populate);
 
@@ -197,7 +197,7 @@ class Model {
 
   public function count($filter) {
     $q = new QueryBuilder($this, "count");
-    $mysqli = Database::instance();
+    $mysqli = Phapi::instance()->getMysqli();
 
     $this->useFilter($q, $filter);
 
@@ -225,7 +225,7 @@ class Model {
     if (count($entities) == 0) return [];
 
     $q = new QueryBuilder($this, "insert");
-    $mysqli = Database::instance();
+    $mysqli = Phapi::instance()->getMysqli();
 
     foreach ($entities as $entity) {
       $this->preUpdate($entity);
@@ -269,7 +269,7 @@ class Model {
 
   public function update($filter, $entity) {
     $q = new QueryBuilder($this, "update");
-    $mysqli = Database::instance();
+    $mysqli = Phapi::instance()->getMysqli();
 
     $this->preUpdate($entity);
 
@@ -303,7 +303,7 @@ class Model {
 
     if ($entity || !$returnEntities) {
       $q = new QueryBuilder($this, "delete");
-      $mysqli = Database::instance();
+      $mysqli = Phapi::instance()->getMysqli();
 
       $this->useFilter($q, $filter);
 
@@ -325,7 +325,7 @@ class Model {
       $this->findOne([]);
     } catch (Exception $ex) {
       $q = new QueryBuilder($this, "create_table");
-      $mysqli = Database::instance();
+      $mysqli = Phapi::instance()->getMysqli();
       $q->execute($mysqli);
       return true;
     }

@@ -307,7 +307,7 @@ class QueryBuilder {
         $fieldName = $field->getFieldName($fn);
 
         $this->fields[$key] =  array(
-          "source" => $this->tableMap[$rel] . "." . $fieldName,
+          "source" => $this->tableMap[$rel] . ".'" . $fieldName . "'",
           "alias" => $key,
           "field" => $field,
           "hidden" => true,
@@ -512,7 +512,7 @@ class QueryBuilder {
       }
 
       $this->fields[$alias] =  array(
-        "source" => $source,
+        "source" => "'" . $source . "'",
         "alias" => $alias,
         "field" => $field,
         "hidden" => false,

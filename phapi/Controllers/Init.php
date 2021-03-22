@@ -24,9 +24,9 @@ class Init extends Controller {
           if ($model->init()) echo $d . ": done\n";
           else echo $d . ": already initialized \n";
         } catch (Error $ex) {
-          echo $d . ": error \n";
+          echo $d . ": error " . $ex->getMessage() . "\n";
         } catch (Exception $ex) {
-          echo $d . ": error \n";
+          echo $d . ": error " . $ex->getMessage() . "\n";
         }
       }
     }, "GET");

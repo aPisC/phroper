@@ -8,17 +8,11 @@ class Store extends Model {
   public function __construct() {
     parent::__construct('store');
 
-    $this->fields["name"] = new Model\Fields\Text(["required" => true]);
-    $this->fields["admins"] = new Model\Fields\RelationMulti($this, "Auth_User", "admin");
-    $this->fields["isDefault"] = new Model\Fields\Boolean(["field" => "is_default"]);
+    $this->fields["key"] = new Model\Fields\Text();
+    $this->fields["value"] = new Model\Fields\Json();
   }
 
   public function allowDefaultService() {
-    return true;
-  }
-
-  public function getPopulateList($populate = null) {
-    if (is_array($populate)) return $populate;
-    return ["admins"];
+    return false;
   }
 }

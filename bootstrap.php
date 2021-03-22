@@ -10,8 +10,8 @@ spl_autoload_register(function ($name) {
   else if (file_exists($name . DS . 'index.php')) require_once($name . DS . 'index.php');
 
   // Load core module
-  else if (file_exists('core' . DS . $name . '.php')) require_once('core' . DS . $name . '.php');
-  else if (file_exists('core' . DS . $name . DS . 'index.php')) require_once('core' . DS . $name . DS . 'index.php');
+  else if (file_exists('phapi' . DS . $name . '.php')) require_once('phapi' . DS . $name . '.php');
+  else if (file_exists('phapi' . DS . $name . DS . 'index.php')) require_once('phapi' . DS . $name . DS . 'index.php');
 });
 
 $parameters = array();

@@ -12,7 +12,7 @@ class Init extends Controller {
     parent::__construct();
 
     $this->router->add("all", function ($params, $next) {
-      $dl = is_dir("core" . DS . "Models") ? scandir("core" . DS . "Models") : [];
+      $dl = is_dir("phapi" . DS . "Models") ? scandir("phapi" . DS . "Models") : [];
       $dl = is_dir("Models") ? array_merge($dl, scandir("Models")) : $dl;
       if ($dl) foreach ($dl as $d) {
         try {

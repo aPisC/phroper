@@ -14,3 +14,9 @@ function str_drop_end(string $haystack, int $count) {
   $length = strlen($haystack);
   return substr($haystack, 0, $length - $count);
 }
+
+function json_load_body() {
+  $inputJSON = file_get_contents('php://input');
+  $input = json_decode($inputJSON, TRUE);
+  return $input;
+}

@@ -26,7 +26,7 @@ class Router {
         return false;
       }
       // Remaining mathcing parameter
-      if (startsWith($routeParts[$i], '::')) {
+      if (str_starts_with($routeParts[$i], '::')) {
         // concatenate remaining route parameters
         $pname = substr($routeParts[$i], 2);
         $parameters[$pname] = join(
@@ -39,7 +39,7 @@ class Router {
         break;
       }
       // One matching parameter
-      else if (startsWith($routeParts[$i], ':')) {
+      else if (str_starts_with($routeParts[$i], ':')) {
         $pname = substr($routeParts[$i], 1);
         $parameters[$pname] = $url[$i];
       }

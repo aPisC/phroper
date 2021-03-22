@@ -2,6 +2,7 @@
 
 // Defines
 if (!defined('DS')) define('DS', DIRECTORY_SEPARATOR);
+define('PHAPI_VERSION', '1.0.0');
 
 // Register auto loaging function
 spl_autoload_register(function ($name) {
@@ -22,6 +23,7 @@ require_once(ROOT . DS . 'phapi' . DS . 'functions.php');
 
 // Phapi engine class
 class Phapi {
+
     // Singleton factory
     private static ?Phapi $_instance = null;
     public static function instance() {

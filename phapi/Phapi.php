@@ -1,7 +1,7 @@
 <?php
 
 // Defines
-define('DS', DIRECTORY_SEPARATOR);
+if (!defined('DS')) define('DS', DIRECTORY_SEPARATOR);
 
 // Register auto loaging function
 spl_autoload_register(function ($name) {

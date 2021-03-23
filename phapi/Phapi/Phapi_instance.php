@@ -1,25 +1,14 @@
 <?php
 
-// Defines
-if (!defined('DS')) define('DS', DIRECTORY_SEPARATOR);
-define('PHAPI_VERSION', '1.0.0');
+namespace Phapi;
 
-// Register auto loaging function
-spl_autoload_register(function ($name) {
-    $name = str_replace('\\', DS, $name);
-
-    // Load file directly
-    if (file_exists($name . '.php')) require_once($name . '.php');
-    else if (file_exists($name . DS . 'index.php')) require_once($name . DS . 'index.php');
-
-    // Load core module
-    else if (file_exists('phapi' . DS . $name . '.php')) require_once('phapi' . DS . $name . '.php');
-    else if (file_exists('phapi' . DS . $name . DS . 'index.php')) require_once('phapi' . DS . $name . DS . 'index.php');
-});
-
-// Global imports
-require_once(ROOT . DS . 'phapi' . DS . 'functions.php');
-
+use Controller;
+use Exception;
+use JWT;
+use Model;
+use mysqli;
+use Router;
+use Service;
 
 // Phapi engine class
 class Phapi_instance {
@@ -32,6 +21,9 @@ class Phapi_instance {
         $this->router->addHandler(function ($p, $n) {
             return JWT::TokenParserMiddleware($p, $n);
         });
+
+        // Register internal plugins
+        $this->registerPlugin('store', 'Phapi\\Plugin_Store');
     }
 
     public function run() {
@@ -76,7 +68,7 @@ class Phapi_instance {
 
     public function plugin($name) {
         $plugin = $this->plugins[$name];
-        if (class_exists($plugin))
+        if (is_string($plugin) && class_exists($plugin))
             return $this->registerPlugin($name, new $plugin());
         return  $plugin;
     }
@@ -135,20 +127,5 @@ class Phapi_instance {
                 readfile($fn);
             } else $next();
         });
-    }
-}
-
-class Phapi {
-    // Singleton factory
-    private static ?Phapi_instance $_instance = null;
-    public static function instance() {
-        if (self::$_instance == null)
-            self::$_instance = new Phapi_instance();
-        return self::$_instance;
-    }
-
-    // CallStatic 
-    public static function __callStatic($name, $arguments) {
-        return Phapi::instance()->$name(...$arguments);
     }
 }

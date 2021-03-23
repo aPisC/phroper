@@ -25,8 +25,10 @@ class Phapi_instance {
     }
 
     public function run() {
-        // Process url
+        if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS')
+            return;
 
+        // Process url
         $url = $_GET['url'];
         if (str_ends_with($url, "/")) $url = str_drop_end($url, 1);
         if (str_starts_with($url, "/")) $url = substr($url, 1);

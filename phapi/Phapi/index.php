@@ -5,7 +5,7 @@
 use Phapi\Phapi_instance;
 
 if (!defined('DS')) define('DS', DIRECTORY_SEPARATOR);
-define('PHAPI_VERSION', '1.0.0');
+define('PHAPI_VERSION', '1.1.0');
 
 // Register auto loaging function
 spl_autoload_register(function ($name) {

@@ -25,8 +25,11 @@ class Phapi_instance {
     }
 
     public function run() {
-        // Explode url
-        $url = isset($_GET['url']) ? explode('/', trim($_GET['url'], '/')) : [];
+        // Process url
+
+        $url = $_GET['url'];
+        if (str_ends_with($url, "/")) $url = str_drop_end($url, 1);
+        if (str_starts_with($url, "/")) $url = substr($url, 1);
 
         // Compose parameters array
         $parameters = array();
@@ -34,7 +37,7 @@ class Phapi_instance {
         $parameters['url'] = $url;
 
         // Start router, redirect fallback to 404
-        $this->router->run($parameters, function ($p, $next) {
+        $this->router->run($parameters, function ($p) {
             http_response_code(404);
         });
     }
@@ -135,13 +138,13 @@ class Phapi_instance {
     ------------------ */
 
     function serveApi($apiPrefix = "") {
-        $this->router->addNamspace($apiPrefix . ":controller", "Routers\ApiRouter");
+        $this->router->add($apiPrefix . ":controller/", "Routers\ApiRouter");
     }
 
     public function serveFolder($folder) {
         $this->router->addHandler(function ($p, $next) use ($folder) {
             $pf = realpath($folder);
-            $fn = realpath($folder . DS .  implode(DS, $p["url"]));
+            $fn = realpath($folder . DS .  $p["url"]);
 
             if (is_dir($fn)) {
                 if (file_exists($fn . DS . "index.php")) $fn .= DS . "index.php";

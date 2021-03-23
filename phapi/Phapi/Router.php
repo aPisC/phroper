@@ -13,57 +13,59 @@ class Router {
     $this->parameters = $parameters;
   }
 
-  protected function matchUrl($expression, $url, $isNamespace = false) {
-    // returns matched parameters if mathes, false otherwise
+  private array $expressionCache = [];
 
-    if (count($url) == 0 and $expression == null)
-      return array();
+  private function getMatcher($expression) {
+    $key = $expression;
 
-    $routeParts = explode('/', $expression);
-    $parameters = array();
-    $isMatching = true;
+    if (isset($this->expressionCache[$key]))
+      return $this->expressionCache[$key];
 
-    $i = 0;
-    for (; $i < count($routeParts); $i++) {
-      if ($i >= count($url)) {
-        return false;
-      }
-      // Remaining mathcing parameter
-      if (str_starts_with($routeParts[$i], '::')) {
-        // concatenate remaining route parameters
-        $pname = substr($routeParts[$i], 2);
-        $parameters[$pname] = join(
-          '/',
-          array_filter($url, function ($v, $k) use ($i) {
-            return $k >= $i;
-          }, ARRAY_FILTER_USE_BOTH)
-        );
-        $i = count($url);
-        break;
-      }
-      // One matching parameter
-      else if (str_starts_with($routeParts[$i], ':')) {
-        $pname = substr($routeParts[$i], 1);
-        $parameters[$pname] = $url[$i];
-      }
-      // part is not parameter
-      else if ($url[$i] != $routeParts[$i]) {
-        return false;
+    $matches = [];
+    $names = [];
+
+    $expression = "/" . $expression;
+    if (preg_match_all("/(\\/:[^\\/]+)|(\\/::.+)/", $expression, $matches, 0,)) {
+      foreach ($matches[0] as $m) {
+        if (str_starts_with($m, "/::")) {
+          $expression = str_replace($m, "/(.+)", $expression);
+          $names[] = substr($m, 3);
+        } else {
+          $expression = str_replace($m, "/([^/]+)", $expression);
+          $names[] = substr($m, 2);
+        }
       }
     }
+    $expression = str_replace("/", "\\/", substr($expression, 1));
+    if (str_ends_with($expression, "/")) {
+      $expression = str_drop_end($expression, 2) . "(\\/[^?]+)?";
+      $names[] = "url";
+    }
+    $expression = "/^" . $expression . "$/";
 
-    // Reject if not a namespace route and not he whole url processed
-    if (!$isNamespace && $i != count($url)) {
-      return false;
+    $this->expressionCache[$key] = [$expression, $names];
+
+    return $this->expressionCache[$key];
+  }
+
+  public function matchUrl($expression, $url) {
+    if ($expression == "/")  return ["url" => $url];
+
+    if ($expression == null) $expression = "";
+
+    $matcher = $this->getMatcher($expression);
+
+    if (preg_match($matcher[0], $url, $matches)) {
+      $params = ["url" => ""];
+      foreach ($matcher[1] as $index => $name) {
+        if ($index + 1 < count($matches)) $params[$name] = $matches[$index + 1];
+      }
+      if (str_starts_with($params["url"], "/"))
+        $params["url"] = substr($params["url"], 1);
+      return $params;
     }
 
-    $parameters['url'] = array_values(
-      array_filter($url, function ($v, $k) use ($i) {
-        return $k >= $i;
-      }, ARRAY_FILTER_USE_BOTH)
-    );
-
-    return $parameters;
+    return false;
   }
 
   protected function matchMethod($methodExpression, $method) {
@@ -76,20 +78,13 @@ class Router {
     $this->addHandler(function ($parameters, $next) use ($expression, $method, $handler) {
       if (!$this->matchMethod($method, $parameters['method'])) return $next();
 
-      $np = $this->matchUrl($expression, $parameters['url'], false);
+      $np = $this->matchUrl($expression, $parameters['url']);
       if ($np === false) return $next();
 
       $this->runHandler($handler, array_merge($parameters, $np), $next);
     });
   }
-  public function addNamspace($expression, $handler) {
-    $this->addHandler(function ($parameters, $next) use ($expression, $handler) {
-      $np = $this->matchUrl($expression, $parameters['url'], true);
-      if ($np === false) return $next();
 
-      $this->runHandler($handler, array_merge($parameters, $np), $next);
-    });
-  }
 
   protected function runHandler($handler, $parameters, $next) {
     if (is_callable($handler)) {
@@ -123,6 +118,6 @@ class Router {
 
 
     $runner(0);
-    if (!$handled && $next) $next();
+    if (!$handled && $next) $next($parameters);
   }
 }

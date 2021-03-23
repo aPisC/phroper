@@ -144,7 +144,7 @@ class QueryBuilder {
 
   public function execute($mysqli) {
     $this->lastSql = $this->getQuery();
-    var_dump($this->lastSql);
+    //var_dump($this->lastSql);
     $stmt = $mysqli->prepare($this->lastSql);
 
     if ($stmt === false) throw new Exception("Statement could not be prepared \n" . $this->lastSql . "\n" . $mysqli->error);

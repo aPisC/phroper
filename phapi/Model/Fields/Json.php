@@ -8,7 +8,7 @@ class Json extends Field {
   }
 
   public function getSQLType() {
-    return 'VARCHAR(MAX)';
+    return 'TEXT';
   }
 
   public function onLoad($value, $key, $assoc, $populates) {

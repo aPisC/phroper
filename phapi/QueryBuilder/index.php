@@ -32,9 +32,9 @@ class QueryBuilder {
 
     $tableName = $model->getTableName();
     $this->tableMap = array(
-      "" => $tableName
+      "" => "`" . $tableName . "`"
     );
-    $this->cmd_from = "`" . $tableName . "` as `" . $this->tableMap[""] . "` \n";
+    $this->cmd_from =  "`" . $tableName . "` as " . $this->tableMap[""] . " \n";
 
     $this->collectFields($model->fields);
   }
@@ -267,7 +267,7 @@ class QueryBuilder {
         if (!$fn || !$tp) continue;
 
         if ($fieldList) $fieldList .= ", \n";
-        $fieldList .= $fn . " " . $tp;
+        $fieldList .= "`" . $fn . "` " . $tp;
       }
       return "CREATE TABLE " . $this->tableMap[""] . " (" . $fieldList . ")";
     }
@@ -494,7 +494,7 @@ class QueryBuilder {
 
       $fieldName = $field->getFieldName($key);
       $alias = $prefix . ($prefix != "" ?  "." : "") . $key;
-      $source = "`" . $this->tableMap[$prefix] . "`.`" . $fieldName . "`";
+      $source = $this->tableMap[$prefix] . ".`" . $fieldName . "`";
 
       if ($prefix == "" && $this->cmd_type !== "INSERT") {
         $filter = $field->getFilter($key, $prefix, $alias, $this->cmd_type);

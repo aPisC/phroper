@@ -33,7 +33,7 @@ Example of index.php:
 define('ROOT', dirname(__FILE__));
 define('DS', DIRECTORY_SEPARATOR);
 
-require_once("phapi/Phapi.php");
+require_once("phapi/Phapi/index.php");
 
 Phapi::setMysqli(new mysqli(
     "localhost",

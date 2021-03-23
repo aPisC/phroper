@@ -3,6 +3,7 @@
 
 namespace Models;
 
+use Exception;
 use Phapi\Model;
 use QueryBuilder\QB_Const;
 use Phapi;
@@ -17,8 +18,11 @@ class MultiRelation extends Model {
   public function __construct($model = null, $model2 = null, $type = "default") {
     parent::__construct("relation_multi_connections");
 
-    $this->model = Phapi::model($model);
-    $this->model2 = Phapi::model($model2);
+    try {
+      $this->model = Phapi::model($model);
+      $this->model2 = Phapi::model($model2);
+    } catch (Exception $e) {
+    }
 
     $this->fields = [];
     $this->fields["type"] = new Phapi\Model\Fields\ConstFilter(
@@ -104,5 +108,9 @@ class MultiRelation extends Model {
 
   public function allowDefaultService() {
     return false;
+  }
+
+  public function getPrimaryField() {
+    throw new Exception("MultiRelation has multiple primary keys");
   }
 }

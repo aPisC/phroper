@@ -16,4 +16,8 @@ class Store extends Model {
   public function allowDefaultService() {
     return false;
   }
+
+  public function getPrimaryField() {
+    return "key";
+  }
 }

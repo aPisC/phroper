@@ -16,6 +16,10 @@ class Model {
     return strtolower(str_replace('\\', '_', get_class($this)));
   }
 
+  public function getPrimaryField() {
+    return "id";
+  }
+
   function getTableName() {
     return $this->tableName;
   }

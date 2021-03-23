@@ -32,9 +32,9 @@ class QueryBuilder {
 
     $tableName = $model->getTableName();
     $this->tableMap = array(
-      "" => $tableName . ""
+      "" => $tableName
     );
-    $this->cmd_from = $tableName . " as " . $this->tableMap[""] . " \n";
+    $this->cmd_from = "`" . $tableName . "` as `" . $this->tableMap[""] . "` \n";
 
     $this->collectFields($model->fields);
   }
@@ -99,11 +99,11 @@ class QueryBuilder {
 
       $tableName = $model->getTableName();
 
-      $this->tableMap[$join] = $tableName . "_" . count($this->tableMap);
+      $this->tableMap[$join] = "`" . $tableName . "_" . count($this->tableMap) . "`";
 
-      $this->cmd_join .= "LEFT OUTER JOIN " . $tableName . " as " . $this->tableMap[$join] . " ";
+      $this->cmd_join .= "LEFT OUTER JOIN `" . $tableName . "` as " . $this->tableMap[$join] . " ";
       if ($this->fields[$join]["field"]->useDefaultJoin())
-        $this->cmd_join .= "ON " . $this->tableMap[$join] . ".id = " . $this->fields[$join]["source"] . " \n";
+        $this->cmd_join .= "ON " . $this->tableMap[$join] . ".`id` = " . $this->fields[$join]["source"] . " \n";
       else $this->cmd_join .= "ON TRUE \n";
     }
 
@@ -144,7 +144,7 @@ class QueryBuilder {
 
   public function execute($mysqli) {
     $this->lastSql = $this->getQuery();
-    //var_dump($this->lastSql);
+    var_dump($this->lastSql);
     $stmt = $mysqli->prepare($this->lastSql);
 
     if ($stmt === false) throw new Exception("Statement could not be prepared \n" . $this->lastSql . "\n" . $mysqli->error);
@@ -307,7 +307,7 @@ class QueryBuilder {
         $fieldName = $field->getFieldName($fn);
 
         $this->fields[$key] =  array(
-          "source" => $this->tableMap[$rel] . ".'" . $fieldName . "'",
+          "source" => "" . $this->tableMap[$rel] . ".`" . $fieldName . "`",
           "alias" => $key,
           "field" => $field,
           "hidden" => true,
@@ -494,7 +494,7 @@ class QueryBuilder {
 
       $fieldName = $field->getFieldName($key);
       $alias = $prefix . ($prefix != "" ?  "." : "") . $key;
-      $source = $this->tableMap[$prefix] . "." . $fieldName;
+      $source = "`" . $this->tableMap[$prefix] . "`.`" . $fieldName . "`";
 
       if ($prefix == "" && $this->cmd_type !== "INSERT") {
         $filter = $field->getFilter($key, $prefix, $alias, $this->cmd_type);
@@ -512,7 +512,7 @@ class QueryBuilder {
       }
 
       $this->fields[$alias] =  array(
-        "source" => "'" . $source . "'",
+        "source" => $source,
         "alias" => $alias,
         "field" => $field,
         "hidden" => false,

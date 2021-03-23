@@ -35,18 +35,17 @@ define('DS', DIRECTORY_SEPARATOR);
 
 require_once("phapi/Phapi.php");
 
-$engine = Phapi::instance();
-
-$engine->setMysqli(new mysqli(
+Phapi::setMysqli(new mysqli(
     "localhost",
     "user",
     "password",
     "database"
 ));
 
-$engine->serveApi("api/");
-$engine->serveFolder(ROOT . DS . "public");
-$engine->serveFallbackFile(ROOT . DS . "public" . DS . "index.html");
+Phapi::serveApi("api/");
+Phapi::serveFolder(ROOT . DS . "public");
+Phapi::serveFallbackFile(ROOT . DS . "public" . DS . "index.html");
 
-$engine->run();
+Phapi::run();
+
 ```

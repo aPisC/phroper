@@ -2,7 +2,6 @@
 
 namespace Controllers;
 
-use DefaultController;
 use Services\User as UserService;
 
 class User extends DefaultController {

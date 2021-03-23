@@ -2,11 +2,11 @@
 
 namespace Phapi;
 
-use DefaultController;
-use DefaultService;
+use Controllers\DefaultController;
 use Error;
 use Exception;
 use mysqli;
+use Services\DefaultService;
 
 // Phapi engine class
 class Phapi_instance {

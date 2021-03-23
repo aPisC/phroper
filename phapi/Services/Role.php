@@ -2,7 +2,6 @@
 
 namespace Services;
 
-use DefaultService;
 use Phapi\Model;
 use Phapi;
 

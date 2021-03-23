@@ -2,7 +2,6 @@
 
 namespace Controllers;
 
-use DefaultController;
 use Services\Role as RoleService;
 
 class Role extends DefaultController {

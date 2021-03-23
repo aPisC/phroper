@@ -1,10 +1,19 @@
 <?php
 
-class DefaultController extends Phapi\Controller {
-  protected Phapi\Service $service;
+namespace Controllers;
+
+use Exception;
+use Phapi;
+use Phapi\Controller;
+use Phapi\Service;
+
+class DefaultController extends Controller {
+  protected Service $service;
   protected string $serviceName;
 
-  public function __construct($serviceName) {
+  public function __construct($serviceName = null) {
+    if (!$serviceName)
+      throw new Exception("Using defaultController without service is not allowed.");
     parent::__construct();
 
     // Initilalize model

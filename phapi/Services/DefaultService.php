@@ -1,12 +1,20 @@
 <?php
 
+namespace Services;
+
+use Exception;
+use Phapi;
 use Phapi\Model;
 use Phapi\Service;
 
 class DefaultService extends Service {
   public Model $model;
 
-  public function __construct($modelName) {
+  public function __construct($modelName = null) {
+
+    if (!$modelName)
+      throw new Exception("Using defaultService without model is not allowed.");
+
     $model = Phapi::model($modelName);
     if ($model == null || !$model->allowDefaultService())
       throw new Exception("Service " . $modelName . " is not available.");

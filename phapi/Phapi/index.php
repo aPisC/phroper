@@ -21,7 +21,7 @@ spl_autoload_register(function ($name) {
 });
 
 // Global imports
-require_once(ROOT . DS . 'phapi' . DS . 'functions.php');
+require_once(ROOT . DS . 'phapi' . DS . 'Utils' . DS . 'functions.php');
 
 
 /* ------------------

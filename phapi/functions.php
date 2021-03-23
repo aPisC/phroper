@@ -15,6 +15,17 @@ function str_drop_end(string $haystack, int $count) {
   return substr($haystack, 0, $length - $count);
 }
 
+function str_suffix($str, $suffix, $delim = ".") {
+  $str = $str ? $str : "";
+  $suffix = $suffix ? $suffix : "";
+
+  if (!$suffix)
+    return $str;
+  if (!$str)
+    return $suffix;
+  return $str . $delim . $suffix;
+}
+
 function json_load_body() {
   $inputJSON = file_get_contents('php://input');
   $input = json_decode($inputJSON, TRUE);

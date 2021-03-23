@@ -22,19 +22,10 @@ require_once(ROOT . DS . 'phapi' . DS . 'functions.php');
 
 
 // Phapi engine class
-class Phapi {
-
-    // Singleton factory
-    private static ?Phapi $_instance = null;
-    public static function instance() {
-        if (self::$_instance == null)
-            self::$_instance = new Phapi();
-        return self::$_instance;
-    }
-
+class Phapi_instance {
     public Router $router;
 
-    private function __construct() {
+    public function __construct() {
         $this->router = new Router();
 
         // Register JWT token processor middleware
@@ -61,7 +52,6 @@ class Phapi {
     /* ------------------
     Mysqli
     ------------------ */
-
     private ?mysqli $mysqli = null;
 
     public function setMysqli($mysqli) {
@@ -72,6 +62,39 @@ class Phapi {
         if ($this->mysqli == null)
             throw new Exception("Mysqli must be set in phapi instance!");
         return $this->mysqli;
+    }
+
+    /* ------------------
+    Plugin handler
+    ------------------ */
+    private array $plugins = [];
+
+    public function registerPlugin($name, $obj) {
+        $this->plugins[$name] = $obj;
+        return $obj;
+    }
+
+    public function plugin($name) {
+        $plugin = $this->plugins[$name];
+        if (class_exists($plugin))
+            return $this->registerPlugin($name, new $plugin());
+        return  $plugin;
+    }
+
+
+    /* ------------------
+    Service, controller and model getter
+    ------------------ */
+    public function service($service) {
+        return Service::getService($service);
+    }
+
+    public function controller($controller) {
+        return Controller::getController($controller);
+    }
+
+    public function model($model) {
+        return Model::getModel($model);
     }
 
     /* ------------------
@@ -112,5 +135,20 @@ class Phapi {
                 readfile($fn);
             } else $next();
         });
+    }
+}
+
+class Phapi {
+    // Singleton factory
+    private static ?Phapi_instance $_instance = null;
+    public static function instance() {
+        if (self::$_instance == null)
+            self::$_instance = new Phapi_instance();
+        return self::$_instance;
+    }
+
+    // CallStatic 
+    public static function __callStatic($name, $arguments) {
+        return Phapi::instance()->$name(...$arguments);
     }
 }

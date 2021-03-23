@@ -13,15 +13,13 @@ class Auth extends Phapi\Controller {
 
     $this->service = Phapi::service('Auth');
 
-    $this->registerJsonHandler("me", function () {
-      return Phapi::context('user');
-    }, 'GET');
-    $this->registerJsonHandler("login", function () {
-      return $this->login();
-    }, 'POST');
-    $this->registerJsonHandler("register", function () {
-      return $this->register();
-    }, 'POST');
+    $this->registerJsonHandler("me", "me", 'GET');
+    $this->registerJsonHandler("login", "login", 'POST');
+    $this->registerJsonHandler("register", "register", 'POST');
+  }
+
+  public function me() {
+    return Phapi::context('user');
   }
 
   public function login() {

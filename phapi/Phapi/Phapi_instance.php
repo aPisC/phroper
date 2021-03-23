@@ -90,47 +90,44 @@ class Phapi_instance {
     Service, controller and model getter
     ------------------ */
     public function service($serviceName) {
-        //try {
-        if ($serviceName instanceof Service)
-            return $serviceName;
-        $scn = 'Services\\' . ucfirst($serviceName);
-        if (class_exists($scn)) $service = new $scn();
-        else $service = new DefaultService($serviceName);
-        return $service;
-        //} catch (Error $e) {
-        //    throw new Exception($e->getMessage());
-        //    return null;
-        //}
+        try {
+            if ($serviceName instanceof Service)
+                return $serviceName;
+            $scn = 'Services\\' . ucfirst($serviceName);
+            if (class_exists($scn)) $service = new $scn();
+            else $service = new DefaultService($serviceName);
+            return $service;
+        } catch (Error $e) {
+            throw new Exception($e->getMessage());
+        }
     }
 
     public function controller($controllerName) {
-        //try {
-        if ($controllerName instanceof Controller)
-            return $controllerName;
-        $ccn = 'Controllers\\' . ucfirst($controllerName);
-        if (class_exists($ccn))
-            $controller = new $ccn();
-        else {
-            $controller = new DefaultController($controllerName);
+        try {
+            if ($controllerName instanceof Controller)
+                return $controllerName;
+            $ccn = 'Controllers\\' . ucfirst($controllerName);
+            if (class_exists($ccn))
+                $controller = new $ccn();
+            else {
+                $controller = new DefaultController($controllerName);
+            }
+            return $controller;
+        } catch (Error $e) {
+            throw new Exception($e->getMessage());
         }
-        return $controller;
-        // } catch (Error $e) {
-        //    throw new Exception($e->getMessage());
-        //    return null;
-        //}
     }
 
     public function model($modelName) {
-        //try {
-        if (is_subclass_of($modelName, 'Phapi\Model'))
-            return $modelName;
-        $mcn = 'Models\\' . ucfirst($modelName);
-        $model = new $mcn();
-        return $model;
-        // } catch (Error $e) {
-        //    throw new Exception($e->getMessage());
-        //    return null;
-        //}
+        try {
+            if (is_subclass_of($modelName, 'Phapi\Model'))
+                return $modelName;
+            $mcn = 'Models\\' . ucfirst($modelName);
+            $model = new $mcn();
+            return $model;
+        } catch (Error $e) {
+            throw new Exception($e->getMessage());
+        }
     }
 
     /* ------------------

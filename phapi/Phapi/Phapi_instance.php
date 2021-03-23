@@ -137,6 +137,10 @@ class Phapi_instance {
     Content serving functions
     ------------------ */
 
+    function serve($expression, $handler, $method = "*") {
+        $this->router->add($expression, $handler, $method);
+    }
+
     function serveApi($apiPrefix = "") {
         $this->router->add($apiPrefix . ":controller/", "Routers\ApiRouter");
     }

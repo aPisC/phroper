@@ -103,7 +103,7 @@ class JWT {
 
 
       if ($payload != null) {
-        Context::set('user', Service::getService('Auth')->getUser($payload['userid']));
+        Phapi::setContext('user', Service::getService('Auth')->getUser($payload['userid']));
       }
     } catch (Exception $e) {
     }

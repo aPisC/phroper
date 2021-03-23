@@ -5,7 +5,7 @@ namespace Controllers;
 use Controller;
 use Service;
 use Services\Auth as AuthService;
-use Context;
+use Phapi;
 
 class Auth extends Controller {
   private AuthService $service;
@@ -16,7 +16,7 @@ class Auth extends Controller {
     $this->service = Service::getService('Auth');
 
     $this->registerJsonHandler("me", function () {
-      return Context::get('user');
+      return Phapi::context('user');
     }, 'GET');
     $this->registerJsonHandler("login", function () {
       return $this->login();

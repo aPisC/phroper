@@ -3,7 +3,7 @@
 
 namespace Model\Fields;
 
-use Context;
+use Phapi;
 
 class UpdatedBy extends RelationToOne {
   public function __construct() {
@@ -15,7 +15,7 @@ class UpdatedBy extends RelationToOne {
   }
 
   public function onSave($value) {
-    $user = Context::get('user');
+    $user = Phapi::context('user');
     if ($user) return $user["id"];
     return null;
   }

@@ -73,6 +73,20 @@ class Phapi_instance {
         return  $plugin;
     }
 
+    /* ------------------
+    Context handler
+    ------------------ */
+    private array $contextValues = [];
+
+    public function setContext($name, $value) {
+        $this->contextValues[$name] = $value;
+    }
+
+    public function context($name) {
+        if (!isset($this->contextValues[$name]))
+            return null;
+        return $this->contextValues[$name];
+    }
 
     /* ------------------
     Service, controller and model getter

@@ -34,7 +34,7 @@ class Controller {
   }
 
   protected function havePermission($action, $throw = false) {
-    $user = Context::get('user');
+    $user = Phapi::context('user');
     $auth = Service::getService('Auth');
     $permName = strtolower($this->getName() . '_' . $action);
 

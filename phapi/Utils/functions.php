@@ -6,6 +6,14 @@ function str_ends_with(string $haystack, string $needle) {
   return substr($haystack, -$length) === $needle;
 }
 
+function str_pc_text($name) {
+  $matches = [];
+  while (preg_match("/[a-z][A-Z]/", $name, $matches)) {
+    $name = str_replace($matches[0], substr($matches[0], 0, 1) . " " . substr($matches[0], 1, 1), $name);
+  }
+  return $name;
+}
+
 function str_starts_with(string $haystack, string $needle) {
   return substr($haystack, 0, strlen($needle)) === $needle;
 }

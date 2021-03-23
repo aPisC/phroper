@@ -36,7 +36,13 @@ class ContentSchema extends Controller {
     public function model($p) {
         $model = Phapi::model($p["model"]);
 
+        $name = explode("\\", get_class($model));
+        $name = $name[count($name) - 1];
+
+        $name = str_pc_text($name);
+
         $result = [
+            "name" => $name,
             "fields" => []
         ];
 

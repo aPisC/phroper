@@ -50,7 +50,12 @@ class Controller {
     );
   }
 
-  protected function registerHandler($name, $fun, $method = 'GET') {
+  protected function registerHandler($name, $fun = null, $method = 'GET') {
+    if ($fun == null) $fun = $name;
+    if (is_string($fun)) $fun = function ($p, $n) use ($fun) {
+      return $this->$fun($p, $n);
+    };
+
     $this->router->add($name, function ($params, $next) use ($fun, $name) {
 
       $this->havePermission($this->getRoutePermName($name, $params['method']), true);
@@ -60,7 +65,12 @@ class Controller {
     $this->registeredHandlerInfos[] = [$name, $method];
   }
 
-  protected function registerJsonHandler($name, $fun, $method = 'GET') {
+  protected function registerJsonHandler($name, $fun = null, $method = 'GET') {
+    if ($fun == null) $fun = $name;
+    if (is_string($fun)) $fun = function ($p, $n) use ($fun) {
+      return $this->$fun($p, $n);
+    };
+
     $this->router->add($name, function ($params, $next) use ($fun, $name) {
       try {
         // Throwing exception when user has no permission

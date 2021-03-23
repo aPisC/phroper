@@ -2,20 +2,21 @@
 
 namespace Models;
 
-use Model;
+use Phapi\Model;
+use Phapi;
 
 class Auth_Role extends Model {
   public function __construct() {
     parent::__construct('role');
 
 
-    $this->fields["name"] = new Model\Fields\Text();
-    $this->fields["isDefault"] = new Model\Fields\Boolean(["field" => "is_default"]);
-    $this->fields["permissions"] = new Model\Fields\ArrayMapper(
+    $this->fields["name"] = new Phapi\Model\Fields\Text();
+    $this->fields["isDefault"] = new Phapi\Model\Fields\Boolean(["field" => "is_default"]);
+    $this->fields["permissions"] = new Phapi\Model\Fields\ArrayMapper(
       "permission",
-      new Model\Fields\RelationToMany("Auth_Permission", "role")
+      new Phapi\Model\Fields\RelationToMany("Auth_Permission", "role")
     );
-    $this->fields["users"] = new Model\Fields\RelationToMany("Auth_User", "role");
+    $this->fields["users"] = new Phapi\Model\Fields\RelationToMany("Auth_User", "role");
   }
 
   public function init() {
@@ -25,8 +26,8 @@ class Auth_Role extends Model {
         "isDefault" => true,
       ]);
 
-      Model::getModel("Auth_Permission")->init();
-      Model::getModel("Auth_User")->init();
+      Phapi::model("Auth_Permission")->init();
+      Phapi::model("Auth_User")->init();
 
       return true;
     }

@@ -1,4 +1,7 @@
 <?php
+
+use Phapi\Model;
+
 class QueryBuilder {
 
   private Model $model;
@@ -24,7 +27,7 @@ class QueryBuilder {
 
   function __construct($model, $type) {
     $this->cmd_type = strtoupper($type);
-    $this->model = Model::getModel($model);
+    $this->model = Phapi::model($model);
 
     $this->bindings_filter = new QueryBuilder\BindCollector();
     $this->bindings_values = new QueryBuilder\BindCollector();
@@ -93,7 +96,7 @@ class QueryBuilder {
       if (!($this->fields[$join]["field"] && $this->fields[$join]["field"]->isJoinable()))
         return;
 
-      $model = Model::getModel($this->fields[$join]["field"]->getModel());
+      $model = Phapi::model($this->fields[$join]["field"]->getModel());
 
       $this->joins[$join] = $model;
 
@@ -521,7 +524,7 @@ class QueryBuilder {
       // default and forceUpdated field values
       if ($prefix == "") {
         $def = $this->cmd_type == "INSERT" ?  $field->getDefault() : null;
-        if ($this->cmd_type == "INSERT" && !($def instanceof Model\Fields\IgnoreField)) {
+        if ($this->cmd_type == "INSERT" && !($def instanceof Phapi\Model\Fields\IgnoreField)) {
           $this->values->setDefaultValue($source, $field->onSave($def));
         } else if (($this->cmd_type == "INSERT" || $this->cmd_type == "UPDATE") && $field->forceUpdate()) {
           $this->values->setDefaultValue($source, $field->onSave(null));

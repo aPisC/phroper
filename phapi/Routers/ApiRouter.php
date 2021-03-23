@@ -2,9 +2,9 @@
 
 namespace Routers;
 
-use Controller;
-use Router;
 use Exception;
+use Phapi;
+use Phapi\Router;
 
 class ApiRouter extends Router {
   public function __construct($p = array()) {
@@ -15,7 +15,7 @@ class ApiRouter extends Router {
     $cn = $parameters['controller'];
 
     try {
-      $controller = Controller::getController($cn);
+      $controller = Phapi::controller($cn);
       if (!$controller)
         throw new Exception('Service ' . $cn . ' is not available.');
       $controller->run($parameters, $next);

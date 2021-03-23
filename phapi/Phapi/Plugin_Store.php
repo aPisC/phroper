@@ -2,7 +2,8 @@
 
 namespace Phapi;
 
-use Model;
+use Phapi\Model;
+use Phapi;
 
 class BoundStore {
     private $service;
@@ -26,7 +27,7 @@ class Plugin_Store {
     private Model $storeModel;
 
     public function __construct() {
-        $this->storeModel = Model::getModel("Store");
+        $this->storeModel = Phapi::model("Store");
     }
 
     public function get($key, $default = null) {

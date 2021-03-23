@@ -2,12 +2,11 @@
 
 namespace Controllers;
 
-use Controller;
 use Error;
 use Exception;
-use Model;
+use Phapi;
 
-class Init extends Controller {
+class Init extends Phapi\Controller {
   public function __construct() {
     parent::__construct();
 
@@ -19,7 +18,7 @@ class Init extends Controller {
           if (str_starts_with($d, ".")) continue;
           if (str_ends_with($d, ".php"))
             $d = str_drop_end($d, 4);
-          $model = Model::getModel($d);
+          $model = Phapi::model($d);
           if (!$model) continue;
           if ($model->init()) echo $d . ": done\n";
           else echo $d . ": already initialized \n";
@@ -33,7 +32,7 @@ class Init extends Controller {
 
     $this->router->add(":model", function ($params, $next) {
       try {
-        $model = Model::getModel($params["model"]);
+        $model = Phapi::model($params["model"]);
         if (!$model) return $next();
         if ($model->init()) echo "done\n";
         else echo "already initialized \n";

@@ -2,7 +2,7 @@
 
 namespace Models;
 
-use Model;
+use Phapi\Model;
 
 class Store extends Model {
   public function __construct() {

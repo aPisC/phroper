@@ -2,16 +2,16 @@
 
 namespace Services;
 
-use Controller;
 use DefaultService;
-use Model;
+use Phapi\Model;
+use Phapi;
 
 class Role extends DefaultService {
   private Model $permModel;
 
   public function __construct() {
     parent::__construct("Auth_Role");
-    $this->permModel = Model::getModel("Auth_Permission");
+    $this->permModel = Phapi::model("Auth_Permission");
   }
 
   public function grant($role, $perm) {
@@ -39,7 +39,7 @@ class Role extends DefaultService {
 
 
   public function listControllerPerms($controller) {
-    $controller = Controller::getController($controller);
+    $controller = Phapi::controller($controller);
     if (!$controller) return [];
 
     return $controller->getAvailablePermissions();

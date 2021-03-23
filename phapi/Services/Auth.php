@@ -3,10 +3,10 @@
 namespace Services;
 
 use Exception;
-use Controller;
-use Service;
-use Model;
-use JWT;
+use Phapi\Model;
+use Phapi;
+use Phapi\JWT;
+use Phapi\Service;
 
 class Auth extends Service {
   private Model $userModel, $roleModel, $permModel;
@@ -14,9 +14,9 @@ class Auth extends Service {
   public function __construct() {
     parent::__construct();
 
-    $this->userModel = Model::getModel("Auth_User");
-    $this->roleModel = Model::getModel("Auth_Role");
-    $this->permModel = Model::getModel("Auth_Permission");
+    $this->userModel = Phapi::model("Auth_User");
+    $this->roleModel = Phapi::model("Auth_Role");
+    $this->permModel = Phapi::model("Auth_Permission");
   }
 
   public function login($username, $password) {

@@ -3,9 +3,10 @@
 
 namespace Models;
 
-use Model;
+use Phapi\Model;
 use QueryBuilder\QB_Const;
-use Model\Fields\RelationMulti\MultiConnectionRelation;
+use Phapi;
+use Phapi\Model\Fields\RelationMulti\MultiConnectionRelation;
 
 class MultiRelation extends Model {
 
@@ -16,30 +17,30 @@ class MultiRelation extends Model {
   public function __construct($model = null, $model2 = null, $type = "default") {
     parent::__construct("relation_multi_connections");
 
-    $this->model = Model::getModel($model);
-    $this->model2 = Model::getModel($model2);
+    $this->model = Phapi::model($model);
+    $this->model2 = Phapi::model($model2);
 
     $this->fields = [];
-    $this->fields["type"] = new Model\Fields\ConstFilter(
-      new Model\Fields\Text(["default" => $type])
+    $this->fields["type"] = new Phapi\Model\Fields\ConstFilter(
+      new Phapi\Model\Fields\Text(["default" => $type])
     );
-    $this->fields["table_1"] = new Model\Fields\Text(
+    $this->fields["table_1"] = new Phapi\Model\Fields\Text(
       [
         "default" => $this->model ? $this->model->getTableName() : null,
         "required" => true
       ]
     );
-    $this->fields["table_2"] = new Model\Fields\Text(
+    $this->fields["table_2"] = new Phapi\Model\Fields\Text(
       [
         "default" => $this->model2 ? $this->model2->getTableName() : null,
         "required" => true
       ]
     );
-    $this->fields["item_1"] = new Model\Fields\Integer([
+    $this->fields["item_1"] = new Phapi\Model\Fields\Integer([
       "field" => "item_1",
       "required" => true
     ]);
-    $this->fields["item_2"] = new Model\Fields\Integer([
+    $this->fields["item_2"] = new Phapi\Model\Fields\Integer([
       "field" => "item_2",
       "required" => true
     ]);

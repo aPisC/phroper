@@ -2,8 +2,8 @@
 
 namespace Phapi\Model\Fields;
 
-use Model\Entity;
-use Model\LazyResult;
+use Phapi\Model\Entity;
+use Phapi\Model\LazyResult;
 
 class RelationToOne extends Relation {
   public function __construct($model, array $data = null) {

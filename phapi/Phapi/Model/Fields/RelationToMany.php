@@ -3,7 +3,7 @@
 namespace Phapi\Model\Fields;
 
 use Exception;
-use Model\LazyResult;
+use Phapi\Model\LazyResult;
 
 class RelationToMany extends Relation {
   private $via;

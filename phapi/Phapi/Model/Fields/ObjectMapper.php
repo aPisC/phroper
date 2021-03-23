@@ -3,8 +3,8 @@
 namespace Phapi\Model\Fields;
 
 use Exception;
-use Model\Entity;
-use Model\LazyResult;
+use Phapi\Model\Entity;
+use Phapi\Model\LazyResult;
 
 class ObjectMapper extends FieldExtension {
   protected $mapper;

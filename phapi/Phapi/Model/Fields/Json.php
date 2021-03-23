@@ -18,4 +18,10 @@ class Json extends Field {
   public function onSave($value) {
     return json_encode($value);
   }
+
+  public function getUiInfo() {
+    $i = parent::getUiInfo();
+    $i["type"] = "json";
+    return $i;
+  }
 }

@@ -26,4 +26,11 @@ class Enum extends Text {
       return null;
     return $value;
   }
+
+  public function getUiInfo() {
+    $i = parent::getUiInfo();
+    $i["type"] = "enum";
+    $i["values"] = $this->allowedValues;
+    return $i;
+  }
 }

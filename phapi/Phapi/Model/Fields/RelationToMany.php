@@ -57,4 +57,11 @@ class RelationToMany extends Relation {
     }
     return IgnoreField::instance();
   }
+
+  public function getUiInfo() {
+    $i = parent::getUiInfo();
+    $i["type"] = "relation_many";
+    $i["model"] = is_string($this->model) ? $this->model : get_class($this->model);
+    return $i;
+  }
 }

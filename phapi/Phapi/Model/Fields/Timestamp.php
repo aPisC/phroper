@@ -17,4 +17,10 @@ class Timestamp extends Field {
       return date("Y-m-d H:i:s", $value);
     return $value;
   }
+
+  public function getUiInfo() {
+    $i = parent::getUiInfo();
+    $i["type"] = "timestamp";
+    return $i;
+  }
 }

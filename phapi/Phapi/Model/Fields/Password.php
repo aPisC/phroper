@@ -20,4 +20,10 @@ class Password extends Field {
   public function isPrivate() {
     return true;
   }
+
+  public function getUiInfo() {
+    $i = parent::getUiInfo();
+    $i["type"] = "password";
+    return $i;
+  }
 }

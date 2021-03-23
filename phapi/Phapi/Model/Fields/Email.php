@@ -14,4 +14,11 @@ class Email extends Text {
       return new Exception("Email format is invalid");
     return $value;
   }
+
+
+  public function getUiInfo() {
+    $i = parent::getUiInfo();
+    $i["type"] = "email";
+    return $i;
+  }
 }

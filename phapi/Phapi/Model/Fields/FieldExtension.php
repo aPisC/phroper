@@ -80,4 +80,8 @@ abstract class FieldExtension extends Field {
   public function useDefaultJoin() {
     return $this->base->useDefaultJoin();
   }
+
+  public function getUiInfo() {
+    return parent::getUiInfo();
+  }
 }

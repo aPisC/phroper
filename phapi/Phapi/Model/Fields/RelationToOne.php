@@ -47,4 +47,10 @@ class RelationToOne extends Relation {
   public function isJoinable() {
     return true;
   }
+  public function getUiInfo() {
+    $i = parent::getUiInfo();
+    $i["type"] = "relation_one";
+    $i["model"] = is_string($this->model) ? $this->model : get_class($this->model);
+    return $i;
+  }
 }

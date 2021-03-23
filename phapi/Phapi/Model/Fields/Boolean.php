@@ -20,4 +20,10 @@ class Boolean extends Field {
     if ($value === null) return null;
     return !!$value;
   }
+
+  public function getUiInfo() {
+    $i = parent::getUiInfo();
+    $i["type"] = "bool";
+    return $i;
+  }
 }

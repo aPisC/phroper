@@ -42,7 +42,10 @@ class ContentSchema extends Controller {
 
         foreach ($model->fields as $key => $field) {
             if (!$field) continue;
-            $result["fields"][$key] = get_class($field);
+            $fd = $field->getUiInfo();
+            if (!$fd) continue;
+
+            $result["fields"][$key] = $fd;
         }
 
         return $result;

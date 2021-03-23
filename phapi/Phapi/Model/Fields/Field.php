@@ -81,4 +81,13 @@ abstract class Field {
   public function isDefaultPopulated() {
     return false;
   }
+
+  public function getUiInfo() {
+    return [
+      "type" => "text",
+      "private" => $this->isPrivate(),
+      "required" => $this->isRequired(),
+      "readonly" => $this->isReadonly(),
+    ];
+  }
 }

@@ -10,4 +10,10 @@ class Identity extends Integer {
   public function getSQLType() {
     return 'INTEGER UNSIGNED AUTO_INCREMENT PRIMARY KEY';
   }
+
+  public function getUiInfo() {
+    $i = parent::getUiInfo();
+    $i["type"] = "identity";
+    return $i;
+  }
 }

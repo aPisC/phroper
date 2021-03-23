@@ -47,4 +47,8 @@ class ArrayMapper extends FieldExtension {
   public function getSanitizedValue($value) {
     return $value;
   }
+
+  public function getUiInfo() {
+    return null;
+  }
 }

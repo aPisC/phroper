@@ -10,4 +10,12 @@ class Integer extends Field {
   public function getSQLType() {
     return 'INT';
   }
+
+
+
+  public function getUiInfo() {
+    $i = parent::getUiInfo();
+    $i["type"] = "int";
+    return $i;
+  }
 }

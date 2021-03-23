@@ -23,4 +23,8 @@ class UpdatedBy extends RelationToOne {
   public function isDefaultPopulated() {
     return false;
   }
+
+  public function getUiInfo() {
+    return null;
+  }
 }

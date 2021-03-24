@@ -40,7 +40,7 @@ export default function ListEntries({ schema }) {
   }, []);
 
   const displayFormatter = {
-    timestamp: false,
+    //timestamp: true,
     password: false,
     relation_one: false,
     relation_many: false,

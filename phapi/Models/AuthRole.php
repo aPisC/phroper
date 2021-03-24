@@ -33,4 +33,10 @@ class AuthRole extends Model {
     }
     return false;
   }
+
+  public function getUiInfo() {
+    $info = parent::getUiInfo();
+    $info["display"] = "name";
+    return $info;
+  }
 }

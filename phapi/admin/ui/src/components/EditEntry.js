@@ -6,6 +6,7 @@ import {
   HStack,
   Input,
   Select,
+  Skeleton,
   Switch,
   Text,
   VStack,
@@ -111,6 +112,41 @@ export default function EditEntry({ isCreating, schema }) {
   );
 }
 
+function RelationOneField({ schema, placeholder, ...props }) {
+  const schemaHandler = useRequestRunner(
+    useRequest(
+      `http://192.168.0.10/~bendeguz/phapi/admin/content-schema/model/${schema.model}`
+    ).list
+  );
+  useEffect(schemaHandler.run, []);
+  const contentHandler = useRequestRunner(
+    useRequest(
+      `http://192.168.0.10/~bendeguz/phapi/admin/content-manager/${schema.model}`
+    ).list
+  );
+  useEffect(contentHandler.run, []);
+
+  const modelSchema = schemaHandler.result;
+  const entities = contentHandler.result;
+  const optionList = useMemo(
+    () =>
+      modelSchema &&
+      entities &&
+      entities.map((e) => (
+        <option value={e[modelSchema.primary]}>
+          {" "}
+          {e[modelSchema.display]}
+        </option>
+      )),
+    [modelSchema, entities]
+  );
+
+  if (contentHandler.isLoading || schemaHandler.isLoading)
+    return <Skeleton h={8} />;
+
+  return <Select {...props}>{optionList}</Select>;
+}
+
 const editFieldMap = {
   default: Input,
   default_: connect(({ name, formik }) => (
@@ -130,23 +166,27 @@ const editFieldMap = {
       ))}
     </Select>
   ),
+  relation_one: RelationOneField,
+  relation_many: false,
   email: (props) => <Input type="email" {...props} />,
 };
 
 function SchemaField({ schema, isCreating }) {
-  const EditComponent = editFieldMap[schema.type] || editFieldMap.default;
+  const EditComponent = editFieldMap[schema.type] ?? editFieldMap.default;
   const disabled = isCreating ? schema.auto : schema.readonly;
   return (
-    <FormControl>
-      <FormLabel>{schema.name}</FormLabel>
-      <Field
-        as={EditComponent}
-        name={schema.key}
-        placeholder={schema.name}
-        disabled={disabled}
-        schema={schema}
-        required={!disabled && schema.required}
-      />
-    </FormControl>
+    EditComponent && (
+      <FormControl>
+        <FormLabel>{schema.name}</FormLabel>
+        <Field
+          as={EditComponent}
+          name={schema.key}
+          placeholder={schema.name}
+          disabled={disabled}
+          schema={schema}
+          required={!disabled && schema.required}
+        />
+      </FormControl>
+    )
   );
 }

@@ -8,6 +8,7 @@ class Log extends Model {
   public function __construct() {
     parent::__construct('log');
 
+    $this->fields['updated_at'] = null;
     $this->fields['type'] = new Model\Fields\Enum([
       "debug",
       "info",

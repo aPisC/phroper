@@ -20,7 +20,7 @@ export default function Layout({ children }) {
   );
   const schemaHandler = useRequestRunner(schemaApi.list);
   const auth = useContext(AuthConext);
-  useEffect(schemaHandler.run, []);
+  useEffect(schemaHandler.run, [auth.user]);
 
   return (
     <>
@@ -29,56 +29,58 @@ export default function Layout({ children }) {
           <Spinner></Spinner>
         </Center>
       )}
-      {schemaHandler.isSuccess && (
-        <Box minH="100%" w="100%">
-          <Box
-            position="fixed"
-            left={0}
-            px={3}
-            w="250px"
-            top={0}
-            minH="100%"
-            bg="red.600"
-            color="white"
-          >
-            <Box fontSize={40} mb={6} w="100%" textAlign="center">
-              <Link to="/">Phapi</Link>
-            </Box>
-
-            {auth.user && (
-              <HStack mb={6}>
-                <Avatar mr={4} />
-                <VStack flex={1} alignItems="flex-start">
-                  <Text fontSize={20}>{auth.user.username}</Text>
-                  <Button
-                    variant="link"
-                    colorScheme="white"
-                    onClick={auth.logout}
-                  >
-                    logout
-                  </Button>
-                </VStack>
-              </HStack>
-            )}
-
-            <Text fontSize={24} mb={2}>
-              Content types
-            </Text>
-            <VStack pl={4} alignItems="flex-start">
-              {schemaHandler.result
-                ?.filter((model) => model.visible)
-                .map((model) => (
-                  <Link key={model.key} to={`/content-type/${model.key}`}>
-                    {model.name}
-                  </Link>
-                ))}
-            </VStack>
+      <Box minH="100%" w="100%">
+        <Box
+          position="fixed"
+          left={0}
+          px={3}
+          w="250px"
+          top={0}
+          minH="100%"
+          bg="red.600"
+          color="white"
+        >
+          <Box fontSize={40} mb={6} w="100%" textAlign="center">
+            <Link to="/">Phapi</Link>
           </Box>
-          <Box ml={250} px={4}>
-            {children}
-          </Box>
+
+          {auth.user && (
+            <HStack mb={6}>
+              <Avatar mr={4} />
+              <VStack flex={1} alignItems="flex-start">
+                <Text fontSize={20}>{auth.user.username}</Text>
+                <Button
+                  variant="link"
+                  colorScheme="white"
+                  onClick={auth.logout}
+                >
+                  logout
+                </Button>
+              </VStack>
+            </HStack>
+          )}
+
+          {schemaHandler.isSuccess && (
+            <>
+              <Text fontSize={24} mb={2}>
+                Content types
+              </Text>
+              <VStack pl={4} alignItems="flex-start">
+                {schemaHandler.result
+                  ?.filter((model) => model.visible)
+                  .map((model) => (
+                    <Link key={model.key} to={`/content-type/${model.key}`}>
+                      {model.name}
+                    </Link>
+                  ))}
+              </VStack>
+            </>
+          )}
         </Box>
-      )}
+        <Box ml={250} px={4}>
+          {children}
+        </Box>
+      </Box>
     </>
   );
 }

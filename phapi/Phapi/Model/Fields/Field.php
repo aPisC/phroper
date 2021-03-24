@@ -89,13 +89,14 @@ abstract class Field {
   }
 
   public function getUiInfo() {
+    $default = $this->getDefault();
     return [
       "type" => "text",
       "private" => $this->isPrivate(),
       "required" => $this->isRequired(),
       "readonly" => $this->isReadonly(),
       "auto" => $this->isAuto(),
-      "default" => $this->getDefault(),
+      "default" => $default instanceof IgnoreField ? null : $default,
     ];
   }
 }

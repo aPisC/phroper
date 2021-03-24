@@ -1,7 +1,12 @@
 import { ChakraProvider } from "@chakra-ui/react";
-import { BrowserRouter as Router, Route, Switch } from "react-router-dom";
+import {
+  BrowserRouter as Router,
+  Redirect,
+  Route,
+  Switch,
+} from "react-router-dom";
 import "./App.css";
-import { AuthBackend } from "./auth/auth";
+import { AuthBackend, AuthConext } from "./auth/auth";
 import ContentType from "./components/ContentType";
 import Layout from "./Layout";
 import Login from "./pages/Login";
@@ -11,6 +16,9 @@ function App() {
     <ChakraProvider>
       <Router>
         <AuthBackend>
+          <AuthConext.Consumer>
+            {(auth) => !auth.user && <Redirect to="/login" />}
+          </AuthConext.Consumer>
           <Layout>
             <Switch>
               <Route path="/login" component={Login} />

@@ -1,5 +1,7 @@
 import {
   Box,
+  Button,
+  HStack,
   Skeleton,
   Table,
   Tbody,
@@ -11,11 +13,13 @@ import {
 } from "@chakra-ui/react";
 import React, { useEffect, useState } from "react";
 import { useParams } from "react-router";
+import { useHistory } from "react-router-dom";
 import useRequest from "../utils/useRequest";
 import useRequestRunner from "../utils/useRequestRunner";
 
 export default function ListEntries({ schema }) {
   const { model } = useParams();
+  const history = useHistory();
   const contentApi = useRequest(
     `http://192.168.0.10/~bendeguz/phapi/admin/content-manager/${model}`
   );
@@ -55,10 +59,20 @@ export default function ListEntries({ schema }) {
 
   return (
     <Box>
-      <Text fontSize={40} mb={4}>
-        {schema.name}
-      </Text>
       <Skeleton isLoaded={!contentHandler.isLoading}>
+        <Text fontSize={40} mb={4}>
+          {schema.name}
+        </Text>
+        <HStack mb={6}>
+          <Button
+            colorScheme="red"
+            aria-label="Search database"
+            onClick={() => history.push(history.location.pathname + "/create")}
+            variant="link"
+          >
+            New
+          </Button>
+        </HStack>
         <Table>
           <Thead>
             <Tr>
@@ -70,7 +84,14 @@ export default function ListEntries({ schema }) {
           <Tbody>
             {contentHandler.result &&
               contentHandler.result.map((e, i) => (
-                <Tr key={e.id || i}>
+                <Tr
+                  key={e[schema.primary] || i}
+                  onClick={() =>
+                    history.push(
+                      history.location.pathname + "/" + e[schema.primary]
+                    )
+                  }
+                >
                   {names.map((n) => (
                     <Td key={n}>
                       {(

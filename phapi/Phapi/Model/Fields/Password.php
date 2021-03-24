@@ -13,7 +13,7 @@ class Password extends Field {
 
   public function onSave($value) {
     $value = parent::onSave($value);
-    if ($value == null) return null;
+    if (!$value) return IgnoreField::instance();
     return password_hash($value, PASSWORD_DEFAULT);
   }
 

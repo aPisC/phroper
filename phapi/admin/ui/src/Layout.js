@@ -1,6 +1,16 @@
-import { Box, Center, Spinner, Text, VStack } from "@chakra-ui/react";
-import React, { useEffect } from "react";
+import {
+  Avatar,
+  Box,
+  Button,
+  Center,
+  HStack,
+  Spinner,
+  Text,
+  VStack,
+} from "@chakra-ui/react";
+import React, { useContext, useEffect } from "react";
 import { Link } from "react-router-dom";
+import { AuthConext } from "./auth/auth";
 import useRequest from "./utils/useRequest";
 import useRequestRunner from "./utils/useRequestRunner";
 
@@ -9,6 +19,7 @@ export default function Layout({ children }) {
     `http://192.168.0.10/~bendeguz/phapi/admin/content-schema/models`
   );
   const schemaHandler = useRequestRunner(schemaApi.list);
+  const auth = useContext(AuthConext);
   useEffect(schemaHandler.run, []);
 
   return (
@@ -30,18 +41,36 @@ export default function Layout({ children }) {
             bg="red.600"
             color="white"
           >
-            <Text fontSize={40} mb={4} w="100%" textAlign="center">
-              Phapi
-            </Text>
+            <Box fontSize={40} mb={6} w="100%" textAlign="center">
+              <Link to="/">Phapi</Link>
+            </Box>
+
+            {auth.user && (
+              <HStack mb={6}>
+                <Avatar mr={4} />
+                <VStack flex={1} alignItems="flex-start">
+                  <Text fontSize={20}>{auth.user.username}</Text>
+                  <Button
+                    variant="link"
+                    colorScheme="white"
+                    onClick={auth.logout}
+                  >
+                    logout
+                  </Button>
+                </VStack>
+              </HStack>
+            )}
 
             <Text fontSize={24} mb={2}>
               Content types
             </Text>
-            <VStack pl={2} alignItems="left">
+            <VStack pl={4} alignItems="flex-start">
               {schemaHandler.result
                 ?.filter((model) => model.visible)
                 .map((model) => (
-                  <Link to={`/content-type/${model.key}`}>{model.name}</Link>
+                  <Link key={model.key} to={`/content-type/${model.key}`}>
+                    {model.name}
+                  </Link>
                 ))}
             </VStack>
           </Box>

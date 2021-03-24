@@ -130,6 +130,8 @@ class QueryBuilder {
       return;
 
     $newValue = $rawUpdate ? $value : $field->onSave($value);
+    if ($newValue instanceof Phapi\Model\Fields\IgnoreField)
+      return;
 
     if ($field->isRequired() && $newValue == null)
       $newValue = new Exception(

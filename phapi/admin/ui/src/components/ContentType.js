@@ -27,10 +27,10 @@ export default function ContentType({ match }) {
       {schemaHandler.isSuccess && (
         <Switch>
           <Route path={`${match.path}/create`}>
-            <EditEntry isCreating={true} />
+            <EditEntry isCreating={true} schema={schemaHandler.result} />
           </Route>
           <Route path={`${match.path}/:id`}>
-            <EditEntry isCreating={false} />
+            <EditEntry isCreating={false} schema={schemaHandler.result} />
           </Route>
           <Route path={match.path} exact>
             <ListEntries schema={schemaHandler.result} />

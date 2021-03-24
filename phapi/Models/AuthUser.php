@@ -14,7 +14,7 @@ class AuthUser extends Model {
     $this->fields["username"] = new Phapi\Model\Fields\Text();
     $this->fields["role"] = new Phapi\Model\Fields\RelationToOne("AuthRole");
     $this->fields["password"] = new Phapi\Model\Fields\Password();
-    $this->fields["email"] = new Phapi\Model\Fields\Text();
+    $this->fields["email"] = new Phapi\Model\Fields\Email();
     $this->fields["isAdmin"] = new Phapi\Model\Fields\Boolean(["default" => false]);
   }
 
@@ -34,5 +34,11 @@ class AuthUser extends Model {
   public function getPopulateList($populate = null) {
     if (is_array($populate)) return $populate;
     return [];
+  }
+
+  public function getUiInfo() {
+    $info = parent::getUiInfo();
+    $info["display"] = "username";
+    return $info;
   }
 }

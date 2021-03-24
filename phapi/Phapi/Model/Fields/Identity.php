@@ -21,7 +21,7 @@ class Identity extends Integer {
     return true;
   }
 
-  public function forceUpdate() {
+  public function isAuto() {
     return true;
   }
 

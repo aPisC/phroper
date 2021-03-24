@@ -6,6 +6,7 @@ abstract class Field {
   private bool $private = false;
   private bool $readonly = false;
   private bool $required = false;
+  private bool $auto = false;
   private $field = null;
   private $defaultValue;
 
@@ -15,6 +16,7 @@ abstract class Field {
     if (isset($data["readonly"])) $this->readonly = $data["readonly"];
     if (isset($data["required"])) $this->required = $data["required"];
     if (isset($data["field"])) $this->field = $data["field"];
+    if (isset($data["auto"])) $this->auto = $data["auto"];
     if (isset($data["default"])) $this->defaultValue = $data["default"];
     else $this->defaultValue = IgnoreField::instance();
   }
@@ -29,6 +31,10 @@ abstract class Field {
 
   public function isPrivate() {
     return $this->private;
+  }
+
+  public function isAuto() {
+    return $this->auto;
   }
 
   public function isReadonly() {
@@ -88,8 +94,8 @@ abstract class Field {
       "private" => $this->isPrivate(),
       "required" => $this->isRequired(),
       "readonly" => $this->isReadonly(),
+      "auto" => $this->isAuto(),
       "default" => $this->getDefault(),
-      "forced" => $this->forceUpdate(),
     ];
   }
 }

@@ -126,7 +126,7 @@ class QueryBuilder {
     $key_resolved = $this->resolve($key);
     if (!$key_resolved) return;
     $field = $this->fields[$key]["field"];
-    if ($field->isReadonly() && $this->cmd_type !== "INSERT")
+    if (($field->isReadonly() && $this->cmd_type !== "INSERT") || ($field->isAuto() && $this->cmd_type === "INSERT"))
       return;
 
     $newValue = $rawUpdate ? $value : $field->onSave($value);

@@ -11,6 +11,14 @@ class UpdatedAt extends Timestamp {
     return true;
   }
 
+  public function isReadonly() {
+    return true;
+  }
+
+  public function isAuto() {
+    return true;
+  }
+
   public function onSave($value) {
     return parent::onSave(time());
   }

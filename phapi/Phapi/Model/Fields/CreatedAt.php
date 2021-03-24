@@ -15,6 +15,10 @@ class CreatedAt extends Timestamp {
     return true;
   }
 
+  public function isAuto() {
+    return true;
+  }
+
   public function getDefault() {
     return time();
   }

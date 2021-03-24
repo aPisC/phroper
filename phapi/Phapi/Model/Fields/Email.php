@@ -5,7 +5,7 @@ namespace Phapi\Model\Fields;
 use Exception;
 
 class Email extends Text {
-  public function __construct($data) {
+  public function __construct($data = null) {
     parent::__construct($data);
   }
 

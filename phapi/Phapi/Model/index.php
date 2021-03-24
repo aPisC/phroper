@@ -340,6 +340,7 @@ class Model {
       "key" => $key,
       "name" => $name,
       "primary" => $this->getPrimaryField(),
+      "display" =>  $this->getPrimaryField(),
       "visible" => true,
       "editable" => !!$this->getPrimaryField(),
       "fields" => []
@@ -349,6 +350,9 @@ class Model {
       if (!$field) continue;
       $fd = $field->getUiInfo();
       if (!$fd) continue;
+
+      $fd["key"] = $key;
+      $fd["name"] = str_pc_text($key);
 
       $result["fields"][$key] = $fd;
     }

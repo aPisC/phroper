@@ -69,6 +69,14 @@ class QueryBuilder {
     }
   }
 
+  public function addOrderByEq($field, $value, $isDesc = true) {
+    $key = $this->resolve($field);
+    if (!$key) return;
+    if ($this->cmd_order) $this->cmd_order =  ", " . $this->cmd_order;
+    $this->cmd_order =
+      $key . " = " . intval($value) . ($isDesc ? " DESC" : " ASC") . $this->cmd_order;
+  }
+
   public function setLimit($amount) {
     $this->cmd_limit = intval($amount);
   }
@@ -373,12 +381,16 @@ class QueryBuilder {
       return ["<", new QueryBuilder\QB_Ref(str_drop_end($key, 3)), $value];
     else if (str_ends_with($key, "_in"))
       return ["in", new QueryBuilder\QB_Ref(str_drop_end($key, 3)), ...$value];
+    else if (str_ends_with($key, "_notin"))
+      return ["notin", new QueryBuilder\QB_Ref(str_drop_end($key, 6)), ...$value];
     else if (str_ends_with($key, "_like"))
       return ["like", new QueryBuilder\QB_Ref(str_drop_end($key, 5)), $value];
     else if (str_ends_with($key, "_notlike"))
       return ["notlike", new QueryBuilder\QB_Ref(str_drop_end($key, 5)), $value];
     else if (str_ends_with($key, "_null"))
       return [$value ? "null" : "notnull", new QueryBuilder\QB_Ref(str_drop_end($key, 5))];
+    else if (str_ends_with($key, "_sort"))
+      $this->addOrderByEq(str_drop_end($key, 5), $value);
     else return ["=", new QueryBuilder\QB_Ref($key), $value];
     return false;
   }

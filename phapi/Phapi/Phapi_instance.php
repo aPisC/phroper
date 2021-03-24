@@ -29,7 +29,8 @@ class Phapi_instance {
             return;
 
         // Process url
-        $url = $_GET['url'];
+        $url = $_GET['__url__'];
+        unset($_GET['__url__']);
         if (str_ends_with($url, "/")) $url = str_drop_end($url, 1);
         if (str_starts_with($url, "/")) $url = substr($url, 1);
 

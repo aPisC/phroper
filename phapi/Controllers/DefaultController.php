@@ -37,8 +37,7 @@ class DefaultController extends Controller {
   }
 
   public function find() {
-    $data = json_load_body();
-    return $this->service->find($data);
+    return $this->service->find($_GET);
   }
 
   public function create() {

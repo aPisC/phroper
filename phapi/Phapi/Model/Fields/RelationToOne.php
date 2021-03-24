@@ -50,7 +50,7 @@ class RelationToOne extends Relation {
   public function getUiInfo() {
     $i = parent::getUiInfo();
     $i["type"] = "relation_one";
-    $i["model"] = is_string($this->model) ? $this->model : get_class($this->model);
+    $i["model"] = str_pc_kebab(is_string($this->model) ? $this->model : get_class($this->model));
     return $i;
   }
 }

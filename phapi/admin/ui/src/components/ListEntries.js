@@ -64,14 +64,18 @@ export default function ListEntries({ schema }) {
           {schema.name}
         </Text>
         <HStack mb={6}>
-          <Button
-            colorScheme="red"
-            aria-label="Search database"
-            onClick={() => history.push(history.location.pathname + "/create")}
-            variant="link"
-          >
-            New
-          </Button>
+          {schema.editable && (
+            <Button
+              colorScheme="red"
+              aria-label="Search database"
+              onClick={() =>
+                history.push(history.location.pathname + "/create")
+              }
+              variant="link"
+            >
+              New
+            </Button>
+          )}
         </HStack>
         <Table>
           <Thead>
@@ -87,6 +91,7 @@ export default function ListEntries({ schema }) {
                 <Tr
                   key={e[schema.primary] || i}
                   onClick={() =>
+                    schema.editable &&
                     history.push(
                       history.location.pathname + "/" + e[schema.primary]
                     )

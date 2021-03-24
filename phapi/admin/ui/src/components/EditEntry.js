@@ -5,6 +5,7 @@ import {
   FormLabel,
   HStack,
   Input,
+  Select,
   Switch,
   Text,
   VStack,
@@ -22,6 +23,8 @@ export default function EditEntry({ isCreating, schema }) {
   const contentApi = useRequest(
     `http://192.168.0.10/~bendeguz/phapi/admin/content-manager/${model}`
   );
+
+  console.log(schema);
 
   const contentHandler = useRequestRunner(() => contentApi.get(id), []);
   useEffect(() => {
@@ -113,20 +116,26 @@ const editFieldMap = {
   default_: connect(({ name, formik }) => (
     <Input disabled value={formik.values[name]} />
   )),
-  bool: connect(({ formik, name, ...props }) => {
-    console.log(formik);
-    return (
-      <Switch
-        isChecked={formik.values && formik.values[name]}
-        onChange={() => formik.setFieldValue(name, !formik.values[name])}
-      />
-    );
-  }),
+  bool: connect(({ formik, name, ...props }) => (
+    <Switch
+      {...props}
+      isChecked={formik.values && formik.values[name]}
+      onChange={() => formik.setFieldValue(name, !formik.values[name])}
+    />
+  )),
+  enum: ({ schema, placeholder, ...props }) => (
+    <Select {...props}>
+      {schema.values.map((v) => (
+        <option value={v}>{v}</option>
+      ))}
+    </Select>
+  ),
   email: (props) => <Input type="email" {...props} />,
 };
 
 function SchemaField({ schema, isCreating }) {
   const EditComponent = editFieldMap[schema.type] || editFieldMap.default;
+  const disabled = isCreating ? schema.auto : schema.readonly;
   return (
     <FormControl>
       <FormLabel>{schema.name}</FormLabel>
@@ -134,7 +143,9 @@ function SchemaField({ schema, isCreating }) {
         as={EditComponent}
         name={schema.key}
         placeholder={schema.name}
-        disabled={isCreating ? schema.auto : schema.readonly}
+        disabled={disabled}
+        schema={schema}
+        required={!disabled && schema.required}
       />
     </FormControl>
   );

@@ -20,4 +20,10 @@ class Log extends Model {
   public function allowDefaultService() {
     return false;
   }
+
+  public function getUiInfo() {
+    $info = parent::getUiInfo();
+    $info["editable"] = false;
+    return $info;
+  }
 }

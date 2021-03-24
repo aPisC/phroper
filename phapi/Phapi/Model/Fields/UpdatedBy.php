@@ -7,7 +7,7 @@ use Phapi;
 
 class UpdatedBy extends RelationToOne {
   public function __construct() {
-    parent::__construct("Auth_User", ["field" => "updated_by"]);
+    parent::__construct("AuthUser", ["field" => "updated_by"]);
   }
 
   public function forceUpdate() {

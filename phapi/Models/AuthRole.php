@@ -5,7 +5,7 @@ namespace Models;
 use Phapi\Model;
 use Phapi;
 
-class Auth_Role extends Model {
+class AuthRole extends Model {
   public function __construct() {
     parent::__construct('role');
 
@@ -14,9 +14,9 @@ class Auth_Role extends Model {
     $this->fields["isDefault"] = new Phapi\Model\Fields\Boolean(["field" => "is_default"]);
     $this->fields["permissions"] = new Phapi\Model\Fields\ArrayMapper(
       "permission",
-      new Phapi\Model\Fields\RelationToMany("Auth_Permission", "role")
+      new Phapi\Model\Fields\RelationToMany("AuthPermission", "role")
     );
-    $this->fields["users"] = new Phapi\Model\Fields\RelationToMany("Auth_User", "role");
+    $this->fields["users"] = new Phapi\Model\Fields\RelationToMany("AuthUser", "role");
   }
 
   public function init() {
@@ -26,8 +26,8 @@ class Auth_Role extends Model {
         "isDefault" => true,
       ]);
 
-      Phapi::model("Auth_Permission")->init();
-      Phapi::model("Auth_User")->init();
+      Phapi::model("AuthPermission")->init();
+      Phapi::model("AuthUser")->init();
 
       return true;
     }

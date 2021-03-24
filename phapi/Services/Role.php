@@ -9,8 +9,8 @@ class Role extends DefaultService {
   private Model $permModel;
 
   public function __construct() {
-    parent::__construct("Auth_Role");
-    $this->permModel = Phapi::model("Auth_Permission");
+    parent::__construct("Role");
+    $this->permModel = Phapi::model("AuthPermission");
   }
 
   public function grant($role, $perm) {

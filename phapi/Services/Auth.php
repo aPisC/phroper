@@ -14,9 +14,9 @@ class Auth extends Service {
   public function __construct() {
     parent::__construct();
 
-    $this->userModel = Phapi::model("Auth_User");
-    $this->roleModel = Phapi::model("Auth_Role");
-    $this->permModel = Phapi::model("Auth_Permission");
+    $this->userModel = Phapi::model("AuthUser");
+    $this->roleModel = Phapi::model("AuthRole");
+    $this->permModel = Phapi::model("AuthPermission");
   }
 
   public function login($username, $password) {

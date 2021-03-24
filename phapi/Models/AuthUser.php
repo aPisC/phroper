@@ -5,14 +5,14 @@ namespace Models;
 use Phapi\Model;
 use Phapi;
 
-class Auth_User extends Model {
+class AuthUser extends Model {
   public function __construct() {
     parent::__construct('user');
 
     $this->fields['updated_by'] = null;
 
     $this->fields["username"] = new Phapi\Model\Fields\Text();
-    $this->fields["role"] = new Phapi\Model\Fields\RelationToOne("Auth_Role");
+    $this->fields["role"] = new Phapi\Model\Fields\RelationToOne("AuthRole");
     $this->fields["password"] = new Phapi\Model\Fields\Password();
     $this->fields["email"] = new Phapi\Model\Fields\Text();
     $this->fields["isAdmin"] = new Phapi\Model\Fields\Boolean(["default" => false]);
@@ -24,7 +24,7 @@ class Auth_User extends Model {
 
   public function init() {
     if (parent::init()) {
-      $rMod = Phapi::model("Auth_Role");
+      $rMod = Phapi::model("AuthRole");
       $rMod->init();
       return true;
     }

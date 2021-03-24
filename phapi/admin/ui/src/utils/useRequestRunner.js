@@ -45,7 +45,8 @@ export default function useRequestRunner(
   const runningRef = useRef(null);
   const runStatus = useCallback(
     async (fn) => {
-      const promise = (async () => await fn())();
+      const promise =
+        typeof fn !== "function" ? fn : (async () => await fn())();
       runningRef.current = promise;
       try {
         setState((s) => ({ ...s, isLoading: true, isSuccess: false }));

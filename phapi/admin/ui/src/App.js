@@ -14,8 +14,8 @@ function App() {
           <Layout>
             <Switch>
               <Route path="/login" component={Login} />
+              <Route path="/content-type/:model" component={ContentType} />
             </Switch>
-            <ContentType modelName="store"></ContentType>
           </Layout>
         </AuthBackend>
       </Router>

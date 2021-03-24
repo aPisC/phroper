@@ -15,8 +15,6 @@ export function AuthBackend({ children }) {
     authState.jwt
   );
 
-  console.log("auth", authState);
-
   const logout = useCallback(
     function () {
       setAuthState({ user: null, jwt: null });

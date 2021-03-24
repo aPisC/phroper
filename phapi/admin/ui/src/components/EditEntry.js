@@ -12,9 +12,10 @@ import {
   VStack,
 } from "@chakra-ui/react";
 import { connect, Field, Form, Formik } from "formik";
-import { default as React, useEffect, useMemo } from "react";
+import { default as React, useContext, useEffect, useMemo } from "react";
 import { useParams } from "react-router";
 import { useHistory } from "react-router-dom";
+import { SchemaContext } from "../App";
 import useRequest from "../utils/useRequest";
 import useRequestRunner from "../utils/useRequestRunner";
 
@@ -113,12 +114,11 @@ export default function EditEntry({ isCreating, schema }) {
 }
 
 function RelationOneField({ schema, placeholder, ...props }) {
-  const schemaHandler = useRequestRunner(
-    useRequest(
-      `http://192.168.0.10/~bendeguz/phapi/admin/content-schema/model/${schema.model}`
-    ).list
-  );
-  useEffect(schemaHandler.run, []);
+  const getSchema = useContext(SchemaContext);
+  const modelSchema = useMemo(() => getSchema(schema.model), [
+    getSchema,
+    schema,
+  ]);
   const contentHandler = useRequestRunner(
     useRequest(
       `http://192.168.0.10/~bendeguz/phapi/admin/content-manager/${schema.model}`
@@ -126,7 +126,6 @@ function RelationOneField({ schema, placeholder, ...props }) {
   );
   useEffect(contentHandler.run, []);
 
-  const modelSchema = schemaHandler.result;
   const entities = contentHandler.result;
   const optionList = useMemo(
     () =>
@@ -141,8 +140,7 @@ function RelationOneField({ schema, placeholder, ...props }) {
     [modelSchema, entities]
   );
 
-  if (contentHandler.isLoading || schemaHandler.isLoading)
-    return <Skeleton h={8} />;
+  if (contentHandler.isLoading) return <Skeleton h={8} />;
 
   return <Select {...props}>{optionList}</Select>;
 }

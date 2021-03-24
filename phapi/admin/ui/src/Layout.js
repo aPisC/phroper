@@ -30,10 +30,14 @@ export default function Layout({ children }) {
             bg="red.600"
             color="white"
           >
-            <Text fontSize={40} mb={4}>
+            <Text fontSize={40} mb={4} w="100%" textAlign="center">
               Phapi
             </Text>
-            <VStack alignItems="left">
+
+            <Text fontSize={24} mb={2}>
+              Content types
+            </Text>
+            <VStack pl={2} alignItems="left">
               {schemaHandler.result?.map((n) => (
                 <Link to={`/content-type/${n}`}>{n}</Link>
               ))}

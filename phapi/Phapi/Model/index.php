@@ -333,7 +333,7 @@ class Model {
 
     $name = explode("\\", get_class($this));
     $name = $name[count($name) - 1];
-    $key = $name;
+    $key = str_pc_kebab($name);
     $name = str_pc_text($name);
 
     $result = [

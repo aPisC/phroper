@@ -98,7 +98,7 @@ class Phapi_instance {
         try {
             if ($serviceName instanceof Service)
                 return $serviceName;
-            $scn = 'Services\\' . ucfirst($serviceName);
+            $scn = 'Services\\' . str_kebab_pc($serviceName);
             if (class_exists($scn)) $service = new $scn();
             else $service = new DefaultService($serviceName);
             return $service;
@@ -111,7 +111,7 @@ class Phapi_instance {
         try {
             if ($controllerName instanceof Controller)
                 return $controllerName;
-            $ccn = 'Controllers\\' . ucfirst($controllerName);
+            $ccn = 'Controllers\\' . str_kebab_pc($controllerName);
             if (class_exists($ccn))
                 $controller = new $ccn();
             else {
@@ -127,7 +127,7 @@ class Phapi_instance {
         try {
             if (is_subclass_of($modelName, 'Phapi\Model'))
                 return $modelName;
-            $mcn = 'Models\\' . ucfirst($modelName);
+            $mcn = 'Models\\' . str_kebab_pc($modelName);
             $model = new $mcn();
             return $model;
         } catch (Error $e) {

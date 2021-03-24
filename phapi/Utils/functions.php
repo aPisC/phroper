@@ -11,7 +11,31 @@ function str_pc_text($name) {
   while (preg_match("/[a-z][A-Z]/", $name, $matches)) {
     $name = str_replace($matches[0], substr($matches[0], 0, 1) . " " . substr($matches[0], 1, 1), $name);
   }
-  return $name;
+  return ucfirst($name);
+}
+
+function str_pc_kebab($name) {
+  $matches = [];
+  while (preg_match("/[a-z][A-Z]/", $name, $matches)) {
+    $name = str_replace($matches[0], substr($matches[0], 0, 1) . "-" .  substr($matches[0], 1, 1), $name);
+  }
+  return strtolower($name);
+}
+
+function str_kebab_pc($name) {
+  $matches = [];
+  while (preg_match("/[a-z]-[a-z]/", $name, $matches)) {
+    $name = str_replace($matches[0], substr($matches[0], 0, 1) .  ucfirst(substr($matches[0], 2, 1)), $name);
+  }
+  return ucfirst($name);
+}
+
+function str_text_pc($name) {
+  $matches = [];
+  while (preg_match("/[a-z] [a-zA-Z]/", $name, $matches)) {
+    $name = str_replace($matches[0], substr($matches[0], 0, 1) .  ucfirst(substr($matches[0], 2, 1)), $name);
+  }
+  return ucfirst($name);
 }
 
 function str_starts_with(string $haystack, string $needle) {

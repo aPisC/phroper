@@ -32,7 +32,7 @@ class ContentManager extends Controller {
         $uiInfo = $model->getUiInfo();
         if (!$uiInfo)
             throw new Exception("Using this model is not allowed", 403);
-        return $model->find([]);
+        return $model->find($_GET);
     }
 
     public function create($params) {

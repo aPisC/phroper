@@ -113,7 +113,7 @@ export default function EditEntry({ isCreating, schema }) {
   );
 }
 
-function RelationOneField({ schema, placeholder, ...props }) {
+function RelationOneField({ schema, placeholder, value, ...props }) {
   const getSchema = useContext(SchemaContext);
   const modelSchema = useMemo(() => getSchema(schema.model), [
     getSchema,
@@ -121,7 +121,9 @@ function RelationOneField({ schema, placeholder, ...props }) {
   ]);
   const contentHandler = useRequestRunner(
     useRequest(
-      `http://192.168.0.10/~bendeguz/phapi/admin/content-manager/${schema.model}`
+      `http://192.168.0.10/~bendeguz/phapi/admin/content-manager/${
+        schema.model
+      }${value ? `?${modelSchema.primary}_sort=${value}` : ""}`
     ).list
   );
   useEffect(contentHandler.run, []);
@@ -142,7 +144,11 @@ function RelationOneField({ schema, placeholder, ...props }) {
 
   if (contentHandler.isLoading) return <Skeleton h={8} />;
 
-  return <Select {...props}>{optionList}</Select>;
+  return (
+    <Select value={value} {...props}>
+      {optionList}
+    </Select>
+  );
 }
 
 const editFieldMap = {

@@ -72,7 +72,7 @@ class Controller {
         });
         if ($nextCalled) return;
 
-        if ($result == null) {
+        if ($result === null) {
           http_response_code(404);
         }
         if ($result instanceof Phapi\Model\Entity)

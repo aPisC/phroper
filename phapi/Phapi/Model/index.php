@@ -328,4 +328,30 @@ class Model {
     }
     return false;
   }
+
+  public function getUiInfo() {
+
+    $name = explode("\\", get_class($this));
+    $name = $name[count($name) - 1];
+    $key = $name;
+    $name = str_pc_text($name);
+
+    $result = [
+      "key" => $key,
+      "name" => $name,
+      "visible" => true,
+      "editable" => true,
+      "fields" => []
+    ];
+
+    foreach ($this->fields as $key => $field) {
+      if (!$field) continue;
+      $fd = $field->getUiInfo();
+      if (!$fd) continue;
+
+      $result["fields"][$key] = $fd;
+    }
+
+    return $result;
+  }
 }

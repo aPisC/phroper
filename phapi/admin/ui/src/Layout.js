@@ -38,9 +38,11 @@ export default function Layout({ children }) {
               Content types
             </Text>
             <VStack pl={2} alignItems="left">
-              {schemaHandler.result?.map((n) => (
-                <Link to={`/content-type/${n}`}>{n}</Link>
-              ))}
+              {schemaHandler.result
+                ?.filter((model) => model.visible)
+                .map((model) => (
+                  <Link to={`/content-type/${model.key}`}>{model.name}</Link>
+                ))}
             </VStack>
           </Box>
           <Box ml={250} px={4}>

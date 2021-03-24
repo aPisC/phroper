@@ -2,6 +2,7 @@
 
 namespace admin\Controllers;
 
+use Exception;
 use Phapi;
 use Phapi\Controller;
 
@@ -24,10 +25,17 @@ class ContentSchema extends Controller {
             return !str_starts_with($v, ".") && str_ends_with($v, ".php");
         });
         $files = array_map(function ($v) {
-            return str_drop_end($v, 4);
-        }, $files);
+            try {
+                return Phapi::model(str_drop_end($v, 4))->getUiInfo();
+            } catch (Exception $e) {
+                return null;
+            }
+        }, array_unique($files));
+        $files = array_filter($files, function ($v) {
+            return !!$v;
+        });
 
-        $files = array_unique(array_values($files));
+        $files = array_values($files);
         sort($files);
 
         return $files;
@@ -35,25 +43,6 @@ class ContentSchema extends Controller {
 
     public function model($p) {
         $model = Phapi::model($p["model"]);
-
-        $name = explode("\\", get_class($model));
-        $name = $name[count($name) - 1];
-
-        $name = str_pc_text($name);
-
-        $result = [
-            "name" => $name,
-            "fields" => []
-        ];
-
-        foreach ($model->fields as $key => $field) {
-            if (!$field) continue;
-            $fd = $field->getUiInfo();
-            if (!$fd) continue;
-
-            $result["fields"][$key] = $fd;
-        }
-
-        return $result;
+        return $model->getUiInfo();
     }
 }

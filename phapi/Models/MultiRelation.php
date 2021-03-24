@@ -113,4 +113,10 @@ class MultiRelation extends Model {
   public function getPrimaryField() {
     throw new Exception("MultiRelation has multiple primary keys");
   }
+
+  public function getUiInfo() {
+    $info = parent::getUiInfo();
+    $info["visible"] = false;
+    return null;
+  }
 }

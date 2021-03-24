@@ -39,6 +39,7 @@ class QueryBuilder {
     );
     $this->cmd_from =  "`" . $tableName . "` as " . $this->tableMap[""] . " \n";
 
+    $this->setLimit(100);
     $this->collectFields($model->fields);
   }
 
@@ -77,8 +78,14 @@ class QueryBuilder {
       $key . " = " . intval($value) . ($isDesc ? " DESC" : " ASC") . $this->cmd_order;
   }
 
-  public function setLimit($amount) {
-    $this->cmd_limit = intval($amount);
+  public function setLimit($amount, $disableCap = false) {
+    $amount = intval($amount);
+    if ($amount < 0)
+      $this->cmd_limit = 0;
+    else if (!$disableCap && $amount > 100)
+      $this->cmd_limit = 100;
+    else
+      $this->cmd_limit = $amount;
   }
 
   public function setOffset($amount) {

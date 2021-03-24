@@ -16,14 +16,16 @@ import { useParams } from "react-router";
 import { useHistory } from "react-router-dom";
 import useRequest from "../utils/useRequest";
 import useRequestRunner from "../utils/useRequestRunner";
+import Pagination from "./Pagination";
 
 export default function ListEntries({ schema }) {
   const { model } = useParams();
   const history = useHistory();
+  const page = new URLSearchParams(history.location.search).get("page") || 1;
+
   const contentApi = useRequest(
     `http://192.168.0.10/~bendeguz/phapi/admin/content-manager/${model}`
   );
-  const [page, setPage] = useState(1);
   const [entryCount, setEntryCount] = useState(0);
 
   const contentHandler = useRequestRunner(contentApi.list, []);
@@ -34,10 +36,12 @@ export default function ListEntries({ schema }) {
       );
       if (count == null) return;
       setEntryCount(count);
-      contentHandler.run();
+      contentHandler.run(
+        contentApi.send(`?_limit=100&_start=${(page - 1) * 100}`)
+      );
     })();
     //eslint-disable-next-line
-  }, []);
+  }, [page]);
 
   const displayFormatter = {
     //timestamp: true,
@@ -63,6 +67,12 @@ export default function ListEntries({ schema }) {
         <Text fontSize={40} mb={4}>
           {schema.name}
         </Text>
+        <Pagination
+          page={page}
+          max={Math.ceil(entryCount / 100) || 1}
+          colorScheme="red"
+          onSelect={(page) => history.push("?page=" + page)}
+        />
         <HStack mb={6}>
           {schema.editable && (
             <Button
@@ -77,7 +87,7 @@ export default function ListEntries({ schema }) {
             </Button>
           )}
         </HStack>
-        <Table>
+        <Table mb={6}>
           <Thead>
             <Tr>
               {names.map((n) => (
@@ -109,6 +119,12 @@ export default function ListEntries({ schema }) {
               ))}
           </Tbody>
         </Table>
+        <Pagination
+          page={page}
+          max={Math.ceil(entryCount / 100) || 1}
+          colorScheme="red"
+          onSelect={(page) => history.push("?page=" + page)}
+        />
       </Skeleton>
     </Box>
   );

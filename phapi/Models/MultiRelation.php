@@ -111,7 +111,7 @@ class MultiRelation extends Model {
   }
 
   public function getPrimaryField() {
-    throw new Exception("MultiRelation has multiple primary keys");
+    return null;
   }
 
   public function getUiInfo() {

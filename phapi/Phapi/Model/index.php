@@ -339,8 +339,9 @@ class Model {
     $result = [
       "key" => $key,
       "name" => $name,
+      "primary" => $this->getPrimaryField(),
       "visible" => true,
-      "editable" => true,
+      "editable" => !!$this->getPrimaryField(),
       "fields" => []
     ];
 

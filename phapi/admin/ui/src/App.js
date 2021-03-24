@@ -1,10 +1,4 @@
-import {
-  Alert,
-  AlertIcon,
-  Center,
-  ChakraProvider,
-  Spinner,
-} from "@chakra-ui/react";
+import { Center, ChakraProvider, Spinner } from "@chakra-ui/react";
 import React, { useContext, useEffect } from "react";
 import {
   BrowserRouter as Router,
@@ -26,24 +20,18 @@ function SchemaBackend({ children }) {
   const schemaApi = useRequest(
     `http://192.168.0.10/~bendeguz/phapi/admin/content-schema/models`
   );
-  const schemaHandler = useRequestRunner(schemaApi.list);
+  const schemaHandler = useRequestRunner(schemaApi.list, null);
   const auth = useContext(AuthConext);
   useEffect(schemaHandler.run, [auth.user]);
 
   return (
     <>
-      {schemaHandler.error && (
-        <Alert status="error">
-          <AlertIcon />
-          {schemaHandler.error}
-        </Alert>
-      )}
       {schemaHandler.isLoading && (
         <Center w="100vw" h="100vh">
           <Spinner></Spinner>
         </Center>
       )}
-      {schemaHandler.isSuccess && (
+      {!schemaHandler.isLoading && (
         <SchemaContext.Provider
           value={(key) =>
             schemaHandler.result &&

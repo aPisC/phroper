@@ -10,7 +10,7 @@ export default function ContentType({ match }) {
   const schema = useMemo(() => getSchema(model), [getSchema, model]);
 
   return (
-    <div>
+    schema && (
       <Switch>
         <Route path={`${match.path}/create`}>
           <EditEntry isCreating={true} schema={schema} />
@@ -22,6 +22,6 @@ export default function ContentType({ match }) {
           <ListEntries schema={schema} />
         </Route>
       </Switch>
-    </div>
+    )
   );
 }

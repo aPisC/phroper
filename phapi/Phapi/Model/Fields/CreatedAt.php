@@ -11,6 +11,10 @@ class CreatedAt extends Timestamp {
     return true;
   }
 
+  public function forceUpdate() {
+    return true;
+  }
+
   public function getDefault() {
     return time();
   }

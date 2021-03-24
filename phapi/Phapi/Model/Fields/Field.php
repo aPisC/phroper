@@ -88,6 +88,8 @@ abstract class Field {
       "private" => $this->isPrivate(),
       "required" => $this->isRequired(),
       "readonly" => $this->isReadonly(),
+      "default" => $this->getDefault(),
+      "forced" => $this->forceUpdate(),
     ];
   }
 }

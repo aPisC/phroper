@@ -16,4 +16,16 @@ class Identity extends Integer {
     $i["type"] = "identity";
     return $i;
   }
+
+  public function isReadonly() {
+    return true;
+  }
+
+  public function forceUpdate() {
+    return true;
+  }
+
+  public function getDefault() {
+    return null;
+  }
 }

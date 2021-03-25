@@ -17,9 +17,7 @@ import useRequestRunner from "./utils/useRequestRunner";
 export const SchemaContext = React.createContext();
 
 function SchemaBackend({ children }) {
-  const schemaApi = useRequest(
-    `http://192.168.0.10/~bendeguz/phapi/admin/content-schema/models`
-  );
+  const schemaApi = useRequest(`/admin/content-schema/models`);
   const schemaHandler = useRequestRunner(schemaApi.list, null);
   const auth = useContext(AuthConext);
   useEffect(schemaHandler.run, [auth.user]);
@@ -48,7 +46,7 @@ function SchemaBackend({ children }) {
 function App() {
   return (
     <ChakraProvider>
-      <Router>
+      <Router basename="/admin">
         <AuthBackend>
           <AuthConext.Consumer>
             {(auth) => !auth.user && <Redirect to="/login" />}

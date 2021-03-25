@@ -11,6 +11,7 @@ export default function Pagination({ page, max, onSelect, colorScheme }) {
       : page + pagerCount / 2 > max
       ? max - pagerCount
       : page - pagerCount / 2;
+  if (max === 1 && page === 1) return null;
   return (
     <HStack mx="auto" justifyContent="center" w="100%">
       <IconButton
@@ -25,6 +26,7 @@ export default function Pagination({ page, max, onSelect, colorScheme }) {
           colorScheme={colorScheme}
           variant={e + offset + 1 === page ? "solid" : "ghost"}
           onClick={() => onSelect(e + offset + 1)}
+          key={e}
         >
           {e + offset + 1}
         </Button>

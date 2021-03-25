@@ -23,9 +23,7 @@ export default function ListEntries({ schema }) {
   const history = useHistory();
   const page = new URLSearchParams(history.location.search).get("page") || 1;
 
-  const contentApi = useRequest(
-    `http://192.168.0.10/~bendeguz/phapi/admin/content-manager/${model}`
-  );
+  const contentApi = useRequest(`/admin/content-manager/${model}`);
   const [entryCount, setEntryCount] = useState(0);
 
   const contentHandler = useRequestRunner(contentApi.list, []);
@@ -41,7 +39,7 @@ export default function ListEntries({ schema }) {
       );
     })();
     //eslint-disable-next-line
-  }, [page]);
+  }, [page, schema]);
 
   const displayFormatter = {
     //timestamp: true,
@@ -63,10 +61,10 @@ export default function ListEntries({ schema }) {
 
   return (
     <Box>
+      <Text fontSize={40} mb={4}>
+        {schema.name}
+      </Text>
       <Skeleton isLoaded={!contentHandler.isLoading}>
-        <Text fontSize={40} mb={4}>
-          {schema.name}
-        </Text>
         <Pagination
           page={page}
           max={Math.ceil(entryCount / 100) || 1}

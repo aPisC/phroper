@@ -10,10 +10,7 @@ export function AuthBackend({ children }) {
     jwt: null,
   });
 
-  const request = useRequest(
-    "http://192.168.0.10/~bendeguz/phapi/api/auth",
-    authState.jwt
-  );
+  const request = useRequest("/api/auth", authState.jwt);
 
   const logout = useCallback(
     function () {

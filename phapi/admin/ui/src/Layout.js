@@ -15,9 +15,7 @@ import useRequest from "./utils/useRequest";
 import useRequestRunner from "./utils/useRequestRunner";
 
 export default function Layout({ children }) {
-  const schemaApi = useRequest(
-    `http://192.168.0.10/~bendeguz/phapi/admin/content-schema/models`
-  );
+  const schemaApi = useRequest(`/admin/content-schema/models`);
   const schemaHandler = useRequestRunner(schemaApi.list);
   const auth = useContext(AuthConext);
   useEffect(schemaHandler.run, [auth.user]);
@@ -29,7 +27,7 @@ export default function Layout({ children }) {
           <Spinner></Spinner>
         </Center>
       )}
-      <Box minH="100%" w="100%">
+      <Box bg="gray.100" minH="100vh" w="100%" overflow="visible">
         <Box
           position="fixed"
           left={0}

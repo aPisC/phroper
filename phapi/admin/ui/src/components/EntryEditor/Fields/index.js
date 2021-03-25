@@ -4,8 +4,8 @@ import RelationOne from "./RelationOne";
 
 export const FieldComponentMap = {
   default: Input,
-  default_: connect(({ name, formik }) => (
-    <Input disabled value={formik.values[name]} />
+  password: connect(({ name, formik, ...props }) => (
+    <Input type="password" name={name} value={formik.values[name]} {...props} />
   )),
   bool: connect(({ formik, name, ...props }) => (
     <Switch

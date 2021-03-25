@@ -47,7 +47,7 @@ export default function EditorForm({
             colorScheme="red"
             onClick={async () => {
               await contentHandler.run(contentApi.delete(id));
-              history.replace("./");
+              history.goBack();
             }}
           >
             Delete
@@ -76,7 +76,9 @@ function SchemaField({ schema, isCreating }) {
           placeholder={schema.name}
           disabled={disabled}
           schema={schema}
-          required={!disabled && schema.required}
+          required={
+            !disabled && schema.required && (!schema.private || isCreating)
+          }
         />
       </FormControl>
     )

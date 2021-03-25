@@ -18,7 +18,7 @@ export default function EntryEditor({ isCreating, schema }) {
   const contentHandler = useRequestRunner(() => contentApi.get(id), []);
   useEffect(() => {
     if (!isCreating) contentHandler.run();
-  }, []);
+  }, [isCreating, id]);
 
   const editorContext = {
     isCreating,
@@ -33,7 +33,7 @@ export default function EntryEditor({ isCreating, schema }) {
     <>
       <Box>
         <Text fontSize={40} mb={4}>
-          {contentHandler.result
+          {contentHandler.result && !isCreating
             ? `${contentHandler.result[schema.display]} (${schema.name})`
             : schema.name}
         </Text>
@@ -53,7 +53,7 @@ export default function EntryEditor({ isCreating, schema }) {
             alignItems={{ sm: "stretch", xl: "flex-start" }}
           >
             <EditorForm {...editorContext} />
-            <EditorInfo {...editorContext} />
+            {!isCreating && <EditorInfo {...editorContext} />}
           </Stack>
         </FormikWrapper>
       </Box>
@@ -84,6 +84,8 @@ function FormikWrapper({
       <Formik
         initialValues={isCreating ? formikInitialValues : contentHandler.result}
         onSubmit={async (data) => {
+          console.log(data);
+
           const result = await contentHandler.run(
             isCreating ? contentApi.create(data) : contentApi.update(data, id)
           );

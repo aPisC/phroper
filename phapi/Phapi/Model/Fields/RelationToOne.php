@@ -19,6 +19,7 @@ class RelationToOne extends Relation {
       if (isset($value['id'])) return $value['id'];
       return null;
     }
+    if (!$value) return null;
     return $value;
   }
 

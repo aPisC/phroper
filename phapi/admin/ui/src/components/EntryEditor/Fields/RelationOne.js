@@ -10,6 +10,7 @@ export default function RelationOne({ schema, placeholder, value, ...props }) {
     getSchema,
     schema,
   ]);
+
   const contentHandler = useRequestRunner(
     useRequest(
       `/admin/content-manager/${schema.model}${
@@ -17,7 +18,9 @@ export default function RelationOne({ schema, placeholder, value, ...props }) {
       }`
     ).list
   );
-  useEffect(contentHandler.run, []);
+  useEffect(contentHandler.run, [schema]);
+
+  if (value && typeof value === "object") value = value[schema.primary];
 
   const entities = contentHandler.result;
   const optionList = useMemo(
@@ -25,8 +28,7 @@ export default function RelationOne({ schema, placeholder, value, ...props }) {
       modelSchema &&
       entities &&
       entities.map((e) => (
-        <option value={e[modelSchema.primary]}>
-          {" "}
+        <option key={e[modelSchema.primary]} value={e[modelSchema.primary]}>
           {e[modelSchema.display]}
         </option>
       )),
@@ -36,7 +38,8 @@ export default function RelationOne({ schema, placeholder, value, ...props }) {
   if (contentHandler.isLoading) return <Skeleton h={8} />;
 
   return (
-    <Select value={value} {...props}>
+    <Select value={value || ""} {...props}>
+      <option value="">-</option>
       {optionList}
     </Select>
   );

@@ -101,6 +101,41 @@ class Router {
     array_push($this->handlers, $function);
   }
 
+  public function addServeFolder($expression, $folder) {
+    $this->add($expression, function ($p, $next) use ($folder) {
+
+      $pf = realpath($folder);
+      $fn = realpath($folder . DS .  $p["url"]);
+
+
+      if (is_dir($fn)) {
+        if (file_exists($fn . DS . "index.php")) $fn .= DS . "index.php";
+        if (file_exists($fn . DS . "index.html")) $fn .= DS . "index.html";
+      }
+
+
+      if ($pf && $fn && str_starts_with($fn, $pf) && file_exists($fn)) {
+        if (str_ends_with($fn, ".php")) {
+          include($fn);
+        } else {
+          header('Content-Type: ' . mime_content_type($fn));
+          readfile($fn);
+        }
+      } else {
+        $next();
+      }
+    }, "GET");
+  }
+
+  public function addServeFile($expression, $fn) {
+    $this->add($expression, function ($p, $next) use ($fn) {
+      if (file_exists($fn)) {
+        header('Content-Type: ' . mime_content_type($fn));
+        readfile($fn);
+      } else $next();
+    }, "GET");
+  }
+
   public function run($parameters, $next = null) {
     $handled = true;
     $handlers = $this->handlers;

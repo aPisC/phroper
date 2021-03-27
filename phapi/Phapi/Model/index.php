@@ -41,7 +41,7 @@ class Model {
 
   public function __construct($tableName = null) {
     if ($tableName == null)
-      $tableName = strtolower(end(explode('/', get_class($this))));
+      $tableName = $this->getName();
     $this->tableName = $tableName;
     $this->fields["id"] = new Model\Fields\Identity();
     $this->fields["updated_by"] = new Model\Fields\UpdatedBy();

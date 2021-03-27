@@ -10,10 +10,6 @@ class UpdatedBy extends RelationToOne {
     parent::__construct("AuthUser", ["field" => "updated_by"]);
   }
 
-  public function forceUpdate() {
-    return true;
-  }
-
   public function onSave($value) {
     $user = Phapi::context('user');
     if ($user) return $user["id"];
@@ -24,7 +20,15 @@ class UpdatedBy extends RelationToOne {
     return false;
   }
 
-  public function getUiInfo() {
-    return null;
+  public function forceUpdate() {
+    return true;
+  }
+
+  public function isReadonly() {
+    return true;
+  }
+
+  public function isAuto() {
+    return true;
   }
 }

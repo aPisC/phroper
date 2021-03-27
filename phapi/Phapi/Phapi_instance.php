@@ -22,6 +22,8 @@ class Phapi_instance {
 
         // Register internal plugins
         $this->registerPlugin('store', 'Phapi\\Plugin_Store');
+
+        $this->router->addServeFolder("uploads/", ROOT . DS . "uploads");
     }
 
     public function run() {
@@ -154,17 +156,12 @@ class Phapi_instance {
             $fn = realpath($folder . DS .  $p["url"]);
 
             if (is_dir($fn)) {
-                if (file_exists($fn . DS . "index.php")) $fn .= DS . "index.php";
                 if (file_exists($fn . DS . "index.html")) $fn .= DS . "index.html";
             }
 
             if ($pf && $fn && str_starts_with($fn, $pf) && file_exists($fn)) {
-                if (str_ends_with($fn, ".php")) {
-                    include($fn);
-                } else {
-                    header('Content-Type: ' . mime_content_type($fn));
-                    readfile($fn);
-                }
+                header('Content-Type: ' . mime_content_type($fn));
+                readfile($fn);
             } else {
                 $next();
             }

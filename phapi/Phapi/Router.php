@@ -74,7 +74,7 @@ class Router {
       (is_array($methodExpression) && in_array($method,  $methodExpression));
   }
 
-  public function add($expression, $handler, $method = '*') {
+  public function add($expression, $handler, $method = '*', $priority = 0) {
     $this->addHandler(function ($parameters, $next) use ($expression, $method, $handler) {
       if (!$this->matchMethod($method, $parameters['method'])) return $next();
 
@@ -82,7 +82,7 @@ class Router {
       if ($np === false) return $next();
 
       $this->runHandler($handler, array_merge($parameters, $np), $next);
-    });
+    }, $priority);
   }
 
 
@@ -97,11 +97,14 @@ class Router {
     }
   }
 
-  public function addHandler($function) {
-    array_push($this->handlers, $function);
+  public function addHandler($function, $priority = 0) {
+    array_push($this->handlers, [
+      "handler" =>  $function,
+      "priority" => -$priority
+    ]);
   }
 
-  public function addServeFolder($expression, $folder) {
+  public function addServeFolder($expression, $folder, $priority = 0) {
     $this->add($expression, function ($p, $next) use ($folder) {
 
       $pf = realpath($folder);
@@ -109,34 +112,32 @@ class Router {
 
 
       if (is_dir($fn)) {
-        if (file_exists($fn . DS . "index.php")) $fn .= DS . "index.php";
         if (file_exists($fn . DS . "index.html")) $fn .= DS . "index.html";
       }
 
 
       if ($pf && $fn && str_starts_with($fn, $pf) && file_exists($fn)) {
-        if (str_ends_with($fn, ".php")) {
-          include($fn);
-        } else {
-          header('Content-Type: ' . mime_content_type($fn));
-          readfile($fn);
-        }
+        header('Content-Type: ' . mime_content_type($fn));
+        readfile($fn);
       } else {
         $next();
       }
-    }, "GET");
+    }, "GET", $priority);
   }
 
-  public function addServeFile($expression, $fn) {
+  public function addServeFile($expression, $fn, $priority = 0) {
     $this->add($expression, function ($p, $next) use ($fn) {
       if (file_exists($fn)) {
         header('Content-Type: ' . mime_content_type($fn));
         readfile($fn);
       } else $next();
-    }, "GET");
+    }, "GET", $priority);
   }
 
   public function run($parameters, $next = null) {
+    array_multisort(array_map(function ($v) {
+      return $v["priority"];
+    }, $this->handlers), $this->handlers);
     $handled = true;
     $handlers = $this->handlers;
     $runner = null;
@@ -146,7 +147,7 @@ class Router {
           $runner($index + 1);
         };
 
-        $this->runHandler($handlers[$index], $parameters, $next);
+        $this->runHandler($handlers[$index]["handler"], $parameters, $next);
       } else
         $handled = false;
     };

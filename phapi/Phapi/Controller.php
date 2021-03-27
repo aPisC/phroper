@@ -39,7 +39,7 @@ class Controller {
     );
   }
 
-  protected function registerHandler($name, $fun = null, $method = 'GET') {
+  protected function registerHandler($name, $fun = null, $method = 'GET', $priority = 0) {
     if ($fun == null) $fun = $name;
     if (is_string($fun)) $fun = function ($p, $n) use ($fun) {
       return $this->$fun($p, $n);
@@ -50,11 +50,11 @@ class Controller {
       $this->havePermission($this->getRoutePermName($name, $params['method']), true);
 
       $fun($params, $next);
-    }, $method);
+    }, $method, $priority);
     $this->registeredHandlerInfos[] = [$name, $method];
   }
 
-  protected function registerJsonHandler($name, $fun = null, $method = 'GET') {
+  protected function registerJsonHandler($name, $fun = null, $method = 'GET', $priority = 0) {
     if ($fun == null) $fun = $name;
     if (is_string($fun)) $fun = function ($p, $n) use ($fun) {
       return $this->$fun($p, $n);
@@ -92,7 +92,7 @@ class Controller {
           'message' => $ex->getMessage()
         ));
       }
-    }, $method);
+    }, $method, $priority);
 
     $this->registeredHandlerInfos[] = [$name, $method];
   }

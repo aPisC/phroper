@@ -18,9 +18,6 @@ class AuthUser extends Model {
     $this->fields["isAdmin"] = new Phapi\Model\Fields\Boolean(["default" => false]);
   }
 
-  public function allowDefaultService() {
-    return true;
-  }
 
   public function init() {
     if (parent::init()) {

@@ -2,6 +2,7 @@
 
 namespace Controllers;
 
+use Error;
 use Exception;
 use Phapi;
 use Phapi\Controller;
@@ -23,12 +24,12 @@ class DefaultController extends Controller {
       throw new Exception('Service ' . $serviceName . ' is not available.');
 
     // register handler functions
-    $this->registerJsonHandler(':id', 'findOne', 'GET');
-    $this->registerJsonHandler(':id', 'update', 'PUT');
-    $this->registerJsonHandler(':id', 'delete', 'DELETE');
-    $this->registerJsonHandler(null, 'create', 'POST');
-    $this->registerJsonHandler(null, 'find', 'GET');
-    $this->registerJsonHandler('count', 'count', 'GET');
+    $this->registerJsonHandler(':id', 'findOne', 'GET', -100);
+    $this->registerJsonHandler(':id', 'update', 'PUT', -100);
+    $this->registerJsonHandler(':id', 'delete', 'DELETE', -100);
+    $this->registerJsonHandler(null, 'create', 'POST', 0);
+    $this->registerJsonHandler(null, 'find', 'GET', 0);
+    $this->registerJsonHandler('count', 'count', 'GET', 0);
   }
 
   public function findOne($params, $next) {
@@ -61,7 +62,7 @@ class DefaultController extends Controller {
   }
 
   public function getName() {
-    if (parent::getName() === "defaultcontroller")
+    if (parent::getName() === "controllers_defaultcontroller")
       return $this->service->getName();
     return parent::getName();
   }

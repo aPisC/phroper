@@ -18,7 +18,7 @@ class Phapi_instance {
         // Register JWT token processor middleware
         $this->router->addHandler(function ($p, $n) {
             return JWT::TokenParserMiddleware($p, $n);
-        });
+        }, 1000);
 
         // Register internal plugins
         $this->registerPlugin('store', 'Phapi\\Plugin_Store');

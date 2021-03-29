@@ -46,6 +46,7 @@ export default function ListEntries({ schema }) {
     password: false,
     relation_one: false,
     relation_many: false,
+    file: false,
     json: false,
     bool: (v) => (v ? "true" : "false"),
     default: (v) => v,

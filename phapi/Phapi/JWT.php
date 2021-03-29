@@ -80,6 +80,7 @@ class JWT {
   public static function TokenParserMiddleware(&$parameters, $next) {
     try {
 
+
       // Load bearer token 
       $headers = null;
       if (isset($_SERVER['Authorization'])) {
@@ -106,7 +107,6 @@ class JWT {
       $payload = null;
       if ($token != null)
         $payload = JWT::validate($token);
-
 
       if ($payload != null) {
         Phapi::setContext('user', Phapi::service('Auth')->getUser($payload['userid']));

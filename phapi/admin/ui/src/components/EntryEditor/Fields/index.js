@@ -1,5 +1,6 @@
 import { Input, Select, Switch, Text } from "@chakra-ui/react";
 import { connect } from "formik";
+import FileOne from "./FileOne";
 import RelationOne from "./RelationOne";
 
 export const FieldComponentMap = {
@@ -29,4 +30,5 @@ export const FieldComponentMap = {
   display_info: connect(({ name, formik, ...props }) => (
     <Text {...props}>{formik.values && formik.values[name]}</Text>
   )),
+  file: FileOne,
 };

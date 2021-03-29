@@ -41,6 +41,6 @@ class Init extends Phapi\Controller {
       } catch (Exception $ex) {
         echo "error \n";
       }
-    }, "GET");
+    }, "GET", -1);
   }
 }

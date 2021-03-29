@@ -24,9 +24,9 @@ class DefaultController extends Controller {
       throw new Exception('Service ' . $serviceName . ' is not available.');
 
     // register handler functions
-    $this->registerJsonHandler(':id', 'findOne', 'GET', -100);
-    $this->registerJsonHandler(':id', 'update', 'PUT', -100);
-    $this->registerJsonHandler(':id', 'delete', 'DELETE', -100);
+    $this->registerJsonHandler(':id', 'findOne', 'GET', -1);
+    $this->registerJsonHandler(':id', 'update', 'PUT', -1);
+    $this->registerJsonHandler(':id', 'delete', 'DELETE', -1);
     $this->registerJsonHandler(null, 'create', 'POST', 0);
     $this->registerJsonHandler(null, 'find', 'GET', 0);
     $this->registerJsonHandler('count', 'count', 'GET', 0);

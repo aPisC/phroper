@@ -6,7 +6,7 @@ export default function useRequest(apiUrl, jwt = null) {
   const auth = useContext(AuthConext);
 
   const handler = useMemo(() => {
-    const send = async (url, body, method) => {
+    const send = async (url, body, method, headers) => {
       try {
         const response = await axios({
           method,
@@ -14,8 +14,8 @@ export default function useRequest(apiUrl, jwt = null) {
           data: body,
           headers:
             jwt || auth?.jwt
-              ? { Authorization: "Bearer " + (jwt || auth?.jwt) }
-              : {},
+              ? { Authorization: "Bearer " + (jwt || auth?.jwt), ...headers }
+              : { ...headers },
         });
         return response.data;
       } catch (err) {
@@ -46,8 +46,8 @@ export default function useRequest(apiUrl, jwt = null) {
           null,
           "DELETE"
         ),
-      send: async (url, data, method = "GET") =>
-        send(apiUrl + "/" + url, data, method),
+      send: async (url, data, method = "GET", headers = {}) =>
+        send(apiUrl + "/" + url, data, method, headers),
     };
   }, [apiUrl, auth, jwt]);
 

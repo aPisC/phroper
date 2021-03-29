@@ -104,7 +104,7 @@ class Router {
     ]);
   }
 
-  public function addServeFolder($expression, $folder, $priority = 0) {
+  public function addServeFolder($expression, $folder, $priority = -1000) {
     $this->add($expression, function ($p, $next) use ($folder) {
 
       $pf = realpath($folder);
@@ -125,7 +125,7 @@ class Router {
     }, "GET", $priority);
   }
 
-  public function addServeFile($expression, $fn, $priority = 0) {
+  public function addServeFile($expression, $fn, $priority = -1100) {
     $this->add($expression, function ($p, $next) use ($fn) {
       if (file_exists($fn)) {
         header('Content-Type: ' . mime_content_type($fn));

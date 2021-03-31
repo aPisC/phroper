@@ -2,9 +2,13 @@
 
 namespace Phapi\Model;
 
-class EntityList extends Entity {
+use ArrayObject;
+use IteratorAggregate;
+
+class EntityList extends Entity implements IteratorAggregate {
   public function __construct($entities = null) {
     parent::__construct(null);
+    $this->values = [];
     if (is_array($entities)) $this->values = $entities;
   }
 
@@ -17,6 +21,10 @@ class EntityList extends Entity {
       if ($e instanceof Entity) return $e->sanitizeEntity();
       return $e;
     }, $this->values);
+  }
+
+  public function getIterator() {
+    return (new ArrayObject($this->values))->getIterator();
   }
 
   public function map($callback) {

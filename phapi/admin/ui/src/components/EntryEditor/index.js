@@ -3,6 +3,7 @@ import { Form, Formik } from "formik";
 import { default as React, useEffect, useMemo } from "react";
 import { useParams } from "react-router";
 import { useHistory } from "react-router-dom";
+import GenerateYup from "../../utils/GenerateYup";
 import useRequest from "../../utils/useRequest";
 import useRequestRunner from "./../../utils/useRequestRunner";
 import EditorForm from "./EditorForm";
@@ -79,10 +80,13 @@ function FormikWrapper({
     });
     return initVals;
   }, [schema]);
+
+  const validationSchema = GenerateYup(schema);
   return (
     (isCreating || contentHandler.isSuccess) && (
       <Formik
         initialValues={isCreating ? formikInitialValues : contentHandler.result}
+        validationSchema={validationSchema}
         onSubmit={async (data) => {
           console.log(data);
 

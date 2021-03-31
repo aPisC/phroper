@@ -49,7 +49,8 @@ export default function ListEntries({ schema }) {
     file: false,
     json: false,
     bool: (v) => (v ? "true" : "false"),
-    default: (v) => v,
+    default: (v) => String(v),
+    file_multi: false,
   };
 
   const names =

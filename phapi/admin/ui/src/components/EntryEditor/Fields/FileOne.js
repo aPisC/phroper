@@ -1,5 +1,6 @@
 import { ArrowUpIcon } from "@chakra-ui/icons";
 import { AspectRatio, Box, Center, Image, Spinner } from "@chakra-ui/react";
+import { ErrorMessage } from "formik";
 import React, { useCallback, useEffect, useState } from "react";
 import useRequest from "../../../utils/useRequest";
 import useRequestRunner from "../../../utils/useRequestRunner";
@@ -46,6 +47,7 @@ export default function FileOne({ name, value, onChange }) {
     <AspectRatio
       bg={"gray.800"}
       borderRadius={4}
+      overflow="hidden"
       borderColor="gray.500"
       ratio={16 / 9}
     >
@@ -55,6 +57,19 @@ export default function FileOne({ name, value, onChange }) {
             <Image src={uploadHandler.result.filename} />
           </Center>
         )}
+        <ErrorMessage name={name}>
+          {(msg) => (
+            <Box
+              w="100%"
+              h="100%"
+              bg="red.800"
+              color="white"
+              p={4}
+              children={msg}
+              position="absolute"
+            />
+          )}
+        </ErrorMessage>
         {uploadHandler.isLoading && (
           <Center position="absolute" h="100%" w="100%">
             <Spinner size="lg" color="white" />

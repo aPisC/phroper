@@ -1,12 +1,4 @@
-import {
-  Box,
-  Button,
-  FormControl,
-  FormLabel,
-  Grid,
-  HStack,
-} from "@chakra-ui/react";
-import { Field } from "formik";
+import { Box, Button, Grid, HStack } from "@chakra-ui/react";
 import React from "react";
 import { useHistory } from "react-router";
 import { FieldComponentMap } from "./Fields";
@@ -61,26 +53,10 @@ export default function EditorForm({
   );
 }
 
-function SchemaField({ schema, isCreating }) {
+function SchemaField(props) {
   const EditComponent =
-    FieldComponentMap[schema.type] ?? FieldComponentMap.default;
-  const disabled = isCreating ? schema.auto : schema.readonly;
-  if (schema.auto && schema.readonly) return null;
-  return (
-    EditComponent && (
-      <FormControl>
-        <FormLabel>{schema.name}</FormLabel>
-        <Field
-          as={EditComponent}
-          name={schema.key}
-          placeholder={schema.name}
-          disabled={disabled}
-          schema={schema}
-          required={
-            !disabled && schema.required && (!schema.private || isCreating)
-          }
-        />
-      </FormControl>
-    )
-  );
+    FieldComponentMap[props.schema.type] ?? FieldComponentMap.default;
+
+  if (EditComponent) return <EditComponent {...props} />;
+  return null;
 }

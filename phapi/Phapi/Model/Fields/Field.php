@@ -2,55 +2,68 @@
 
 namespace Phapi\Model\Fields;
 
+use Exception;
+use Phapi\Model;
+
 abstract class Field {
-  private bool $private = false;
-  private bool $readonly = false;
-  private bool $required = false;
-  private bool $auto = false;
-  private $field = null;
-  private $defaultValue;
+  protected Model $model = null;
+
+  protected $data = [
+    "auto" => false,
+    "default" => IgnoreField::instance(),
+    "field" => null,
+    "forced" => false,
+    "private" => false,
+    "populate" => false,
+    "readonly" => false,
+    "required" => false,
+    "sql_type" => null,
+    "unique" => false,
+    "virtual" => false,
+  ];
+
+
 
   public function __construct(array $data = null) {
-    if (!$data) return;
-    if (isset($data["private"])) $this->private = $data["private"];
-    if (isset($data["readonly"])) $this->readonly = $data["readonly"];
-    if (isset($data["required"])) $this->required = $data["required"];
-    if (isset($data["field"])) $this->field = $data["field"];
-    if (isset($data["auto"])) $this->auto = $data["auto"];
-    if (isset($data["default"])) $this->defaultValue = $data["default"];
-    else $this->defaultValue = IgnoreField::instance();
+    $this->updateData($data);
   }
 
   public function getSQLType() {
-    return null;
+    return $this->data["sql_type"]
+      + ($this->data["unique"] ? " UNIQUE" : "")
+      + ($this->data["required"] ? " NOT NULL" : "");
   }
 
-  public function getFieldName($default) {
-    return $this->field == null ? $default : $this->field;
+  public function getFieldName() {
+    return $this->data["field"];
   }
 
   public function isPrivate() {
-    return $this->private;
+    return $this->data["private"];
   }
 
   public function isAuto() {
-    return $this->auto;
+    return $this->data["auto"];
   }
 
   public function isReadonly() {
-    return $this->readonly;
+    return $this->data["readonly"];
   }
 
   public function isRequired() {
-    return $this->required;
+    return $this->data["required"];
   }
 
   public function forceUpdate() {
-    return false;
+    return $this->data["forced"];
   }
 
   public function getDefault() {
-    return $this->defaultValue;
+    return $this->data["default"];
+  }
+
+  public function isVirtual() {
+    return $this->data["virtual"];
   }
 
   public function onSave($value) {
@@ -72,10 +85,6 @@ abstract class Field {
     return $value;
   }
 
-  public function isVirtual() {
-    return false;
-  }
-
   public function getFilter($fieldName, $prefix, $memberName, $sql_mode) {
     return null;
   }
@@ -85,18 +94,31 @@ abstract class Field {
   }
 
   public function isDefaultPopulated() {
-    return false;
+    return $this->data["populate"];
   }
 
   public function getUiInfo() {
-    $default = $this->getDefault();
-    return [
-      "type" => "text",
-      "private" => $this->isPrivate(),
-      "required" => $this->isRequired(),
-      "readonly" => $this->isReadonly(),
-      "auto" => $this->isAuto(),
-      "default" => $default instanceof IgnoreField ? null : $default,
-    ];
+    $data = [];
+
+    foreach ($this->data as $key => $value) {
+      if ($value instanceof IgnoreField) continue;
+      $data[$key] = $value;
+    }
+
+    return $data;
+  }
+
+  public function bindModel($model, $fieldName) {
+    if ($this->model) throw new Exception("This field is already bound to a model");
+    $this->data["field"] = $this->data["field"] || $fieldName;
+    $this->model = $model;
+  }
+
+  protected function updateData($data) {
+    if (!$data) return;
+
+    foreach ($data as $key => $value) {
+      $this->data[$key] = $value;
+    }
   }
 }

@@ -14,8 +14,7 @@ class QueryBuilder {
   private $cmd_limit = "";
   private $cmd_offset = "";
 
-  private QueryBuilder\BindCollector $bindings_filter;
-  private QueryBuilder\BindCollector $bindings_values;
+  private QueryBuilder\BindCollector $bindings;
 
   private array $fields = array();
   private array $tableMap = array();
@@ -29,8 +28,7 @@ class QueryBuilder {
     $this->cmd_type = strtoupper($type);
     $this->model = Phapi::model($model);
 
-    $this->bindings_filter = new QueryBuilder\BindCollector();
-    $this->bindings_values = new QueryBuilder\BindCollector();
+    $this->bindings = new QueryBuilder\BindCollector();
     $this->values = new QueryBuilder\QBModificationCollector();
 
     $tableName = $model->getTableName();
@@ -169,10 +167,10 @@ class QueryBuilder {
 
     if ($stmt === false) throw new Exception("Statement could not be prepared \n" . $this->lastSql . "\n" . $mysqli->error);
 
-    $bindValues = array_merge($this->bindings_values->getBindValues(), $this->bindings_filter->getBindValues());
+    $bindValues = array_merge($this->bindings->getBindValues("values"), $this->bindings->getBindValues("filter"));
     if (count($bindValues) > 0)
       $stmt->bind_param(
-        $this->bindings_values->getBindStr() . $this->bindings_filter->getBindStr(),
+        $this->bindings->getBindStr("values") . $this->bindings->getBindStr("filter"),
         ...$bindValues
       );
 
@@ -207,7 +205,7 @@ class QueryBuilder {
 
     if (strtoupper($this->cmd_type) == "COUNT") {
       $query = "INSERT ";
-      $this->bindings_values = new QueryBuilder\BindCollector();
+      $this->bindings->reset("values");
 
       $columnList = "";
       $valueList = "";
@@ -218,7 +216,7 @@ class QueryBuilder {
           $valueList .= ", ";
         }
         $columnList .= $key;
-        $valueList .= $this->bindings_values->push($value);
+        $valueList .= $this->bindings->push($value, "values");
       }
 
       return "SELECT count(*) FROM " . $this->cmd_from . $this->cmd_join . $this->cmd_filter;
@@ -232,7 +230,7 @@ class QueryBuilder {
     }
 
     if (strtoupper($this->cmd_type) == "UPDATE") {
-      $this->bindings_values = new QueryBuilder\BindCollector();
+      $this->bindings->reset("values");
 
       $setList = "";
       foreach ($this->values->getFields() as $index => $key) {
@@ -242,14 +240,14 @@ class QueryBuilder {
         if ($value instanceof Exception)
           throw $value;
 
-        $setList .= $key . "=" . $this->bindings_values->push($value);
+        $setList .= $key . "=" . $this->bindings->push($value, "values");
       }
 
       return "UPDATE " . $this->cmd_from . $this->cmd_join . " SET " . $setList . " \n " .  $this->cmd_filter;
     }
 
     if (strtoupper($this->cmd_type) == "INSERT") {
-      $this->bindings_values = new QueryBuilder\BindCollector();
+      $this->bindings->reset("values");
 
       $columnList = "";
       $valueList = "";
@@ -267,7 +265,7 @@ class QueryBuilder {
           // Exceptions is stored to indicate it has to be overwritten
           if ($value instanceof Exception)
             throw $value;
-          $valueList .= $this->bindings_values->push($value);
+          $valueList .= $this->bindings->push($value, "values");
         }
         $valueList .= ")";
       }
@@ -421,7 +419,7 @@ class QueryBuilder {
       if (!$resolved) throw new Exception("Field '" . $value->alias . "' could not be resolved.");
       return $resolved;
     }
-    return $this->bindings_filter->push($value);
+    return $this->bindings->push($value, "filter");
   }
 
   private function composeFilter($filter) {
@@ -557,35 +555,5 @@ class QueryBuilder {
     foreach ($fieldFilters as $filter) {
       $this->addRawFilter(...$filter);
     }
-  }
-}
-
-namespace QueryBuilder;
-
-class BindCollector {
-  private $bindStr = "";
-  private $bindValues = array();
-
-  function push($value) {
-    if ($value instanceof QB_Const)
-      return $value->getResolved();
-    if ($value === true) return "TRUE";
-    if ($value === false) return "FALSE";
-    if ($value === null) return "NULL";
-
-    array_push($this->bindValues, $value);
-
-    if (is_string($value)) $this->bindStr .= "s";
-    if (is_double($value)) $this->bindStr .= "d";
-    if (is_integer($value)) $this->bindStr .= "i";
-
-    return "?";
-  }
-
-  function getBindStr() {
-    return $this->bindStr;
-  }
-  function getBindValues() {
-    return $this->bindValues;
   }
 }

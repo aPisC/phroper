@@ -1,4 +1,4 @@
-import { Box, Button, HStack, Stack, Text } from "@chakra-ui/react";
+import { Box, Button, HStack, Stack, Text, useToast } from "@chakra-ui/react";
 import { Form, Formik } from "formik";
 import { default as React, useEffect, useMemo } from "react";
 import { useParams } from "react-router";
@@ -14,11 +14,25 @@ export default function EntryEditor({ isCreating, schema }) {
   const history = useHistory();
   const contentApi = useRequest(`/admin/content-manager/${model}`);
 
-  console.log(schema);
+  const toast = useToast();
 
   const contentHandler = useRequestRunner(() => contentApi.get(id), []);
   useEffect(() => {
+    if (!contentHandler.error) return;
+    toast({
+      title: "Server error",
+      description: contentHandler.error,
+      status: "error",
+      duration: 9000,
+      isClosable: true,
+    });
+    contentHandler.setError(null);
+    //eslint-disable-next-line
+  }, [contentHandler.error, contentHandler.resetError, toast]);
+
+  useEffect(() => {
     if (!isCreating) contentHandler.run();
+    //eslint-disable-next-line
   }, [isCreating, id]);
 
   const editorContext = {
@@ -83,7 +97,7 @@ function FormikWrapper({
 
   const validationSchema = GenerateYup(schema);
   return (
-    (isCreating || contentHandler.isSuccess) && (
+    (isCreating || !contentHandler.isLoading) && (
       <Formik
         initialValues={isCreating ? formikInitialValues : contentHandler.result}
         validationSchema={validationSchema}

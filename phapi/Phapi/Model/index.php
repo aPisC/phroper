@@ -61,9 +61,6 @@ class Model implements ICacheable {
       $fd = $field->getUiInfo();
       if (!$fd) continue;
 
-      $fd["key"] = $key;
-      $fd["name"] = str_pc_text($key);
-
       $data["fields"][$key] = $fd;
     }
 

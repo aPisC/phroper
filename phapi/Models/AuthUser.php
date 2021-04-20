@@ -13,9 +13,14 @@ class AuthUser extends Model {
     ]);
 
     $this->fields['updated_by'] = null;
-
-    $this->fields["username"] = new Phapi\Model\Fields\Text();
-    $this->fields["role"] = new Phapi\Model\Fields\RelationToOne("AuthRole");
+    $this->fields["username"] = new Phapi\Model\Fields\Text([
+      "required",
+      "unique",
+      "regex" => "^[a-zA-Z]{4,20}$"
+    ]);
+    $this->fields["role"] = new Phapi\Model\Fields\RelationToOne("auth-role", [
+      "required"
+    ]);
     $this->fields["password"] = new Phapi\Model\Fields\Password();
     $this->fields["email"] = new Phapi\Model\Fields\Email();
     $this->fields["isAdmin"] = new Phapi\Model\Fields\Boolean(["default" => false]);

@@ -106,9 +106,12 @@ abstract class Field {
   }
 
   public function bindModel($model, $fieldName) {
-    if ($this->data == null) var_dump($fieldName);
     if ($this->model) throw new Exception("This field is already bound to a model");
+
+    $this->data["key"] = $fieldName;
+    $this->data["name"] = str_pc_text($fieldName);
     $this->data["field"] = $this->data["field"] ?  $this->data["field"] : $fieldName;
+
     $this->model = $model;
   }
 
@@ -116,7 +119,10 @@ abstract class Field {
     if (!$data) return;
 
     foreach ($data as $key => $value) {
-      $this->data[$key] = $value;
+      if (is_int($key) && is_string($value))
+        $this->data[$value] = true;
+      else
+        $this->data[$key] = $value;
     }
   }
 }

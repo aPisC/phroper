@@ -13,7 +13,7 @@ import FileOne from "./FileOne";
 import RelationOne from "./RelationOne";
 
 function ConnectSchemaField(EditComponent) {
-  return connect(({ schema, isCreating }) => {
+  return connect(({ schema, isCreating, ...props }) => {
     const disabled = isCreating ? schema.auto : schema.readonly;
     if (schema.auto && schema.readonly) return null;
     return (
@@ -29,6 +29,7 @@ function ConnectSchemaField(EditComponent) {
             required={
               !disabled && schema.required && (!schema.private || isCreating)
             }
+            {...props}
           />
         </FormControl>
       )
@@ -46,8 +47,11 @@ export const FieldComponentMap = {
       size="lg"
       colorScheme="red"
       {...props}
+      log={console.log(formik)}
       isChecked={formik.values && formik.values[name]}
-      onChange={() => formik.setFieldValue(name, !formik.values[name])}
+      onChange={() =>
+        formik.setFieldValue(name, !(formik.values && formik.values[name]))
+      }
     />
   )),
   enum: ConnectSchemaField(({ schema, placeholder, ...props }) => (
@@ -60,9 +64,9 @@ export const FieldComponentMap = {
   relation_one: ConnectSchemaField(RelationOne),
   relation_many: false,
   email: ConnectSchemaField((props) => <Input type="email" {...props} />),
-  display_info: ConnectSchemaField(({ name, formik, ...props }) => (
-    <Text {...props}>{formik.values && formik.values[name]}</Text>
-  )),
+  display_info: connect(({ name, formik, ...props }) => {
+    return <Text {...props}>{formik.values && formik.values[name]}</Text>;
+  }),
   file: ConnectSchemaField(FileOne),
   file_multi: FileMulti,
 };

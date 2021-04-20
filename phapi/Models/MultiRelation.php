@@ -24,7 +24,7 @@ class MultiRelation extends Model {
     } catch (Exception $e) {
     }
 
-    $this->fields = [];
+    $this->fields->clear();
     $this->fields["type"] = new Phapi\Model\Fields\ConstFilter(
       new Phapi\Model\Fields\Text(["default" => $type])
     );

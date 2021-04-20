@@ -12,7 +12,7 @@ class CreatedAt extends Timestamp {
   }
 
   public function forceUpdate() {
-    return true;
+    return false;
   }
 
   public function isAuto() {

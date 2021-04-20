@@ -22,8 +22,8 @@ class ConstFilter extends Field {
     return $this->base->getSQLType();
   }
 
-  public function getFieldName($default) {
-    return $this->base->getFieldName($default);
+  public function getFieldName() {
+    return $this->base->getFieldName();
   }
 
   public function isPrivate() {
@@ -54,10 +54,6 @@ class ConstFilter extends Field {
     return $this->base->onLoad($value, $key, $assoc, $populates);
   }
 
-  public function preUpdate($value, $key, $entity) {
-    return $this->base->preUpdate($value, $key, $entity);
-  }
-
   public function postUpdate($value, $key, $entity) {
     return $this->base->postUpdate($value, $key, $entity);
   }
@@ -69,10 +65,6 @@ class ConstFilter extends Field {
 
   public function isVirtual() {
     return false;
-  }
-
-  public function getFilter($fieldName, $prefix, $memberName, $sql_mode) {
-    return ["=", new QB_Ref($memberName), $this->onSave(null)];
   }
 
 

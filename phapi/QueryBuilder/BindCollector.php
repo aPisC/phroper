@@ -23,11 +23,12 @@ class BindCollector {
 
         $g = $this->getGroup($group);
 
-        array_push($g[1], $value);
-
+        $g[1][] = $value;
         if (is_string($value)) $g[0] .= "s";
         if (is_double($value)) $g[0] .= "d";
         if (is_integer($value)) $g[0] .= "i";
+
+        $this->groups[$group] = $g;
 
         return "?";
     }

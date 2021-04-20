@@ -13,12 +13,16 @@ abstract class FieldExtension extends Field {
     return $this->base->getSQLType();
   }
 
-  public function getFieldName($default) {
-    return $this->base->getFieldName($default);
+  public function getFieldName() {
+    return $this->base->getFieldName();
   }
 
   public function isPrivate() {
     return $this->base->isPrivate();
+  }
+
+  public function isAuto() {
+    return $this->base->isAuto();
   }
 
   public function isReadonly() {
@@ -37,6 +41,10 @@ abstract class FieldExtension extends Field {
     return $this->base->getDefault();
   }
 
+  public function isVirtual() {
+    return $this->base->isVirtual();
+  }
+
   public function onSave($value) {
     return $this->base->onSave($value);
   }
@@ -45,9 +53,6 @@ abstract class FieldExtension extends Field {
     return $this->base->onLoad($value, $key, $assoc, $populates);
   }
 
-  public function preUpdate($value, $key, $entity) {
-    return $this->base->preUpdate($value, $key, $entity);
-  }
 
   public function postUpdate($value, $key, $entity) {
     return $this->base->postUpdate($value, $key, $entity);
@@ -55,14 +60,6 @@ abstract class FieldExtension extends Field {
 
   public function getSanitizedValue($value) {
     $this->base->getSanitizedValue($value);
-  }
-
-  public function isVirtual() {
-    return $this->base->isVirtual();
-  }
-
-  public function getFilter($fieldName, $prefix, $memberName, $sql_mode) {
-    return $this->base->getFilter($fieldName, $prefix, $memberName, $sql_mode);
   }
 
   public function isJoinable() {
@@ -83,5 +80,13 @@ abstract class FieldExtension extends Field {
 
   public function getUiInfo() {
     return parent::getUiInfo();
+  }
+
+  public function bindModel($model, $fieldName) {
+    $this->base->bindModel($model, $fieldName);
+  }
+
+  protected function updateData($data) {
+    $this->base->updateData($data);
   }
 }

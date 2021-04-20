@@ -6,25 +6,25 @@ use Exception;
 use Phapi\Model;
 
 abstract class Field {
-  protected Model $model = null;
-
-  protected $data = [
-    "auto" => false,
-    "default" => IgnoreField::instance(),
-    "field" => null,
-    "forced" => false,
-    "private" => false,
-    "populate" => false,
-    "readonly" => false,
-    "required" => false,
-    "sql_type" => null,
-    "unique" => false,
-    "virtual" => false,
-  ];
-
+  protected ?Model $model = null;
+  protected ?array $data = [];
 
 
   public function __construct(array $data = null) {
+    $this->updateData([
+      "auto" => false,
+      "default" => IgnoreField::instance(),
+      "field" => null,
+      "forced" => false,
+      "private" => false,
+      "populate" => false,
+      "readonly" => false,
+      "required" => false,
+      "sql_type" => null,
+      "unique" => false,
+      "virtual" => false,
+    ]);
+
     $this->updateData($data);
   }
 
@@ -74,19 +74,12 @@ abstract class Field {
     return $value;
   }
 
-  public function preUpdate($value, $key, $entity) {
-  }
-
   public function postUpdate($value, $key, $entity) {
   }
 
   public function getSanitizedValue($value) {
     if ($this->isPrivate()) return IgnoreField::instance();
     return $value;
-  }
-
-  public function getFilter($fieldName, $prefix, $memberName, $sql_mode) {
-    return null;
   }
 
   public function isJoinable() {
@@ -109,8 +102,9 @@ abstract class Field {
   }
 
   public function bindModel($model, $fieldName) {
+    if ($this->data == null) var_dump($fieldName);
     if ($this->model) throw new Exception("This field is already bound to a model");
-    $this->data["field"] = $this->data["field"] || $fieldName;
+    $this->data["field"] = $this->data["field"] ?  $this->data["field"] : $fieldName;
     $this->model = $model;
   }
 

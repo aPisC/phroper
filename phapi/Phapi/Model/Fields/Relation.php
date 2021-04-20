@@ -12,6 +12,7 @@ abstract class Relation extends Field {
     $this->relationModel = $model;
     $this->updateData([
       "model" => $this->getModel()->getName(),
+      "model_display" => $this->getModel()->getDisplayField(),
       "populate" => true,
     ]);
   }

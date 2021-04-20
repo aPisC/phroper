@@ -99,6 +99,10 @@ class Model implements ICacheable {
     return $this->data["table"];
   }
 
+  function getDisplayField() {
+    return $this->data["display"];
+  }
+
   function getPopulateList($populate = null) {
     if (is_array($populate)) return $populate;
 

@@ -64,8 +64,14 @@ export const FieldComponentMap = {
   relation_one: ConnectSchemaField(RelationOne),
   relation_many: false,
   email: ConnectSchemaField((props) => <Input type="email" {...props} />),
-  display_info: connect(({ name, formik, ...props }) => {
-    return <Text {...props}>{formik.values && formik.values[name]}</Text>;
+  display_info: connect(({ name, formik, schema, ...props }) => {
+    const v = formik.values && formik.values[name];
+    return (
+      <Text {...props}>
+        {v && typeof v === "object" ? v[schema.model_display] : v}
+        {!v && "-"}
+      </Text>
+    );
   }),
   file: ConnectSchemaField(FileOne),
   file_multi: FileMulti,

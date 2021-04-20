@@ -17,8 +17,9 @@ class Enum extends Text {
   }
 
   public function onSave($value) {
+    $value = parent::onSave($value);
+    if ($value instanceof Exception) return $value;
     if ($value == null) return null;
-
     if (!in_array($value, $this->allowedValues))
       return new Exception("Enum value '" . $value . "' is not allowed");
 

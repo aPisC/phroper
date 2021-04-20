@@ -11,7 +11,9 @@ class Email extends Text {
   }
 
   public function onSave($value) {
-    if (!filter_var($value, FILTER_VALIDATE_EMAIL))
+    $value = parent::onSave($value);
+    if ($value instanceof Exception) return $value;
+    if ($value && !filter_var($value, FILTER_VALIDATE_EMAIL))
       return new Exception("Email format is invalid");
     return $value;
   }

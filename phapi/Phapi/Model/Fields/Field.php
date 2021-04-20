@@ -70,6 +70,8 @@ abstract class Field {
   }
 
   public function onSave($value) {
+    if (($value == "" || $value == null) && $this->isRequired())
+      return new Exception($this->data["name"] . " is required");
     return $value;
   }
 

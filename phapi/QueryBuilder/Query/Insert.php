@@ -32,7 +32,7 @@ class Insert extends QueryBuilder {
             } else if ($field["field"]->isRequired()) {
                 $this->__modifiable__values->setDefaultValue(
                     $field["source"],
-                    new Exception("Field '" . $field["alias"] . "' is required.")
+                    $field["field"]->onSave(null)
                 );
             }
         }

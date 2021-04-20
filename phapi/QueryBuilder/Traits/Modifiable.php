@@ -34,10 +34,6 @@ trait Modifiable {
         if ($newValue instanceof Phapi\Model\Fields\IgnoreField)
             return;
 
-        if ($field->isRequired() && $newValue == null)
-            $newValue = new Exception(
-                "Field " . $key . " is required!"
-            );
         $this->__modifiable__values->setValue($key_resolved, $newValue);
     }
 

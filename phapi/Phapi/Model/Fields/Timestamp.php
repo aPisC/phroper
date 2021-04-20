@@ -12,8 +12,11 @@ class Timestamp extends Field {
     ]);
   }
   public function onSave($value) {
-    if (is_numeric($value))
-      return date("Y-m-d H:i:s", $value);
-    return $value;
+    if (!$value) $value == null;
+
+    if ($value && is_numeric($value))
+      $value =  date("Y-m-d H:i:s", $value);
+
+    return parent::onSave($value);
   }
 }

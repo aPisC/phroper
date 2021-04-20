@@ -22,7 +22,7 @@ class AuthUser extends Model {
       "required"
     ]);
     $this->fields["password"] = new Phapi\Model\Fields\Password();
-    $this->fields["email"] = new Phapi\Model\Fields\Email();
+    $this->fields["email"] = new Phapi\Model\Fields\Email(["required"]);
     $this->fields["isAdmin"] = new Phapi\Model\Fields\Boolean(["default" => false]);
   }
 

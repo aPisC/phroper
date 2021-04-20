@@ -21,8 +21,8 @@ class RelationToOne extends Relation {
       if (isset($value['id'])) return $value['id'];
       return null;
     }
-    if (!$value) return null;
-    return $value;
+    if (!$value) $value = null;
+    return parent::onSave($value);
   }
 
   public function onLoad($value, $key, $assoc, $populates) {

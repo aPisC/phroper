@@ -11,7 +11,7 @@ class Text extends Field {
   }
 
   public function onSave($value) {
-    if (isset($this->data["regex"]) && !preg_match("/" . $this->data["regex"] . "/", $value))
+    if ($value && isset($this->data["regex"]) && !preg_match("/" . $this->data["regex"] . "/", $value))
       return new Exception($this->data["name"] . " does not match /" . $this->data["regex"] . "/");
 
     return parent::onSave($value);

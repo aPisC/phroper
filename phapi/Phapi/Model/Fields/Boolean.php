@@ -7,7 +7,8 @@ class Boolean extends Field {
     parent::__construct($data);
     $this->updateData([
       "type" => "bool",
-      "sql_type" => "BOOLEAN"
+      "sql_type" => "BOOLEAN",
+      "default" => false,
     ]);
   }
 

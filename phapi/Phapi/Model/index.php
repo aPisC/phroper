@@ -6,8 +6,13 @@ use Exception;
 use Phapi;
 use Phapi\Model\Entity;
 use Phapi\Model\FieldCollection;
+use Phapi\Model\Fields\Relation;
+use Phapi\Model\Fields\RelationToMany;
+use Phapi\Model\Fields\RelationToOne;
 use QueryBuilder;
 use QueryBuilder\Query\Count;
+use QueryBuilder\Query\CreateTable;
+use QueryBuilder\Query\Delete;
 use QueryBuilder\Query\Insert;
 use QueryBuilder\Query\Select;
 use QueryBuilder\Query\Update;
@@ -18,7 +23,10 @@ class Model {
   }
 
   public function getName() {
-    return strtolower(str_replace('\\', '_', get_class($this)));
+    $n = strtolower(str_replace('\\', '_', get_class($this)));
+    if (str_starts_with($n, "models_"))
+      $n = substr($n, 7);
+    return $n;
   }
 
   public function getPrimaryField() {
@@ -216,7 +224,7 @@ class Model {
     return $this->createMulti([$entity])[0];
   }
 
-  public function createMulti($entities) {
+  public function createMulti($entities, $processEntities = true) {
     if (count($entities) == 0) return [];
 
     $mysqli = Phapi::instance()->getMysqli();
@@ -234,6 +242,8 @@ class Model {
       error_log($q->lastSql . '    ' . $mysqli->error);
       throw new Exception('Database error ' . $mysqli->error);
     }
+
+    if (!$processEntities) return;
 
     $updated = $entities;
     $insid = $mysqli->insert_id;
@@ -292,7 +302,7 @@ class Model {
     $entity = $returnEntities ?  $this->find($filter) : null;
 
     if ($entity || !$returnEntities) {
-      $q = new QueryBuilder($this, "delete");
+      $q = new Delete($this);
       $mysqli = Phapi::instance()->getMysqli();
 
       $this->useFilter($q, $filter);
@@ -314,9 +324,22 @@ class Model {
     try {
       $this->findOne([]);
     } catch (Exception $ex) {
-      $q = new QueryBuilder($this, "create_table");
+      // init real relations
+      foreach ($this->fields as $field) {
+        if ($field instanceof Relation && !$field->isVirtual())
+          $field->getModel()->init();
+      }
+
+      // init self
+      $q = new CreateTable($this);
       $mysqli = Phapi::instance()->getMysqli();
       $q->execute($mysqli);
+
+      // init virtual relations
+      foreach ($this->fields as $field) {
+        if ($field instanceof Relation && $field->isVirtual())
+          $field->getModel()->init();
+      }
       return true;
     }
     return false;

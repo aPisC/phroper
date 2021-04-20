@@ -26,9 +26,6 @@ class AuthRole extends Model {
         "isDefault" => true,
       ]);
 
-      Phapi::model("AuthPermission")->init();
-      Phapi::model("AuthUser")->init();
-
       return true;
     }
     return false;

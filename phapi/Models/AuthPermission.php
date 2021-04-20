@@ -25,9 +25,6 @@ class AuthPermission extends Model {
   public function init() {
     if (parent::init()) {
       $rMod = Phapi::model("AuthRole");
-
-      $rMod->init();
-
       $role = $rMod->findOne(["isDefault" => true]);
 
       if ($role) {

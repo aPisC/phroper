@@ -22,7 +22,15 @@ class AuthUser extends Model {
   public function init() {
     if (parent::init()) {
       $rMod = Phapi::model("AuthRole");
-      $rMod->init();
+      $role = $rMod->findOne(["isDefault" => true]);
+
+      $this->create([
+        "username" => "admin",
+        "password" => "admin",
+        "isAdmin" => true,
+        "role" => $role["id"],
+      ]);
+
       return true;
     }
     return false;

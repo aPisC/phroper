@@ -33,12 +33,18 @@ trait Filterable {
         $resolved = "";
         switch ($operator) {
             case "limit": // ["limit", amount]
-                //if (!isset($this->limit)) throw new Exception("This query can not be limited");
-                $this->limit(intval($filter[1]));
+                try {
+                    $this->limit(intval($filter[1]));
+                } catch (Exception $e) {
+                    throw new Exception("This query can not be limited");
+                }
                 break;
             case "offset": // ["offset", amount]
-                if (!isset($this->offset)) throw new Exception("This query can not be limited");
-                $this->offset(intval($filter[1]));
+                try {
+                    $this->offset(intval($filter[1]));
+                } catch (Exception $e) {
+                    throw new Exception("This query can not be limited");
+                }
                 break;
             case "sort": // ["sort", ...sort]
                 if (!isset($this->orderBy)) throw new Exception("This query can not be ordered");

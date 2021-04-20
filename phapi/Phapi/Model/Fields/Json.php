@@ -5,10 +5,10 @@ namespace Phapi\Model\Fields;
 class Json extends Field {
   public function __construct(array $data = null) {
     parent::__construct($data);
-  }
-
-  public function getSQLType() {
-    return 'TEXT';
+    $this->updateData([
+      "type" => "json",
+      "sql_type" => "TEXT"
+    ]);
   }
 
   public function onLoad($value, $key, $assoc, $populates) {
@@ -17,11 +17,5 @@ class Json extends Field {
 
   public function onSave($value) {
     return json_encode($value);
-  }
-
-  public function getUiInfo() {
-    $i = parent::getUiInfo();
-    $i["type"] = "json";
-    return $i;
   }
 }

@@ -10,13 +10,13 @@ abstract class Relation extends Field {
   public function __construct($model, array $data = null) {
     parent::__construct($data);
     $this->relationModel = $model;
+    $this->updateData([
+      "model" => $this->getModel()->getName(),
+      "populate" => true,
+    ]);
   }
 
   public function getModel() {
     return Phapi::model($this->relationModel);
-  }
-
-  public function isDefaultPopulated() {
-    return true;
   }
 }

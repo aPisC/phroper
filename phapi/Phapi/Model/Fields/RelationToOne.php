@@ -9,10 +9,11 @@ use Phapi\Model\LazyResult;
 class RelationToOne extends Relation {
   public function __construct($model, array $data = null) {
     parent::__construct($model, $data);
-  }
 
-  public function getSQLType() {
-    return 'INT';
+    $this->updateData([
+      "sql_type" => "INT",
+      "type" => "relation_one",
+    ]);
   }
 
   public function onSave($value) {
@@ -48,11 +49,5 @@ class RelationToOne extends Relation {
 
   public function isJoinable() {
     return true;
-  }
-  public function getUiInfo() {
-    $i = parent::getUiInfo();
-    $i["type"] = "relation_one";
-    $i["model"] = $this->getModel()->getName();
-    return $i;
   }
 }

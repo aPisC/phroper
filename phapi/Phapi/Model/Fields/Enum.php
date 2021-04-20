@@ -10,6 +10,10 @@ class Enum extends Text {
   public function __construct($allowedValues, array $data = null) {
     parent::__construct($data);
     $this->allowedValues = $allowedValues;
+    $this->updateData([
+      "type" => "enum",
+      "values" => $this->allowedValues
+    ]);
   }
 
   public function onSave($value) {
@@ -25,12 +29,5 @@ class Enum extends Text {
     if (!in_array($value, $this->allowedValues))
       return null;
     return $value;
-  }
-
-  public function getUiInfo() {
-    $i = parent::getUiInfo();
-    $i["type"] = "enum";
-    $i["values"] = $this->allowedValues;
-    return $i;
   }
 }

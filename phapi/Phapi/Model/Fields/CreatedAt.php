@@ -4,26 +4,15 @@ namespace Phapi\Model\Fields;
 
 class CreatedAt extends Timestamp {
   public function __construct() {
-    parent::__construct(["field" => "created_at"]);
-  }
-
-  public function isReadonly() {
-    return true;
-  }
-
-  public function forceUpdate() {
-    return false;
-  }
-
-  public function isAuto() {
-    return true;
-  }
-
-  public function getDefault() {
-    return time();
-  }
-
-  function getSQLType() {
-    return "TIMESTAMP DEFAULT CURRENT_TIMESTAMP";
+    parent::__construct([
+      "field" => "created_at",
+      "type" => "timestamp",
+      "auto" => true,
+      "readonly" => true,
+      "default" => function () {
+        return time();
+      },
+      "sql_type" => "TIMESTAMP DEFAULT CURRENT_TIMESTAMP"
+    ]);
   }
 }

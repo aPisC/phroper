@@ -7,22 +7,18 @@ use Phapi;
 use Phapi\Model\LazyResult;
 
 class RelationToMany extends Relation {
-  private $via;
   public function __construct($model, $via, array $data = null) {
     parent::__construct($model, $data);
-    $this->via = $via;
+    $this->updateData([
+      "virtual" => true,
+      "via" => $via,
+      "readonly" => true,
+      "type" => "relation_many",
+    ]);
   }
 
   public function getVia() {
-    return $this->via;
-  }
-
-  public function isVirtual() {
-    return true;
-  }
-
-  public function isReadonly() {
-    return true;
+    return $this->data["via"];
   }
 
   public function onSave($value) {
@@ -41,7 +37,7 @@ class RelationToMany extends Relation {
         return substr($value, strlen($key) + 1);
       }, $pop2);
 
-      return $model->find([$this->via => $value], $pop2);
+      return $model->find([$this->getVia() => $value], $pop2);
     });
   }
 
@@ -57,12 +53,5 @@ class RelationToMany extends Relation {
       );
     }
     return IgnoreField::instance();
-  }
-
-  public function getUiInfo() {
-    $i = parent::getUiInfo();
-    $i["type"] = "relation_many";
-    $i["model"] = $this->getModel()->getName();
-    return $i;
   }
 }

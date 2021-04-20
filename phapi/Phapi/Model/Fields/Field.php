@@ -21,6 +21,7 @@ abstract class Field {
       "readonly" => false,
       "required" => false,
       "sql_type" => null,
+      "type" => "text",
       "unique" => false,
       "virtual" => false,
     ]);
@@ -59,7 +60,9 @@ abstract class Field {
   }
 
   public function getDefault() {
-    return $this->data["default"];
+    $def = $this->data["default"];
+    if (is_callable($def)) return $def();
+    return $def;
   }
 
   public function isVirtual() {
@@ -95,6 +98,7 @@ abstract class Field {
 
     foreach ($this->data as $key => $value) {
       if ($value instanceof IgnoreField) continue;
+      if (!is_scalar($value) && !is_array(($value))) continue;
       $data[$key] = $value;
     }
 

@@ -5,7 +5,12 @@ namespace Phapi;
 use Exception;
 use Phapi;
 use Phapi\Model\Entity;
+use Phapi\Model\FieldCollection;
 use QueryBuilder;
+use QueryBuilder\Query\Count;
+use QueryBuilder\Query\Insert;
+use QueryBuilder\Query\Select;
+use QueryBuilder\Query\Update;
 
 class Model {
   public function allowDefaultService() {
@@ -37,12 +42,14 @@ class Model {
   }
 
   protected string $tableName;
-  public array $fields = array();
+  public FieldCollection $fields;
 
   public function __construct($tableName = null) {
     if ($tableName == null)
       $tableName = $this->getName();
     $this->tableName = $tableName;
+
+    $this->fields = new FieldCollection($this);
     $this->fields["id"] = new Model\Fields\Identity();
     $this->fields["updated_by"] = new Model\Fields\UpdatedBy();
     $this->fields["created_at"] = new Model\Fields\CreatedAt();
@@ -109,15 +116,6 @@ class Model {
   // Data managing functions
   //--------------------------
 
-  protected function preUpdate($entity) {
-    foreach ($this->fields as $key => $field) {
-      if (!$field) continue;
-      if (array_key_exists($key, $entity))
-        $field->preUpdate($entity[$key], $key, $entity);
-      else if ($field->forceUpdate())
-        $field->preUpdate(null, $key, $entity);
-    }
-  }
   protected function postUpdate($entity, $updated) {
     $hadPostUpdate = false;
     foreach ($this->fields as $key => $field) {
@@ -132,7 +130,7 @@ class Model {
 
   private function useFilter($q, $filter) {
     if (is_array($filter) && count($filter) > 0) {
-      $q->addQueryObject($filter);
+      $q->filter($filter);
     } else if (is_string($filter) || is_numeric($filter)) {
       $q->addRawFilter("=", new QueryBuilder\QB_Ref('id'), $filter);
     }
@@ -140,12 +138,13 @@ class Model {
 
   public function findOne($filter, $populate = null) {
     $populate = $this->getPopulateList($populate);
-    $q = new QueryBuilder($this, "select");
     $mysqli = Phapi::instance()->getMysqli();
 
+    $q = new Select($this);
+    $q->limit(1);
     $q->populate($populate);
-
     $this->useFilter($q, $filter);
+
     $result = $q->execute($mysqli);
 
     if (!$result) {
@@ -165,11 +164,10 @@ class Model {
 
   public function find($filter, $populate = null) {
     $populate = $this->getPopulateList($populate);
-    $q = new QueryBuilder($this, "select");
     $mysqli = Phapi::instance()->getMysqli();
 
+    $q = new Select($this);
     $q->populate($populate);
-
     $this->useFilter($q, $filter);
 
     $result = $q->execute($mysqli);
@@ -193,17 +191,17 @@ class Model {
   }
 
   public function count($filter) {
-    $q = new QueryBuilder($this, "count");
     $mysqli = Phapi::instance()->getMysqli();
 
+    $q = new Count($this);
     $this->useFilter($q, $filter);
-
     $result = $q->execute($mysqli);
 
     if (!$result) {
       error_log($q->lastSql . '    ' . $mysqli->error);
       throw new Exception('Database error ' . $mysqli->error);
     }
+
     if ($result->num_rows == 0) {
       $result->free_result();
       return null;
@@ -221,15 +219,12 @@ class Model {
   public function createMulti($entities) {
     if (count($entities) == 0) return [];
 
-    $q = new QueryBuilder($this, "insert");
     $mysqli = Phapi::instance()->getMysqli();
 
-    foreach ($entities as $entity) {
-      $this->preUpdate($entity);
-    }
+    $q = new Insert($this);
 
     foreach ($entities as $index => $entity) {
-      if ($index > 0) $q->nextInsert();
+      if ($index > 0) $q->nextEntity();
       $q->setAllValue($entity);
     }
 
@@ -265,11 +260,9 @@ class Model {
   }
 
   public function update($filter, $entity) {
-    $q = new QueryBuilder($this, "update");
     $mysqli = Phapi::instance()->getMysqli();
 
-    $this->preUpdate($entity);
-
+    $q = new Update($this, "update");
     $this->useFilter($q, $filter);
     $q->setAllValue($entity);
 

@@ -6,7 +6,7 @@ use Phapi\Model;
 
 class Store extends Model {
   public function __construct() {
-    parent::__construct('store');
+    parent::__construct(["table" => "store"]);
 
     $this->fields->clear();
     $this->fields["key"] = new Model\Fields\TextKey();

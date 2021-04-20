@@ -7,7 +7,7 @@ use Phapi;
 
 class AuthRole extends Model {
   public function __construct() {
-    parent::__construct('role');
+    parent::__construct(["table" => 'role', "display" => "name"]);
 
 
     $this->fields["name"] = new Phapi\Model\Fields\Text();
@@ -29,11 +29,5 @@ class AuthRole extends Model {
       return true;
     }
     return false;
-  }
-
-  public function getUiInfo() {
-    $info = parent::getUiInfo();
-    $info["display"] = "name";
-    return $info;
   }
 }

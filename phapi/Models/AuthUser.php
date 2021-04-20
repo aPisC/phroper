@@ -7,7 +7,10 @@ use Phapi;
 
 class AuthUser extends Model {
   public function __construct() {
-    parent::__construct('user');
+    parent::__construct([
+      "table" => "user",
+      "display" => "username"
+    ]);
 
     $this->fields['updated_by'] = null;
 
@@ -39,11 +42,5 @@ class AuthUser extends Model {
   public function getPopulateList($populate = null) {
     if (is_array($populate)) return $populate;
     return [];
-  }
-
-  public function getUiInfo() {
-    $info = parent::getUiInfo();
-    $info["display"] = "username";
-    return $info;
   }
 }

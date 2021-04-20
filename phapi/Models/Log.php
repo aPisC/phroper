@@ -6,7 +6,7 @@ use Phapi\Model;
 
 class Log extends Model {
   public function __construct() {
-    parent::__construct('log');
+    parent::__construct(['table' => "log", "editable" => false]);
 
     $this->fields['updated_at'] = null;
     $this->fields['type'] = new Model\Fields\Enum([
@@ -20,11 +20,5 @@ class Log extends Model {
 
   public function allowDefaultService() {
     return false;
-  }
-
-  public function getUiInfo() {
-    $info = parent::getUiInfo();
-    $info["editable"] = false;
-    return $info;
   }
 }

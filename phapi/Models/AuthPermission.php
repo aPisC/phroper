@@ -7,15 +7,14 @@ use Phapi;
 
 class AuthPermission extends Model {
   public function __construct() {
-    parent::__construct('permission');
+    parent::__construct([
+      "table" => 'permission',
+      "display" => "permission",
+      "populate" => []
+    ]);
 
     $this->fields["role"] = new Phapi\Model\Fields\RelationToOne("AuthRole", ["required" => true]);
     $this->fields["permission"] = new Phapi\Model\Fields\Text(["required" => true]);
-  }
-
-  public function getPopulateList($populate = null) {
-    if (is_array($populate)) return $populate;
-    return [];
   }
 
   public function allowDefaultService() {

@@ -18,6 +18,67 @@ use QueryBuilder\Query\Select;
 use QueryBuilder\Query\Update;
 
 class Model implements ICacheable {
+  protected array $data = [];
+  public FieldCollection $fields;
+
+  public function __construct($data = null) {
+    $name = explode("\\", get_class($this));
+    $name = $name[count($name) - 1];
+    $key = str_pc_kebab($name);
+    $name = str_pc_text($name);
+
+    $this->updateData([
+      "table" => $key,
+      "key" => $key,
+      "name" => $name,
+      "primary" => "id",
+      "display" => "id",
+      "visible" => true,
+      "editable" => true,
+    ]);
+    $this->updateData($data);
+
+
+    Phapi::instance()->cache($this);
+
+    $this->fields = new FieldCollection($this);
+    $this->fields["id"] = new Model\Fields\Identity();
+    $this->fields["updated_by"] = new Model\Fields\UpdatedBy();
+    $this->fields["created_at"] = new Model\Fields\CreatedAt();
+    $this->fields["updated_at"] = new Model\Fields\UpdatedAt();
+  }
+
+  public function getUiInfo() {
+    $data = [];
+
+    foreach ($this->data as $key => $value) {
+      if (!is_scalar($value) && !is_array(($value))) continue;
+      $data[$key] = $value;
+    }
+    $data["fields"] = [];
+    foreach ($this->fields as $key => $field) {
+      if (!$field) continue;
+      $fd = $field->getUiInfo();
+      if (!$fd) continue;
+
+      $fd["key"] = $key;
+      $fd["name"] = str_pc_text($key);
+
+      $data["fields"][$key] = $fd;
+    }
+
+    return $data;
+  }
+
+
+  protected function updateData($data) {
+    if (!$data) return;
+
+    foreach ($data as $key => $value) {
+      $this->data[$key] = $value;
+    }
+  }
+
   public function allowDefaultService() {
     return true;
   }
@@ -27,22 +88,21 @@ class Model implements ICacheable {
   }
 
   public function getName() {
-    $n = str_replace('\\', '/', get_class($this));
-    if (str_starts_with($n, "Models/"))
-      $n = substr($n, 7);
-    return str_pc_kebab($n);
+    return $this->data["key"];
   }
 
   public function getPrimaryField() {
-    return "id";
+    return $this->data["primary"];
   }
 
   function getTableName() {
-    return $this->tableName;
+    return $this->data["table"];
   }
 
   function getPopulateList($populate = null) {
     if (is_array($populate)) return $populate;
+
+    if (isset($this->data["populate"])) return $this->data["populate"];
 
     $populate = [];
     foreach ($this->fields as $key => $field) {
@@ -51,23 +111,6 @@ class Model implements ICacheable {
         $populate[] = $key;
     }
     return $populate;
-  }
-
-  protected string $tableName;
-  public FieldCollection $fields;
-
-  public function __construct($tableName = null) {
-    if ($tableName == null)
-      $tableName = $this->getName();
-    $this->tableName = $tableName;
-
-    Phapi::instance()->cache($this);
-
-    $this->fields = new FieldCollection($this);
-    $this->fields["id"] = new Model\Fields\Identity();
-    $this->fields["updated_by"] = new Model\Fields\UpdatedBy();
-    $this->fields["created_at"] = new Model\Fields\CreatedAt();
-    $this->fields["updated_at"] = new Model\Fields\UpdatedAt();
   }
 
   public function sanitizeEntity($entity) {
@@ -349,36 +392,5 @@ class Model implements ICacheable {
       return true;
     }
     return false;
-  }
-
-  public function getUiInfo() {
-
-    $name = explode("\\", get_class($this));
-    $name = $name[count($name) - 1];
-    $key = str_pc_kebab($name);
-    $name = str_pc_text($name);
-
-    $result = [
-      "key" => $key,
-      "name" => $name,
-      "primary" => $this->getPrimaryField(),
-      "display" =>  $this->getPrimaryField(),
-      "visible" => true,
-      "editable" => !!$this->getPrimaryField(),
-      "fields" => []
-    ];
-
-    foreach ($this->fields as $key => $field) {
-      if (!$field) continue;
-      $fd = $field->getUiInfo();
-      if (!$fd) continue;
-
-      $fd["key"] = $key;
-      $fd["name"] = str_pc_text($key);
-
-      $result["fields"][$key] = $fd;
-    }
-
-    return $result;
   }
 }

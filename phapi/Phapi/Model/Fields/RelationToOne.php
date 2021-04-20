@@ -2,6 +2,7 @@
 
 namespace Phapi\Model\Fields;
 
+use Phapi;
 use Phapi\Model\Entity;
 use Phapi\Model\LazyResult;
 
@@ -51,7 +52,7 @@ class RelationToOne extends Relation {
   public function getUiInfo() {
     $i = parent::getUiInfo();
     $i["type"] = "relation_one";
-    $i["model"] = str_pc_kebab(is_string($this->model) ? $this->model : get_class($this->model));
+    $i["model"] = $this->getModel()->getName();
     return $i;
   }
 }

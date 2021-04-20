@@ -47,10 +47,20 @@ trait Filterable {
                 }
                 break;
             case "sort": // ["sort", ...sort]
-                if (!isset($this->orderBy)) throw new Exception("This query can not be ordered");
-                foreach ($filter as $index => $arg) {
-                    if ($index < 1) continue;
-                    $this->orderBy($arg);
+                try {
+                    foreach ($filter as $index => $arg) {
+                        if ($index < 1) continue;
+                        $this->orderBy($arg);
+                    }
+                } catch (Exception $e) {
+                    throw new Exception("This query can not be ordered");
+                }
+                break;
+            case "sort_eq": // ["sort_eq", field, eqVal]
+                try {
+                    $this->orderByEq($filter[1], $filter[2]);
+                } catch (Exception $e) {
+                    throw new Exception("This query can not be ordered");
                 }
                 break;
             case "and": // ["and", ...rawFilters]
@@ -209,7 +219,7 @@ trait Filterable {
         else if (str_ends_with($key, "_null"))
             return [$value ? "null" : "notnull", new QB_Ref(str_drop_end($key, 5))];
         else if (str_ends_with($key, "_sort"))
-            $this->addOrderByEq(str_drop_end($key, 5), $value);
+            return ["sort_eq", new QB_Ref(str_drop_end($key, 5)), $value];
         else return ["=", new QB_Ref($key), $value];
         return false;
     }

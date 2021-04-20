@@ -3,6 +3,7 @@
 namespace Phapi\Model\Fields;
 
 use Exception;
+use Phapi;
 use Phapi\Model\LazyResult;
 
 class RelationToMany extends Relation {
@@ -61,7 +62,7 @@ class RelationToMany extends Relation {
   public function getUiInfo() {
     $i = parent::getUiInfo();
     $i["type"] = "relation_many";
-    $i["model"] = is_string($this->model) ? $this->model : get_class($this->model);
+    $i["model"] = $this->getModel()->getName();
     return $i;
   }
 }

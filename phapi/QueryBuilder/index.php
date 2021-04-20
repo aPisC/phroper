@@ -1,6 +1,7 @@
 <?php
 
 use Phapi\Model;
+use QueryBuilder\QB_Ref;
 use QueryBuilder\Traits\IJoinable;
 
 abstract class QueryBuilder {
@@ -55,6 +56,9 @@ abstract class QueryBuilder {
 
 
   protected function resolve($key) {
+    if ($key instanceof QB_Ref)
+      $key = $key->alias;
+
     if (isset($this->fields[$key]))
       return $this->fields[$key]["source"];
 

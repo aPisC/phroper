@@ -23,10 +23,10 @@ class Model {
   }
 
   public function getName() {
-    $n = strtolower(str_replace('\\', '_', get_class($this)));
-    if (str_starts_with($n, "models_"))
+    $n = str_replace('\\', '/', get_class($this));
+    if (str_starts_with($n, "Models/"))
       $n = substr($n, 7);
-    return $n;
+    return str_pc_kebab($n);
   }
 
   public function getPrimaryField() {

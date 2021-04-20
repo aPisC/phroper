@@ -17,8 +17,12 @@ use QueryBuilder\Query\Insert;
 use QueryBuilder\Query\Select;
 use QueryBuilder\Query\Update;
 
-class Model {
+class Model implements ICacheable {
   public function allowDefaultService() {
+    return true;
+  }
+
+  public function isCacheable() {
     return true;
   }
 
@@ -56,6 +60,8 @@ class Model {
     if ($tableName == null)
       $tableName = $this->getName();
     $this->tableName = $tableName;
+
+    Phapi::instance()->cache($this);
 
     $this->fields = new FieldCollection($this);
     $this->fields["id"] = new Model\Fields\Identity();

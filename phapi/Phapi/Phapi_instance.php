@@ -94,6 +94,16 @@ class Phapi_instance {
         return $this->contextValues[$name];
     }
 
+    /* -----------------
+    Cache
+    ------------------- */
+    private array $__cache = [];
+    public function cache($item) {
+        if ($item instanceof ICacheable && $item->isCacheable()) {
+            $this->__cache[get_class($item)] = $item;
+        }
+    }
+
     /* ------------------
     Service, controller and model getter
     ------------------ */
@@ -102,6 +112,8 @@ class Phapi_instance {
             if ($serviceName instanceof Service)
                 return $serviceName;
             $scn = 'Services\\' . str_kebab_pc($serviceName);
+            if (isset($this->__cache[$scn]))
+                return $this->__cache[$scn];
             if (class_exists($scn)) $service = new $scn();
             else $service = new DefaultService($serviceName);
             return $service;
@@ -115,6 +127,8 @@ class Phapi_instance {
             if ($controllerName instanceof Controller)
                 return $controllerName;
             $ccn = 'Controllers\\' . str_kebab_pc($controllerName);
+            if (isset($this->__cache[$ccn]))
+                return $this->__cache[$ccn];
             if (class_exists($ccn))
                 $controller = new $ccn();
             else {
@@ -131,6 +145,8 @@ class Phapi_instance {
             if (is_subclass_of($modelName, 'Phapi\Model'))
                 return $modelName;
             $mcn = 'Models\\' . str_kebab_pc($modelName);
+            if (isset($this->__cache[$mcn]))
+                return $this->__cache[$mcn];
             $model = new $mcn();
             return $model;
         } catch (Error $e) {

@@ -5,11 +5,11 @@ namespace Phapi\Model\Fields;
 
 class Timestamp extends Field {
   public function __construct(array $data = null) {
-    parent::__construct($data);
-    $this->updateData([
+    parent::__construct([
       "type" => "timestamp",
       "sql_type" => 'TIMESTAMP NULL DEFAULT NULL',
     ]);
+    $this->updateData($data);
   }
   public function onSave($value) {
     if (!$value) $value == null;

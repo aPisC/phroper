@@ -6,8 +6,8 @@ use Exception;
 
 class Email extends Text {
   public function __construct($data = null) {
-    parent::__construct($data);
-    $this->updateData(["type" => "email"]);
+    parent::__construct(["type" => "email"]);
+    $this->updateData($data);
   }
 
   public function onSave($value) {

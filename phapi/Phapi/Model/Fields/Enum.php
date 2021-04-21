@@ -26,6 +26,16 @@ class Enum extends Text {
     return $value;
   }
 
+  public function getSQLConstraint() {
+    return "CONSTRAINT CHECK (`" . $this->data["field"] . "` IN (" .
+      implode(", ", array_map(
+        function ($v) {
+          return "\"" . $v . "\"";
+        },
+        $this->allowedValues
+      )) . "))";
+  }
+
   public function onLoad($value, $key, $assoc, $populates) {
     if (!in_array($value, $this->allowedValues))
       return null;

@@ -13,7 +13,12 @@ class RelationToOne extends Relation {
     $this->updateData([
       "sql_type" => "INT",
       "type" => "relation_one",
+      "delete_action" => "RESTRICT",
     ]);
+  }
+
+  public function getSQLConstraint() {
+    return "FOREIGN KEY (`" . $this->data["field"] . "`) REFERENCES `" . $this->getModel()->getTableName() . "`(id) ON DELETE " . $this->data["delete_action"];
   }
 
   public function onSave($value) {

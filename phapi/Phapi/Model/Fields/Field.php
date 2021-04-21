@@ -31,8 +31,12 @@ abstract class Field {
 
   public function getSQLType() {
     return $this->data["sql_type"]
-      + ($this->data["unique"] ? " UNIQUE" : "")
-      + ($this->data["required"] ? " NOT NULL" : "");
+      . ($this->data["unique"] ? " UNIQUE" : "")
+      . ($this->data["required"] ? " NOT NULL" : "");
+  }
+
+  public function getSQLConstraint() {
+    return null;
   }
 
   public function getFieldName() {

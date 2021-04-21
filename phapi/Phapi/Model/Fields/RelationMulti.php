@@ -24,7 +24,7 @@ class RelationMulti_Model extends Model {
       $this->model2 = $m;
     }
 
-    parent::__construct("mr_" . $this->model->getTableName() . "_" . $this->model2->getTableName() . "_" . $relKey);
+    parent::__construct(["table" => "mr_" . $this->model->getTableName() . "_" . $this->model2->getTableName() . "_" . $relKey]);
 
     $this->fields->clear();
     $this->fields[$this->model->getTableName()] = new RelationToOne($this->model, ["required", "delete_action" => "CASCADE"]);

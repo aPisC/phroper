@@ -199,14 +199,13 @@ class Model implements ICacheable {
     $mysqli = Phapi::instance()->getMysqli();
 
     $q = new Select($this);
-    $q->limit(1);
     $q->populate($populate);
     $this->useFilter($q, $filter);
+    $q->limit(1);
 
     $result = $q->execute($mysqli);
 
     if (!$result) {
-      error_log($q->lastSql . '    ' . $mysqli->error);
       throw new Exception('Database error ' . $mysqli->error);
     }
     if ($result->num_rows == 0) {
@@ -231,7 +230,6 @@ class Model implements ICacheable {
     $result = $q->execute($mysqli);
 
     if (!$result) {
-      error_log($q->lastSql . '    ' . $mysqli->error);
       throw new Exception('Database error ' . $mysqli->error);
     }
 
@@ -256,7 +254,6 @@ class Model implements ICacheable {
     $result = $q->execute($mysqli);
 
     if (!$result) {
-      error_log($q->lastSql . '    ' . $mysqli->error);
       throw new Exception('Database error ' . $mysqli->error);
     }
 
@@ -289,7 +286,6 @@ class Model implements ICacheable {
     $result = $q->execute($mysqli);
 
     if (!$result) {
-      error_log($q->lastSql . '    ' . $mysqli->error);
       throw new Exception('Database error ' . $mysqli->error);
     }
 
@@ -329,7 +325,6 @@ class Model implements ICacheable {
     $result = $q->execute($mysqli);
 
     if (!$result) {
-      error_log($q->lastSql . '    ' . $mysqli->error);
       throw new Exception('Database error ' . $mysqli->error);
     }
 
@@ -361,7 +356,6 @@ class Model implements ICacheable {
       $result = $q->execute($mysqli);
 
       if (!$result) {
-        error_log($q->lastSql . '    ' . $mysqli->error);
         throw new Exception('Database error ' . $mysqli->error);
       }
     }

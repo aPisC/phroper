@@ -29,9 +29,10 @@ abstract class QueryBuilder {
 
     $stmt = $mysqli->prepare($this->lastSql);
 
-    if ($stmt === false) throw new Exception(
-      "Statement could not be prepared \n\n" . $this->lastSql . "\n\n" . $mysqli->error
-    );
+    if ($stmt === false) {
+      error_log("SQL statement could not be prepared.\n\n" . $this->lastSql . "\n\n" . $mysqli->error);
+      throw new Exception("SQL statement could not be prepared.");
+    }
 
     $bindValues = array_merge(
       $this->bindings->getBindValues("values"),
@@ -45,7 +46,17 @@ abstract class QueryBuilder {
         ...$bindValues
       );
 
+    if ($stmt->error) {
+      error_log("SQL parameter binding failed\n\n" . $this->lastSql . "\n\n" . $bindStr . "   " . json_encode($bindValues) . "\n\n" . $stmt->error);
+      throw new Exception("Parameter binding failed.");
+    }
+
     $exec = $stmt->execute();
+
+    if ($stmt->error) {
+      throw new Exception("Database error: " . $stmt->error);
+    }
+
 
     if ($this->execHasResult())
       return $stmt->get_result();

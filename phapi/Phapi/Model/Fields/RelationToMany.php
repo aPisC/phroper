@@ -4,17 +4,18 @@ namespace Phapi\Model\Fields;
 
 use Exception;
 use Phapi;
+use Phapi\Model\EntityList;
 use Phapi\Model\LazyResult;
 
 class RelationToMany extends Relation {
   public function __construct($model, $via, array $data = null) {
-    parent::__construct($model, $data);
-    $this->updateData([
+    parent::__construct($model, [
       "virtual" => true,
       "via" => $via,
       "readonly" => true,
       "type" => "relation_many",
     ]);
+    $this->updateData($data);
   }
 
   public function getVia() {
@@ -44,12 +45,12 @@ class RelationToMany extends Relation {
   public function getSanitizedValue($value) {
     if ($this->isPrivate())
       return IgnoreField::instance();
-    if (is_array($value)) {
+    if ($value instanceof EntityList) {
       $model = $this->getModel();
       return parent::getSanitizedValue(
-        array_map(function ($entity) use ($model) {
+        $value->map(function ($entity) use ($model) {
           return $model->sanitizeEntity($entity);
-        }, $value)
+        })
       );
     }
     return IgnoreField::instance();

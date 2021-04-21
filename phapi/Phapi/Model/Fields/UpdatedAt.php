@@ -9,15 +9,12 @@ class UpdatedAt extends Timestamp {
       "type" => "timestamp",
       "auto" => true,
       "readonly" => true,
-      "forced" => true,
-      "default" => function () {
-        return time();
-      },
+      "forced" => false,
       "sql_type" => "TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP"
     ]);
   }
 
   public function onSave($value) {
-    return parent::onSave(time());
+    return null;
   }
 }

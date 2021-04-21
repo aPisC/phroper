@@ -9,10 +9,12 @@ class CreatedAt extends Timestamp {
       "type" => "timestamp",
       "auto" => true,
       "readonly" => true,
-      "default" => function () {
-        return time();
-      },
       "sql_type" => "TIMESTAMP DEFAULT CURRENT_TIMESTAMP"
     ]);
+  }
+
+
+  public function onSave($value) {
+    return null;
   }
 }

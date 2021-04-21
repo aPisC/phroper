@@ -13,7 +13,7 @@ class AuthPermission extends Model {
       "populate" => []
     ]);
 
-    $this->fields["role"] = new Phapi\Model\Fields\RelationToOne("AuthRole", ["required" => true]);
+    $this->fields["role"] = new Phapi\Model\Fields\RelationToOne("AuthRole", ["required", "delete_action" => "CASCADE"]);
     $this->fields["permission"] = new Phapi\Model\Fields\Text(["required" => true]);
   }
 

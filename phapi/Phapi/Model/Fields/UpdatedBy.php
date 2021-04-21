@@ -12,7 +12,12 @@ class UpdatedBy extends RelationToOne {
       "forced" => true,
       "readonly" => true,
       "auto" => true,
+      "delete_action" => null,
     ]);
+  }
+
+  public function getSQLConstraint() {
+    return null;
   }
 
   public function onSave($value) {

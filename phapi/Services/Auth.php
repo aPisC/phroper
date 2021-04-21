@@ -6,6 +6,7 @@ use Exception;
 use Phapi\Model;
 use Phapi;
 use Phapi\JWT;
+use Phapi\Model\Entity;
 use Phapi\Service;
 
 class Auth extends Service {
@@ -74,6 +75,7 @@ class Auth extends Service {
         'permission' => $permName,
       ], []) != null;
     if (is_array($user) && $user["isAdmin"] === true) return true;
+    if ($user instanceof Entity && $user["isAdmin"] === true) return true;
     else if (
       is_scalar($user)
       && $user

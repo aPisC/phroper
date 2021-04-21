@@ -8,13 +8,14 @@ use Phapi\Model\LazyResult;
 
 class RelationToOne extends Relation {
   public function __construct($model, array $data = null) {
-    parent::__construct($model, $data);
-
-    $this->updateData([
-      "sql_type" => "INT",
+    parent::__construct($model, [
+      "sql_type" => "INTEGER UNSIGNED",
       "type" => "relation_one",
       "delete_action" => "RESTRICT",
+      "virtual" => false,
     ]);
+
+    $this->updateData($data);
   }
 
   public function getSQLConstraint() {
@@ -22,11 +23,14 @@ class RelationToOne extends Relation {
   }
 
   public function onSave($value) {
-    if (is_array($value)) {
-      if (isset($value['id'])) return $value['id'];
-      return null;
+    if ($value instanceof Entity) {
+      if (isset($value['id'])) $value = $value['id'];
+      else $value = null;
+    } else if (is_array($value)) {
+      if (isset($value['id'])) $value = $value['id'];
+      else $value = null;
     }
-    if (!$value) $value = null;
+
     return parent::onSave($value);
   }
 

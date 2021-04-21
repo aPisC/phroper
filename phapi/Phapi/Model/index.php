@@ -370,20 +370,30 @@ class Model implements ICacheable {
     return $entity;
   }
 
+
+  private bool $__initializing = false;
   public function init() {
     try {
       $this->findOne([]);
     } catch (Exception $ex) {
+      if ($this->__initializing)
+        return false;
+      $this->__initializing = true;
       // init real relations
       foreach ($this->fields as $field) {
-        if ($field instanceof Relation && !$field->isVirtual())
+        if ($field instanceof Relation && !$field->isVirtual()) {
+          //var_dump($field);
           $field->getModel()->init();
+        }
       }
 
       // init self
       $q = new CreateTable($this);
       $mysqli = Phapi::instance()->getMysqli();
-      $q->execute($mysqli);
+      echo $q->getQuery() . "\n";
+
+      if (!$q->execute($mysqli))
+        error_log("Database error: " . $mysqli->error);
 
       // init virtual relations
       foreach ($this->fields as $field) {

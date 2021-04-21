@@ -37,13 +37,13 @@ abstract class QueryBuilder {
       $this->bindings->getBindValues("values"),
       $this->bindings->getBindValues("filter")
     );
+    $bindStr =  $this->bindings->getBindStr("values")
+      . $this->bindings->getBindStr("filter");
     if (count($bindValues) > 0)
       $stmt->bind_param(
-        $this->bindings->getBindStr("values")
-          . $this->bindings->getBindStr("filter"),
+        $bindStr,
         ...$bindValues
       );
-
 
     $exec = $stmt->execute();
 

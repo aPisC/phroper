@@ -20,12 +20,13 @@ class Init extends Phapi\Controller {
             $d = str_drop_end($d, 4);
           $model = Phapi::model($d);
           if (!$model) continue;
-          if ($model->init()) echo $d . ": done\n";
-          else echo $d . ": already initialized \n";
+          echo "Initializing " . $d . "\n";
+          if ($model->init()) echo $d . ": done\n\n";
+          else echo $d . ": already initialized \n\n";
         } catch (Error $ex) {
-          echo $d . ": error " . $ex->getMessage() . "\n";
+          echo $d . ": error " . $ex . "\n";
         } catch (Exception $ex) {
-          echo $d . ": error " . $ex->getMessage() . "\n";
+          echo $d . ": error " . $ex . "\n";
         }
       }
     }, "GET");
@@ -34,6 +35,7 @@ class Init extends Phapi\Controller {
       try {
         $model = Phapi::model($params["model"]);
         if (!$model) return $next();
+        echo "Initializing \n";
         if ($model->init()) echo "done\n";
         else echo "already initialized \n";
       } catch (Error $ex) {

@@ -27,8 +27,8 @@ class RelationMulti_Model extends Model {
     parent::__construct("mr_" . $this->model->getTableName() . "_" . $this->model2->getTableName() . "_" . $relKey);
 
     $this->fields->clear();
-    $this->fields[$this->model->getTableName()] = new RelationToOne($this->model);
-    $this->fields[$this->model2->getTableName()] = new RelationToOne($this->model2);
+    $this->fields[$this->model->getTableName()] = new RelationToOne($this->model, ["required", "delete_action" => "CASCADE"]);
+    $this->fields[$this->model2->getTableName()] = new RelationToOne($this->model2, ["required", "delete_action" => "CASCADE"]);
   }
 }
 
@@ -44,7 +44,13 @@ class RelationMulti extends Relation {
 
   public function bindModel($model, $fieldName) {
     parent::bindModel($model, $fieldName);
-    $this->relationModel = new RelationMulti_Model($model, $this->otherModel, $this->relKey);
+    $model = new RelationMulti_Model($model, $this->otherModel, $this->relKey);
+    $this->relationModel = $model;
+    $this->updateData([
+      "model" => $model ? $this->getModel()->getName() : "",
+      "model_display" => $model ? $this->getModel()->getDisplayField() : "",
+
+    ]);
   }
 
   public function onLoad($value, $key, $assoc, $populates) {
@@ -99,9 +105,6 @@ class RelationMulti extends Relation {
     return false;
   }
 
-  public function isVirtual() {
-    return true;
-  }
 
   public function getSanitizedValue($value) {
     if ($this->isPrivate())

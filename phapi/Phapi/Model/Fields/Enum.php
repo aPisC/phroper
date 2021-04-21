@@ -8,12 +8,12 @@ class Enum extends Text {
   private array $allowedValues;
 
   public function __construct($allowedValues, array $data = null) {
-    parent::__construct($data);
     $this->allowedValues = $allowedValues;
-    $this->updateData([
+    parent::__construct([
       "type" => "enum",
       "values" => $this->allowedValues
     ]);
+    $this->updateData($data);
   }
 
   public function onSave($value) {

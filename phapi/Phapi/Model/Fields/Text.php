@@ -6,8 +6,8 @@ use Exception;
 
 class Text extends Field {
   public function __construct(array $data = null) {
-    parent::__construct($data);
-    $this->updateData(["sql_type" => "VARCHAR(255)"]);
+    parent::__construct(["sql_type" => "VARCHAR(255)"]);
+    $this->updateData($data);
   }
 
   public function onSave($value) {

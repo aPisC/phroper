@@ -4,11 +4,11 @@ namespace Phapi\Model\Fields;
 
 class Json extends Field {
   public function __construct(array $data = null) {
-    parent::__construct($data);
-    $this->updateData([
+    parent::__construct([
       "type" => "json",
       "sql_type" => "TEXT"
     ]);
+    $this->updateData($data);
   }
 
   public function onLoad($value, $key, $assoc, $populates) {

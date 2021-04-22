@@ -1,10 +1,10 @@
-# Phapi
+# Phroper
 
 Headless CMS engine, written in php, written for you ❤.
 
 ## Startup configuration
 
-In order to handle incoming request with Phapi, you have to redirect the request to a php file (for example: index.php).
+In order to handle incoming request with Phroper, you have to redirect the request to a php file (for example: index.php).
 If you are using apache server, write a .htaccess file an enable url rewriteing module.
 
 Example content of .htaccess:
@@ -22,8 +22,8 @@ RewriteRule ^([^?]*) index.php?:__url__=$1 [L,QSA]
 
 ```
 
-In php file, you must provide the ROOT constant as the root of phapi server, to handle dynamic imports correctly.
-Make an instance of Phapi, register the handlers, and call run method.
+In php file, you must provide the ROOT constant as the root of Phroper server, to handle dynamic imports correctly.
+Make an instance of Phroper, register the handlers, and call run method.
 
 Example of index.php:
 
@@ -33,19 +33,19 @@ Example of index.php:
 define('ROOT', dirname(__FILE__));
 define('DS', DIRECTORY_SEPARATOR);
 
-require_once("phapi/index.php");
+require_once("phroper/index.php");
 
-Phapi::setMysqli(new mysqli(
+Phroper::setMysqli(new mysqli(
     "localhost",
     "user",
     "password",
     "database"
 ));
 
-Phapi::serveApi("api/");
-Phapi::serveFolder(ROOT . DS . "public");
-Phapi::serveFallbackFile(ROOT . DS . "public" . DS . "index.html");
+Phroper::serveApi("api/");
+Phroper::serveFolder(ROOT . DS . "public");
+Phroper::serveFallbackFile(ROOT . DS . "public" . DS . "index.html");
 
-Phapi::run();
+Phroper::run();
 
 ```

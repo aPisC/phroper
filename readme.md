@@ -133,6 +133,7 @@ The field parameters can be passed as the last argument of field constructor. Al
 | max (Integer)                                | Specifies the maximum value of an integer                                              |                           |
 | max (Text)                                   | Specifies the maximum length of string                                                 |                           |
 | max (RelationMulti)                          | Specifies the maximal amount of connected items                                        |                           |
+| `msg_error{validation}`                      | Specifies the error message returned when the validation is failed.                    |                           |
 | populate                                     | If true, the field will be default populated and joined, when joining is not specified |                           |
 | private                                      | If true, the field will be not available through rest api                              | `false`                   |
 | readonly                                     | The field can not be updated if true                                                   | `false`                   |

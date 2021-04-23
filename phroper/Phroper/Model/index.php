@@ -6,6 +6,7 @@ use Exception;
 use Phroper;
 use Phroper\Model\Entity;
 use Phroper\Model\FieldCollection;
+use Phroper\Model\Fields\IgnoreField;
 use Phroper\Model\Fields\Relation;
 use Phroper\Model\Fields\RelationToMany;
 use Phroper\Model\Fields\RelationToOne;
@@ -188,6 +189,20 @@ class Model implements ICacheable {
     return $hadPostUpdate;
   }
 
+  protected function postInsert($entity, $updated) {
+    $hadPostUpdate = false;
+    foreach ($this->fields as $key => $field) {
+      if (!$field) continue;
+      if (array_key_exists($key, $entity))
+        $hadPostUpdate = $hadPostUpdate || $field->postUpdate($entity[$key], $key, $updated);
+      else if (!($field->getDefault() instanceof IgnoreField))
+        $hadPostUpdate = $hadPostUpdate || $field->postUpdate($field->getDefault(), $key, $updated);
+      else if ($field->forceUpdate() || $field->isRequired())
+        $hadPostUpdate = $hadPostUpdate || $field->postUpdate(null, $key, $updated);
+    }
+    return $hadPostUpdate;
+  }
+
   private function useFilter($q, $filter) {
     if (is_array($filter) && count($filter) > 0) {
       $q->filter($filter);
@@ -305,7 +320,7 @@ class Model implements ICacheable {
 
       $hadPostUpdate = false;
       foreach ($entities as $i => $entity) {
-        $hadPostUpdate = $hadPostUpdate || $this->postUpdate($entity, $updated[$i]);
+        $hadPostUpdate = $hadPostUpdate || $this->postInsert($entity, $updated[$i]);
       }
 
       if ($hadPostUpdate && isset($this->fields["id"])) {

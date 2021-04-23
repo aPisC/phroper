@@ -40,6 +40,7 @@ class RelationMulti extends Relation {
     parent::__construct(null, [
       "min" => null,
       "max" => null,
+      "default" => []
     ]);
     $this->updateData($data);
     $this->otherModel = Phroper::model($model2);
@@ -87,17 +88,21 @@ class RelationMulti extends Relation {
   }
 
   public function postUpdate($value, $key, $entity) {
+    if (!$value) $value = [];
+
     if (is_array($value)) {
       if (isset($this->data["min"]) && count($value) < $this->data["min"])
-        throw new Exception($this->data["name"] . " requires at least " . $this->data["min"] . " entry.");
+        throw $this->validationError("min", $this->data["name"] . " requires at least " . $this->data["min"] . " entry.");
       if (isset($this->data["max"]) && count($value) > $this->data["max"])
-        throw new Exception($this->data["name"] . " can have " . $this->data["max"] . " entry.");
+        throw $this->validationError("max", $this->data["name"] . " can have " . $this->data["max"] . " entry.");
 
       $modelKey = $this->model->getTableName();
       $otherKey = $this->otherModel->getTableName();
       $id = $entity["id"];
 
       $this->relationModel->delete([$this->model->getTableName() => $id], false);
+
+      if (count($value) == 0) return true;
       $this->relationModel->createMulti(
         array_map(
           function ($value) use ($modelKey, $otherKey, $id) {

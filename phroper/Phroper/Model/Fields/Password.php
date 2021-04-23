@@ -20,7 +20,6 @@ class Password extends Text {
     if (!$value) return IgnoreField::instance();
 
     $value = parent::onSave($value);
-    if ($value instanceof Exception) return $value;
 
     return password_hash($value, PASSWORD_DEFAULT);
   }

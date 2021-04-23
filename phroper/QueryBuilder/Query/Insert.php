@@ -6,6 +6,7 @@ use Exception;
 use Phroper\Model\Fields\IgnoreField;
 use QueryBuilder;
 use QueryBuilder\Traits\Modifiable;
+use Throwable;
 
 class Insert extends QueryBuilder {
 
@@ -19,20 +20,22 @@ class Insert extends QueryBuilder {
             if (!$field || !$field["source"] || $field["field"]->isVirtual()) continue;
 
             $def = $field["field"]->getDefault();
-            if (!($def instanceof IgnoreField)) {
+            try {
+                if (!($def instanceof IgnoreField)) {
+                    $this->__modifiable__values->setDefaultValue(
+                        $field["source"],
+                        $field["field"]->onSave($def)
+                    );
+                } else if ($field["field"]->forceUpdate() || $field["field"]->isRequired()) {
+                    $this->__modifiable__values->setDefaultValue(
+                        $field["source"],
+                        $field["field"]->onSave(null)
+                    );
+                }
+            } catch (Throwable $ex) {
                 $this->__modifiable__values->setDefaultValue(
                     $field["source"],
-                    $field["field"]->onSave($def)
-                );
-            } else if ($field["field"]->forceUpdate()) {
-                $this->__modifiable__values->setDefaultValue(
-                    $field["source"],
-                    $field["field"]->onSave(null)
-                );
-            } else if ($field["field"]->isRequired()) {
-                $this->__modifiable__values->setDefaultValue(
-                    $field["source"],
-                    $field["field"]->onSave(null)
+                    $ex
                 );
             }
         }

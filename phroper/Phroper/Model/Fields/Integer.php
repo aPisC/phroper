@@ -11,15 +11,11 @@ class Integer extends Field {
   }
 
   public function onSave($value) {
-    $value = parent::onSave($value);
-
-    if ($value instanceof Exception) return $value;
-
     if (isset($this->data["min"]) && $value != null && $value < $this->data["min"])
-      return new Exception($this->data["name"] . " must be >= " . $this->data["min"]);
+      throw $this->validationError("min", $this->data["name"] . " must be >= " . $this->data["min"]);
     if (isset($this->data["max"]) && $value != null && $value < $this->data["max"])
-      return new Exception($this->data["name"] . " must be <= " . $this->data["max"]);
+      throw $this->validationError("max", $this->data["name"] . " must be <= " . $this->data["max"]);
 
-    return $value;
+    return parent::onSave($value);
   }
 }

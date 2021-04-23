@@ -19,7 +19,7 @@ class ObjectMapper extends FieldExtension {
   }
 
   public function onSave($value) {
-    return new Exception("Saving ObjectMapper is not supported");
+    throw new Exception("Saving ObjectMapper is not supported");
   }
 
   public function onLoad($value, $key, $assoc, $populates) {

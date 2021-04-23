@@ -8,6 +8,7 @@ use QueryBuilder\Traits\Filterable;
 use QueryBuilder\Traits\IJoinable;
 use QueryBuilder\Traits\Joinable;
 use QueryBuilder\Traits\Modifiable;
+use Throwable;
 
 class Update extends QueryBuilder implements IJoinable {
   use Filterable;
@@ -22,10 +23,18 @@ class Update extends QueryBuilder implements IJoinable {
       if (!$field || !$field["source"] || $field["field"]->isVirtual()) continue;
 
       if ($field["field"]->forceUpdate()) {
-        $this->__modifiable__values->setDefaultValue(
-          $field["source"],
-          $field["field"]->onSave(null)
-        );
+        try {
+
+          $this->__modifiable__values->setDefaultValue(
+            $field["source"],
+            $field["field"]->onSave(null)
+          );
+        } catch (Throwable $ex) {
+          $this->__modifiable__values->setDefaultValue(
+            $field["source"],
+            $ex
+          );
+        }
       }
     }
   }

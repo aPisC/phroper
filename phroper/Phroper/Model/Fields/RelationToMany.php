@@ -23,7 +23,7 @@ class RelationToMany extends Relation {
   }
 
   public function onSave($value) {
-    return new Exception("Saving to array relation is not allowed");
+    throw new Exception("Saving to array relation is not allowed");
   }
 
   public function onLoad($value, $key, $assoc, $populates) {

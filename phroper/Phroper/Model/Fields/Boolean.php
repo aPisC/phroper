@@ -13,6 +13,9 @@ class Boolean extends Field {
   }
 
   public function onSave($value) {
+    if ($this->data["required"] && $value == null)
+      throw $this->validationError("required", $this->data["name"] . " is required");
+
     if ($value === null) return null;
     return !!$value;
   }

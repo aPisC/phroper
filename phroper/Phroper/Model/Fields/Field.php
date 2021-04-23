@@ -85,7 +85,7 @@ abstract class Field {
 
   public function onSave($value) {
     if (($value == "" || $value == null) && $this->isRequired())
-      return new Exception($this->data["name"] . " is required");
+      throw $this->validationError("required", $this->data["name"] . " is required");
     return $value;
   }
 
@@ -141,5 +141,11 @@ abstract class Field {
       else
         $this->data[$key] = $value;
     }
+  }
+
+  protected function validationError(string $key, string $default) {
+    if (isset($this->data["msg_error_" . $key]))
+      return new Exception($this->data["msg_error_" . $key], 400);
+    return new Exception($default, 400);
   }
 }

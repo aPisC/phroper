@@ -59,6 +59,7 @@ class Model implements ICacheable {
     $data["fields"] = [];
     foreach ($this->fields as $key => $field) {
       if (!$field) continue;
+      if (str_starts_with($key, "sql_")) continue;
       $fd = $field->getUiInfo();
       if (!$fd) continue;
 

@@ -104,6 +104,7 @@ abstract class Field {
 
     foreach ($this->data as $key => $value) {
       if ($value instanceof IgnoreField) continue;
+      if (str_starts_with($key, "sql_")) continue;
       if (!is_scalar($value) && !is_array(($value))) continue;
       $data[$key] = $value;
     }

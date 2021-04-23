@@ -18,6 +18,8 @@ class Init extends Phroper\Controller {
           if (str_starts_with($d, ".")) continue;
           if (str_ends_with($d, ".php"))
             $d = str_drop_end($d, 4);
+          else if (str_ends_with($d, ".json"))
+            $d = str_drop_end($d, 5);
           $model = Phroper::model($d);
           if (!$model) continue;
           echo "Initializing " . $d . "\n";

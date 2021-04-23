@@ -7,7 +7,8 @@ class Timestamp extends Field {
   public function __construct(array $data = null) {
     parent::__construct([
       "type" => "timestamp",
-      "sql_type" => 'TIMESTAMP NULL DEFAULT NULL',
+      "sql_type" => 'TIMESTAMP',
+      "sql_extra" => 'DEFAULT NULL',
     ]);
     $this->updateData($data);
   }

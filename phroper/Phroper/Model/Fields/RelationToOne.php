@@ -12,6 +12,7 @@ class RelationToOne extends Relation {
       "sql_type" => "INTEGER UNSIGNED",
       "type" => "relation_one",
       "sql_delete_action" => "RESTRICT",
+      "sql_disable_constraint" => false,
       "virtual" => false,
     ]);
 
@@ -19,6 +20,8 @@ class RelationToOne extends Relation {
   }
 
   public function getSQLConstraint() {
+    if ($this->data["sql_disable_constraint"])
+      return null;
     return "FOREIGN KEY (`" . $this->data["sql_field"] . "`) REFERENCES `" . $this->getModel()->getTableName() . "`(id) ON DELETE " . $this->data["sql_delete_action"];
   }
 

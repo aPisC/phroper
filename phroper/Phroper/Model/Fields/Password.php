@@ -10,7 +10,7 @@ class Password extends Text {
       "regex" => "^(?=.*?[A-Z])(?=.*?[a-z])(?=.*?[0-9]).{8,}$",
       "required",
       "type" => "password",
-      "sql_type" => "VARCHAR(255)",
+      "sql_type" => "VARCHAR",
       "private" => true,
     ]);
     $this->updateData($data);

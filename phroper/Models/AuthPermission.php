@@ -35,10 +35,6 @@ class AuthPermission extends Model {
           "role" => $role,
           "permission" => "controllers_auth_get_me"
         ]);
-        $this->create([
-          "role" => $role,
-          "permission" => "controllers_user_put_:id"
-        ]);
       }
       return true;
     }

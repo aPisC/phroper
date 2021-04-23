@@ -11,7 +11,8 @@ class Enum extends Text {
     $this->allowedValues = $allowedValues;
     parent::__construct([
       "type" => "enum",
-      "values" => $this->allowedValues
+      "values" => $this->allowedValues,
+      "sql_disable_constraint" => false,
     ]);
     $this->updateData($data);
   }
@@ -27,6 +28,8 @@ class Enum extends Text {
   }
 
   public function getSQLConstraint() {
+    if ($this->data["sql_disable_constraint"])
+      return null;
     return "CONSTRAINT CHECK (`" . $this->data["sql_field"] . "` IN (" .
       implode(", ", array_map(
         function ($v) {

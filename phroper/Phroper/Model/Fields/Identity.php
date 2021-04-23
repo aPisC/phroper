@@ -8,7 +8,11 @@ class Identity extends Field {
       "type" => "identity",
       "readonly" => true,
       "auto" => true,
-      "sql_type" => "INTEGER UNSIGNED AUTO_INCREMENT PRIMARY KEY"
+
+      "sql_type" => "INTEGER",
+      "sql_unsigned" => true,
+      "sql_autoincrement" => true,
+      "sql_primary" => true,
     ]);
     $this->updateData($data);
   }

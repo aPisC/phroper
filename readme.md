@@ -121,32 +121,36 @@ class Log extends Model {
 
 The field parameters can be passed as the last argument of field constructor. All field type is inherited from Phroper\Model\Fields\Field. The base field parameters can be found in the following table.
 
-| Parameter name                               | Description                                                                            | Default                         |
-| -------------------------------------------- | -------------------------------------------------------------------------------------- | ------------------------------- |
-| auto                                         | Indicates that the field is auto generated, can not be inserted or updated             | `false`                         |
-| type                                         | determinates the editor type on admin panel                                            | "text"                          |
-| default                                      | Default value of the field                                                             | `IgnoreField::instance()`       |
-| sql_field                                    | SQL column name of the field                                                           | key of the field in fields list |
-| sql_type                                     | type of sql column                                                                     |                                 |
-| sql_length                                   | Length of sql type                                                                     |                                 |
-| sql_primary                                  | Indicates if the field is primary key                                                  | `false`                         |
-| sql_autoincrement                            | Indicates if the field is auto incremented                                             | `false`                         |
-| sql_extra                                    | Additional parameters for column definition                                            |                                 |
-| sql_unsigned                                 | Marks the db column as unsigned                                                        | `false`                         |
-| forced                                       | The field will be updated always whit null if no data provided                         | `false`                         |
-| private                                      | If true, the field will be not available through rest api                              | `false`                         |
-| populate                                     | If true, the field will be default populated and joined, when joining is not specified |
-| readonly                                     | The field can not be updated if true                                                   | `false`                         |
-| required                                     | If true, the value can not be empty and needs to be inserted                           | `false`                         |
-| sql_length                                   | Length of sql type                                                                     |                                 |
-| unique                                       | If true, sql table can not contain two entity with same column value                   | `false`                         |
-| virtual                                      | Indicates that the value is calculated and not sored in sql table                      | `false`                         |
-| regex (Text)                                 | Text field value will be matched the given pattern before saving                       |                                 |
-| via (RelationToMany)                         | This field will determinate what is the connected field in a One To Many relation      |                                 |
-| min (Integer)                                | Specifies the minimum value of a number                                                |                                 |
-| max (Integer)                                | Specifies the maximum value of aninteger                                               |                                 |
-| sql_disable_constraint (Enum, RelationToOne) | Disables constraint creation                                                           | `false`                         |
-| sql_delete_action (RelationToOne)            | Delete action of the relation                                                          | RESTRICT                        |
+| Parameter name                               | Description                                                                            | Default                   |
+| -------------------------------------------- | -------------------------------------------------------------------------------------- | ------------------------- |
+| auto                                         | Indicates that the field is auto generated, can not be inserted or updated             | `false`                   |
+| default                                      | Default value of the field                                                             | `IgnoreField::instance()` |
+| type                                         | determinates the editor type on admin panel                                            | "text"                    |
+| forced                                       | The field will be updated always whit null if no data provided                         | `false`                   |
+| min (Integer)                                | Specifies the minimum value of a number                                                |                           |
+| min (Text)                                   | Specifies the minimum length of string                                                 |                           |
+| min (RelationMulti)                          | Specifies the minimal amount of connected items                                        |                           |
+| max (Integer)                                | Specifies the maximum value of an integer                                              |                           |
+| max (Text)                                   | Specifies the maximum length of string                                                 |                           |
+| max (RelationMulti)                          | Specifies the maximal amount of connected items                                        |                           |
+| populate                                     | If true, the field will be default populated and joined, when joining is not specified |                           |
+| private                                      | If true, the field will be not available through rest api                              | `false`                   |
+| readonly                                     | The field can not be updated if true                                                   | `false`                   |
+| regex (Text)                                 | Text field value will be matched the given pattern before saving                       |                           |
+| required                                     | If true, the value can not be empty and needs to be inserted                           | `false`                   |
+| sql_autoincrement                            | Indicates if the field is auto incremented                                             | `false`                   |
+| sql_delete_action (RelationToOne)            | Delete action of the relation                                                          | RESTRICT                  |
+| sql_disable_constraint (Enum, RelationToOne) | Disables constraint creation                                                           | `false`                   |
+| sql_extra                                    | Additional parameters for column definition                                            |                           |
+| sql_field                                    | SQL column name of the field                                                           | key of the field          |
+| sql_length                                   | Length of sql type                                                                     |                           |
+| sql_primary                                  | Indicates if the field is primary key                                                  | `false`                   |
+| sql_truncate (Text)                          | If true, the given text will be truncated to the length of the field                   | `false`                   |
+| sql_type                                     | type of sql column                                                                     |                           |
+| sql_unsigned                                 | Marks the db column as unsigned                                                        | `false`                   |
+| unique                                       | If true, sql table can not contain two entity with same column value                   | `false`                   |
+| via (RelationToMany)                         | This field will determinate what is the connected field in a One To Many relation      |                           |
+| virtual                                      | Indicates that the value is calculated and not sored in sql table                      | `false`                   |
 
 ### Available field types
 

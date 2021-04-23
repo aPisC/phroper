@@ -280,69 +280,74 @@ class Model implements ICacheable {
 
     $q = new Insert($this);
 
-    foreach ($entities as $index => $entity) {
-      if ($index > 0) $q->nextEntity();
-      $q->setAllValue($entity);
-    }
+    return $q->withTransaction($mysqli, function () use ($q, $entities, $processEntities, $mysqli) {
+      foreach ($entities as $index => $entity) {
+        if ($index > 0) $q->nextEntity();
+        $q->setAllValue($entity);
+      }
 
-    $result = $q->execute($mysqli);
+      $result = $q->execute($mysqli);
 
-    if (!$result) {
-      throw new Exception('Database error ' . $mysqli->error);
-    }
+      if (!$result) {
+        throw new Exception('Database error ' . $mysqli->error);
+      }
 
-    if (!$processEntities) return;
+      if (!$processEntities) return;
 
-    $updated = $entities;
-    $insid = $mysqli->insert_id;
-    if (isset($this->fields["id"])) {
-      $updated = $this->find([
-        "_limit" => count($entities),
-        "id_ge" => $insid
-      ]);
-    }
+      $updated = $entities;
+      $insid = $mysqli->insert_id;
+      if (isset($this->fields["id"])) {
+        $updated = $this->find([
+          "_limit" => count($entities),
+          "id_ge" => $insid
+        ]);
+      }
 
-    $hadPostUpdate = false;
-    foreach ($entities as $i => $entity) {
-      $hadPostUpdate = $hadPostUpdate || $this->postUpdate($entity, $updated[$i]);
-    }
+      $hadPostUpdate = false;
+      foreach ($entities as $i => $entity) {
+        $hadPostUpdate = $hadPostUpdate || $this->postUpdate($entity, $updated[$i]);
+      }
 
-    if ($hadPostUpdate && isset($this->fields["id"])) {
-      $updated = $this->find([
-        "_limit" => count($entities),
-        "id_ge" => $insid
-      ], []);
-    }
+      if ($hadPostUpdate && isset($this->fields["id"])) {
+        $updated = $this->find([
+          "_limit" => count($entities),
+          "id_ge" => $insid
+        ], []);
+      }
 
-    return $updated;
+      return $updated;
+    });
   }
 
   public function update($filter, $entity) {
     $mysqli = Phroper::instance()->getMysqli();
 
     $q = new Update($this, "update");
-    $this->useFilter($q, $filter);
-    $q->setAllValue($entity);
 
-    $result = $q->execute($mysqli);
+    return $q->withTransaction($mysqli, function () use ($q, $filter, $entity, $mysqli) {
+      $this->useFilter($q, $filter);
+      $q->setAllValue($entity);
 
-    if (!$result) {
-      throw new Exception('Database error ' . $mysqli->error);
-    }
+      $result = $q->execute($mysqli);
 
-    $updated = $this->find($filter);
+      if (!$result) {
+        throw new Exception('Database error ' . $mysqli->error);
+      }
 
-    $hadPostUpdate = false;
-    foreach ($updated as $u) {
-      $hadPostUpdate = $hadPostUpdate || $this->postUpdate($entity, $u);
-    }
+      $updated = $this->find($filter);
 
-    if ($hadPostUpdate) $updated = $this->find($filter);
+      $hadPostUpdate = false;
+      foreach ($updated as $u) {
+        $hadPostUpdate = $hadPostUpdate || $this->postUpdate($entity, $u);
+      }
 
-    if ($updated->count() == 0) return null;
-    if ($updated->count() == 1) return $updated[0];
+      if ($hadPostUpdate) $updated = $this->find($filter);
 
-    return $updated;
+      if ($updated->count() == 0) return null;
+      if ($updated->count() == 1) return $updated[0];
+
+      return $updated;
+    });
   }
 
   public function delete($filter, $returnEntities = true) {

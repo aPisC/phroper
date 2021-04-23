@@ -15,6 +15,27 @@ abstract class QueryBuilder {
     $this->collectFields($model->fields);
   }
 
+  private static array $transactionStack = [];
+  public static function withTransaction($mysqli, $function) {
+    $id = spl_object_id($mysqli);
+    if (!isset(self::$transactionStack[$id])) self::$transactionStack[$id] = null;
+    self::$transactionStack[$id] += 1;
+
+    $value = null;
+
+    if (self::$transactionStack[$id] == 1) $mysqli->begin_transaction();
+    try {
+      $value = $function();
+    } catch (Throwable $ex) {
+      self::$transactionStack[$id] -= 1;
+      if (self::$transactionStack[$id] == 0) $mysqli->rollback();
+      throw $ex;
+    }
+    self::$transactionStack[$id] -= 1;
+    if (self::$transactionStack[$id] == 0) $mysqli->commit();
+    return $value;
+  }
+
   abstract protected function getQuery();
 
 

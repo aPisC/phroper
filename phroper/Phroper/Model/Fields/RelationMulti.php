@@ -36,8 +36,12 @@ class RelationMulti extends Relation {
   private $otherModel;
   private $relKey;
 
-  public function __construct($model2, $type = "default") {
-    parent::__construct(null);
+  public function __construct($model2, $type = "default", $data = null) {
+    parent::__construct(null, [
+      "min" => null,
+      "max" => null,
+    ]);
+    $this->updateData($data);
     $this->otherModel = Phroper::model($model2);
     $this->relKey = $type;
   }
@@ -49,7 +53,6 @@ class RelationMulti extends Relation {
     $this->updateData([
       "model" => $model ? $this->getModel()->getName() : "",
       "model_display" => $model ? $this->getModel()->getDisplayField() : "",
-
     ]);
   }
 
@@ -85,6 +88,10 @@ class RelationMulti extends Relation {
 
   public function postUpdate($value, $key, $entity) {
     if (is_array($value)) {
+      if (isset($this->data["min"]) && count($value) < $this->data["min"])
+        throw new Exception($this->data["name"] . " requires at least " . $this->data["min"] . " entry.");
+      if (isset($this->data["max"]) && count($value) > $this->data["max"])
+        throw new Exception($this->data["name"] . " can have " . $this->data["max"] . " entry.");
 
       $modelKey = $this->model->getTableName();
       $otherKey = $this->otherModel->getTableName();

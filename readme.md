@@ -83,8 +83,8 @@ namespace Models;
 
 
 use Phroper\Model;
-use Phroper\Model\Fields\Email;
-use Phroper\Model\Fields\Password;
+use Phroper\Fields\Email;
+use Phroper\Fields\Password;
 
 class Log extends Model {
   public function __construct() {
@@ -95,8 +95,8 @@ class Log extends Model {
     ]);
 
     $this->fields["updated_at"] = null;
-    $this->fields["type"] = new Phroper\Model\Fields\Enum(["debug", "info", "warn", "error"]);
-    $this->fields["message"] = new Phroper\Model\Fields\Text();
+    $this->fields["type"] = new Phroper\Fields\Enum(["debug", "info", "warn", "error"]);
+    $this->fields["message"] = new Phroper\Fields\Text();
   }
 }
 
@@ -119,7 +119,7 @@ class Log extends Model {
 
 # Fields
 
-The field parameters can be passed as the last argument of field constructor. All field type is inherited from Phroper\Model\Fields\Field. The base field parameters can be found in the following table.
+The field parameters can be passed as the last argument of field constructor. All field type is inherited from Phroper\Fields\Field. The base field parameters can be found in the following table.
 
 | Parameter name                               | Description                                                                            | Default                   |
 | -------------------------------------------- | -------------------------------------------------------------------------------------- | ------------------------- |

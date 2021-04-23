@@ -8,7 +8,7 @@ use Phroper;
 class UpdatedBy extends RelationToOne {
   public function __construct() {
     parent::__construct("AuthUser", [
-      "field" => "updated_by",
+      "sql_field" => "updated_by",
       "forced" => true,
       "readonly" => true,
       "auto" => true,

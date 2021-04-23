@@ -11,7 +11,7 @@ class AuthRole extends Model {
 
     $this->fields["updated_by"] = null;
     $this->fields["name"] = new Phroper\Model\Fields\Text(["required"]);
-    $this->fields["isDefault"] = new Phroper\Model\Fields\Boolean(["field" => "is_default", "default" => false]);
+    $this->fields["isDefault"] = new Phroper\Model\Fields\Boolean(["sql_field" => "is_default", "default" => false]);
     $this->fields["permissions"] = new Phroper\Model\Fields\ArrayMapper(
       "permission",
       new Phroper\Model\Fields\RelationToMany("AuthPermission", "role")

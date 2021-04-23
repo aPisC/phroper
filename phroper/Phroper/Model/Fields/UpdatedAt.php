@@ -5,7 +5,7 @@ namespace Phroper\Model\Fields;
 class UpdatedAt extends Timestamp {
   public function __construct() {
     parent::__construct([
-      "field" => "updated_at",
+      "sql_field" => "updated_at",
       "type" => "timestamp",
       "auto" => true,
       "readonly" => true,

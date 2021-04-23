@@ -14,7 +14,7 @@ abstract class Field {
     $this->updateData([
       "auto" => false,
       "default" => IgnoreField::instance(),
-      "field" => null,
+      "sql_field" => null,
       "forced" => false,
       "private" => false,
       "populate" => false,
@@ -40,7 +40,7 @@ abstract class Field {
   }
 
   public function getFieldName() {
-    return $this->data["field"];
+    return $this->data["sql_field"];
   }
 
   public function isPrivate() {
@@ -117,7 +117,7 @@ abstract class Field {
 
     $this->data["key"] = $fieldName;
     $this->data["name"] = str_pc_text($fieldName);
-    $this->data["field"] = $this->data["field"] ?  $this->data["field"] : $fieldName;
+    $this->data["sql_field"] = $this->data["sql_field"] ?  $this->data["sql_field"] : $fieldName;
 
     $this->model = $model;
   }

@@ -27,7 +27,7 @@ class Enum extends Text {
   }
 
   public function getSQLConstraint() {
-    return "CONSTRAINT CHECK (`" . $this->data["field"] . "` IN (" .
+    return "CONSTRAINT CHECK (`" . $this->data["sql_field"] . "` IN (" .
       implode(", ", array_map(
         function ($v) {
           return "\"" . $v . "\"";

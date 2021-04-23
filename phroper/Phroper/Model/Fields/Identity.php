@@ -2,7 +2,7 @@
 
 namespace Phroper\Model\Fields;
 
-class Identity extends Integer {
+class Identity extends Field {
   public function __construct(array $data = null) {
     parent::__construct([
       "type" => "identity",

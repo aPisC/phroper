@@ -11,7 +11,7 @@ class RelationToOne extends Relation {
     parent::__construct($model, [
       "sql_type" => "INTEGER UNSIGNED",
       "type" => "relation_one",
-      "delete_action" => "RESTRICT",
+      "sql_delete_action" => "RESTRICT",
       "virtual" => false,
     ]);
 
@@ -19,7 +19,7 @@ class RelationToOne extends Relation {
   }
 
   public function getSQLConstraint() {
-    return "FOREIGN KEY (`" . $this->data["field"] . "`) REFERENCES `" . $this->getModel()->getTableName() . "`(id) ON DELETE " . $this->data["delete_action"];
+    return "FOREIGN KEY (`" . $this->data["field"] . "`) REFERENCES `" . $this->getModel()->getTableName() . "`(id) ON DELETE " . $this->data["sql_delete_action"];
   }
 
   public function onSave($value) {

@@ -7,7 +7,7 @@ use Phroper;
 
 class AuthRole extends Model {
   public function __construct() {
-    parent::__construct(["table" => 'role', "display" => "name"]);
+    parent::__construct(["sql_table" => 'role', "display" => "name"]);
 
     $this->fields["updated_by"] = null;
     $this->fields["name"] = new Phroper\Model\Fields\Text(["required"]);

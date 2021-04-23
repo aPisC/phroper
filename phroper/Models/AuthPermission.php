@@ -8,17 +8,13 @@ use Phroper;
 class AuthPermission extends Model {
   public function __construct() {
     parent::__construct([
-      "table" => 'permission',
+      "sql_table" => 'permission',
       "display" => "permission",
       "populate" => []
     ]);
 
-    $this->fields["role"] = new Phroper\Model\Fields\RelationToOne("AuthRole", ["required", "delete_action" => "CASCADE"]);
+    $this->fields["role"] = new Phroper\Model\Fields\RelationToOne("AuthRole", ["required", "sql_delete_action" => "CASCADE", "default_service" => false]);
     $this->fields["permission"] = new Phroper\Model\Fields\Text(["required" => true]);
-  }
-
-  public function allowDefaultService() {
-    return false;
   }
 
   public function init() {

@@ -22,11 +22,13 @@ class ContentSchema extends Controller {
             $files = array_merge($files, scandir(ROOT . DS . "Models"));
 
         $files = array_filter($files, function ($v) {
-            return !str_starts_with($v, ".") && str_ends_with($v, ".php");
+            return !str_starts_with($v, ".") && (str_ends_with($v, ".php") || str_ends_with($v, ".json"));
         });
         $files = array_map(function ($v) {
             try {
-                return Phroper::model(str_drop_end($v, 4))->getUiInfo();
+                if (str_ends_with($v, ".php"))
+                    return Phroper::model(str_drop_end($v, 4))->getUiInfo();
+                return Phroper::model(str_drop_end($v, 5))->getUiInfo();
             } catch (Exception $e) {
                 return null;
             }
@@ -36,7 +38,9 @@ class ContentSchema extends Controller {
         });
 
         $files = array_values($files);
-        sort($files);
+        array_multisort(array_map(function ($v) {
+            return $v["name"];
+        }, $files), $files);
 
         return $files;
     }

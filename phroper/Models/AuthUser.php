@@ -10,7 +10,7 @@ use Phroper\Model\Fields\Password;
 class AuthUser extends Model {
   public function __construct() {
     parent::__construct([
-      "table" => "user",
+      "sql_table" => "user",
       "display" => "username"
     ]);
 
@@ -22,7 +22,7 @@ class AuthUser extends Model {
     ]);
     $this->fields["role"] = new Phroper\Model\Fields\RelationToOne("auth-role", [
       "required",
-      "delete_action" => "RESTRICT"
+      "sql_delete_action" => "RESTRICT"
     ]);
     $this->fields["password"] = new Phroper\Model\Fields\Password(["required"]);
     $this->fields["email"] = new Phroper\Model\Fields\Email(["required"]);

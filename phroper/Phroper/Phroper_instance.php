@@ -6,6 +6,7 @@ use Controllers\DefaultController;
 use Error;
 use Exception;
 use mysqli;
+use Phroper\Model\JsonModel;
 use Services\DefaultService;
 
 // Phroper engine class
@@ -144,6 +145,23 @@ class Phroper_instance {
         try {
             if (is_subclass_of($modelName, 'Phroper\Model'))
                 return $modelName;
+            // Loading by json
+            if (is_string($modelName)) {
+                if (isset($this->__cache["json:" . $modelName]))
+                    return $this->__cache["json:" . $modelName];
+                $jsonName = str_replace(["\\", "/"], DS, "/Models/" . str_kebab_pc($modelName));
+                if (file_exists(ROOT . $jsonName . ".json")) {
+                    $model = new JsonModel(ROOT . $jsonName . ".json");
+                    $this->__cache["json:" . $modelName] = $model;
+                    return $model;
+                }
+                if (file_exists(ROOT . DS . "phroper" . $jsonName . ".json")) {
+                    $model = new JsonModel("phroper" . DS . $jsonName . ".json");
+                    $this->__cache["json:" . $modelName] = $model;
+                    return $model;
+                }
+            }
+            // Loading by className
             $mcn = 'Models\\' . str_kebab_pc($modelName);
             if (isset($this->__cache[$mcn]))
                 return $this->__cache[$mcn];

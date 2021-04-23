@@ -28,7 +28,8 @@ class Model implements ICacheable {
     $name = str_pc_text($name);
 
     $this->updateData([
-      "table" => $key,
+      "default_service" => true,
+      "sql_table" => $key,
       "key" => $key,
       "name" => $name,
       "primary" => "id",
@@ -77,7 +78,7 @@ class Model implements ICacheable {
   }
 
   public function allowDefaultService() {
-    return true;
+    return $this->data["default_service"];
   }
 
   public function isCacheable() {
@@ -93,7 +94,7 @@ class Model implements ICacheable {
   }
 
   function getTableName() {
-    return $this->data["table"];
+    return $this->data["sql_table"];
   }
 
   function getDisplayField() {

@@ -1,0 +1,10 @@
+{
+  "sql_table": "log",
+  "editable": false,
+  "default_service": false,
+  "fields": {
+    "updated_at": null,
+    "type": ["Enum", ["debug", "info", "warn", "error"]],
+    "message": "Text"
+  }
+}

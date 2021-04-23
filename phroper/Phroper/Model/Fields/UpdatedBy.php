@@ -12,7 +12,7 @@ class UpdatedBy extends RelationToOne {
       "forced" => true,
       "readonly" => true,
       "auto" => true,
-      "delete_action" => null,
+      "sql_delete_action" => null,
     ]);
   }
 

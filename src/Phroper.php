@@ -19,6 +19,14 @@ class __Phroper__instance {
             "Models\\FileUpload" => "Phroper\\Models\\FileUpload",
             "Models\\Log" => "Phroper\\Models\\Log",
             "Models\\Store" => "Phroper\\Models\\Store",
+            "Controllers\\Auth" => "Phroper\\Controllers\\Auth",
+            "Controllers\\FileUpload" => "Phroper\\Controllers\\fileUpload",
+            "Controllers\\Init" => "Phroper\\Controllers\\Init",
+            "Controllers\\Role" => "Phroper\\Controllers\\Role",
+            "Controllers\\User" => "Phroper\\Controllers\\User",
+            "Services\\Auth" => "Phroper\\Services\\Auth",
+            "Services\\Role" => "Phroper\\Services\\Role",
+            "Services\\User" => "Phroper\\Services\\User",
         ];
 
         $this->router = new Router();
@@ -185,7 +193,16 @@ class __Phroper__instance {
         return $controller;
     }
 
+
+    private ?string $model_cache_key = null;
+    public function model_cache_callback($model){
+        if($this->model_cache_key)
+            $this->__cache[$this->model_cache_key] = $model;
+        $this->model_cache_key = null;    
+    }
+
     public function model($modelName) {
+        try{
         if (is_subclass_of($modelName, 'Phroper\\Model'))
             return $modelName;
 
@@ -202,6 +219,7 @@ class __Phroper__instance {
 
         // Initialize model by json schema
         if (file_exists($basePath . ".json")) {
+            $this->model_cache_key= "Models\\" . $modelName;
             $model = new JsonModel($basePath . ".json");
             $this->__cache["Models\\" . $modelName] = $model;
             return $model;
@@ -209,6 +227,7 @@ class __Phroper__instance {
 
         // Initialize by class name
         if (class_exists("Models\\" . $modelName)) {
+            $this->model_cache_key= "Models\\" . $modelName;
             $class = "Models\\" . $modelName;
             $model = new $class();
             $this->__cache["Models\\" . $modelName] = $model;
@@ -217,6 +236,7 @@ class __Phroper__instance {
 
         // initialize by mapped type
         if (isset($this->__cache["Models\\" . $modelName]) && is_string($this->__cache["Models\\" . $modelName])) {
+            $this->model_cache_key= "Models\\" . $modelName;
             $class = $this->__cache["Models\\" . $modelName];
             $model = new $class();
             $this->__cache["Models\\" . $modelName] = $model;
@@ -224,6 +244,10 @@ class __Phroper__instance {
         }
 
         throw new Exception("Model could not be found (" . $modelName . ")");
+        }
+        finally{
+            $this->model_cache_key = null;
+        }
     }
 
     // ------------------

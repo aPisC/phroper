@@ -133,7 +133,6 @@ abstract class Field {
   }
 
   protected function updateData($data) {
-    debug_print_backtrace();
     if (!$data) return;
 
     foreach ($data as $key => $value) {

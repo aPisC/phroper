@@ -21,6 +21,8 @@ class Model {
   public FieldCollection $fields;
 
   public function __construct($data = null) {
+    Phroper::model_cache_callback($this);
+
     $name = explode("\\", get_class($this));
     $name = $name[count($name) - 1];
     $key = str_pc_kebab($name);

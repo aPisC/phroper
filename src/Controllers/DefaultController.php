@@ -1,6 +1,6 @@
 <?php
 
-namespace Controllers;
+namespace Phroper\Controllers;
 
 use Error;
 use Exception;

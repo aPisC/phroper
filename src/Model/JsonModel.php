@@ -30,9 +30,9 @@ class JsonModel extends Model {
                     continue;
                 }
                 if (is_string($value))
-                    $fcn = "Phroper\\Model\\Fields\\" . str_kebab_pc($value);
+                    $fcn = "Phroper\\Fields\\" . str_kebab_pc($value);
                 else
-                    $fcn = "Phroper\\Model\\Fields\\" . str_kebab_pc($value[0]);
+                    $fcn = "Phroper\\Fields\\" . str_kebab_pc($value[0]);
                 $arg = is_array($value)
                     ? array_filter($value, function ($i) {
                         return  $i > 0;

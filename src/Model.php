@@ -40,9 +40,6 @@ class Model {
     ]);
     $this->updateData($data);
 
-
-    Phroper::instance()->cache($this);
-
     $this->fields = new FieldCollection($this);
     $this->fields["id"] = new Fields\Identity();
     $this->fields["updated_by"] = new Fields\UpdatedBy();

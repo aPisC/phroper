@@ -2,9 +2,9 @@
 
 namespace Phroper;
 
-use Controllers\DefaultController;
 use Exception;
 use mysqli;
+use Phroper\Controllers\DefaultController;
 use Phroper\Model\JsonModel;
 use Services\DefaultService;
 
@@ -63,6 +63,11 @@ class __Phroper__instance {
         });
     }
 
+
+    public function dir(...$args) {
+        return Phroper::ini("ROOT") . DIRECTORY_SEPARATOR . implode(DIRECTORY_SEPARATOR, $args);
+    }
+
     // ------------------
     // Mysqli
     // ------------------
@@ -114,8 +119,14 @@ class __Phroper__instance {
     // Cache
     // -----------------
     private array $__cache = [];
-    public function cache($item) {
-        // TODO
+
+    public function getCachedTypes() {
+        return array_keys($this->__cache);
+    }
+
+    public function cacheType($key, $value) {
+        $key = implode("\\", str_kebab_pc(explode("\\", $key)));
+        $this->__cache[$key] = $value;
     }
 
     // ------------------
@@ -195,57 +206,56 @@ class __Phroper__instance {
 
 
     private ?string $model_cache_key = null;
-    public function model_cache_callback($model){
-        if($this->model_cache_key)
+    public function model_cache_callback($model) {
+        if ($this->model_cache_key)
             $this->__cache[$this->model_cache_key] = $model;
-        $this->model_cache_key = null;    
+        $this->model_cache_key = null;
     }
 
     public function model($modelName) {
-        try{
-        if (is_subclass_of($modelName, 'Phroper\\Model'))
-            return $modelName;
+        try {
+            if (is_subclass_of($modelName, 'Phroper\\Model'))
+                return $modelName;
 
-        if (!is_string($modelName))
-            throw new Exception("Model only can be loaded by name");
+            if (!is_string($modelName))
+                throw new Exception("Model only can be loaded by name");
 
-        $modelName = str_kebab_pc($modelName);
+            $modelName = str_kebab_pc($modelName);
 
-        // Test if the model is already cached
-        if (isset($this->__cache["Models\\" . $modelName]) && !is_string($this->__cache["Models\\" . $modelName]))
-            return $this->__cache["Models\\" . $modelName];
+            // Test if the model is already cached
+            if (isset($this->__cache["Models\\" . $modelName]) && !is_string($this->__cache["Models\\" . $modelName]))
+                return $this->__cache["Models\\" . $modelName];
 
-        $basePath = implode(Phroper::ini("DS"), [Phroper::ini("ROOT"), "Models", $modelName]);
+            $basePath = Phroper::dir("Models", $modelName);
 
-        // Initialize model by json schema
-        if (file_exists($basePath . ".json")) {
-            $this->model_cache_key= "Models\\" . $modelName;
-            $model = new JsonModel($basePath . ".json");
-            $this->__cache["Models\\" . $modelName] = $model;
-            return $model;
-        }
+            // Initialize model by json schema
+            if (file_exists($basePath . ".json")) {
+                $this->model_cache_key = "Models\\" . $modelName;
+                $model = new JsonModel($basePath . ".json");
+                $this->__cache["Models\\" . $modelName] = $model;
+                return $model;
+            }
 
-        // Initialize by class name
-        if (class_exists("Models\\" . $modelName)) {
-            $this->model_cache_key= "Models\\" . $modelName;
-            $class = "Models\\" . $modelName;
-            $model = new $class();
-            $this->__cache["Models\\" . $modelName] = $model;
-            return $model;
-        }
+            // Initialize by class name
+            if (class_exists("Models\\" . $modelName)) {
+                $this->model_cache_key = "Models\\" . $modelName;
+                $class = "Models\\" . $modelName;
+                $model = new $class();
+                $this->__cache["Models\\" . $modelName] = $model;
+                return $model;
+            }
 
-        // initialize by mapped type
-        if (isset($this->__cache["Models\\" . $modelName]) && is_string($this->__cache["Models\\" . $modelName])) {
-            $this->model_cache_key= "Models\\" . $modelName;
-            $class = $this->__cache["Models\\" . $modelName];
-            $model = new $class();
-            $this->__cache["Models\\" . $modelName] = $model;
-            return $model;
-        }
+            // initialize by mapped type
+            if (isset($this->__cache["Models\\" . $modelName]) && is_string($this->__cache["Models\\" . $modelName])) {
+                $this->model_cache_key = "Models\\" . $modelName;
+                $class = $this->__cache["Models\\" . $modelName];
+                $model = new $class();
+                $this->__cache["Models\\" . $modelName] = $model;
+                return $model;
+            }
 
-        throw new Exception("Model could not be found (" . $modelName . ")");
-        }
-        finally{
+            throw new Exception("Model could not be found (" . $modelName . ")");
+        } finally {
             $this->model_cache_key = null;
         }
     }
@@ -259,7 +269,7 @@ class __Phroper__instance {
     }
 
     function serveApi($apiPrefix = "") {
-        $this->router->add($apiPrefix . ":controller/", "Routers\ApiRouter");
+        $this->router->add($apiPrefix . ":controller/", "Phroper\\Routers\\ApiRouter");
     }
 
     public function serveFolder($folder) {
@@ -300,7 +310,9 @@ class Phroper {
 
     public static function initialize(array $data) {
         if (self::$_phroper_ini)
-            self::$_phroper_ini = $data;
+            throw new Exception("Phroper is already initialized");
+
+        self::$_phroper_ini = $data;
 
         if (self::$_instance == null)
             self::$_instance = new __Phroper__instance();

@@ -27,15 +27,15 @@ class AuthPermission extends Model {
       if ($role) {
         $this->create([
           "role" => $role,
-          "permission" => "controllers_auth_post_register"
+          "permission" => "post.auth.login"
         ]);
         $this->create([
           "role" => $role,
-          "permission" => "controllers_auth_post_login"
+          "permission" => "post.auth.register"
         ]);
         $this->create([
           "role" => $role,
-          "permission" => "controllers_auth_get_me"
+          "permission" => "get.auth.me"
         ]);
       }
       return true;

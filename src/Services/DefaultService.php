@@ -22,7 +22,7 @@ class DefaultService extends Service {
   }
 
   public function getName() {
-    if (parent::getName() == "services_defaultservice")
+    if (parent::getName() == "default-service")
       return $this->model->getName();
     return parent::getName();
   }

@@ -11,7 +11,7 @@ class Service {
   }
 
   public function getName() {
-    return strtolower(str_replace('\\', '_', get_class($this)));
+    return str_pc_kebab(end(explode("\\", get_class($this))));
   }
 
   public function __construct() {

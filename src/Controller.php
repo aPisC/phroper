@@ -19,13 +19,13 @@ class Controller {
   }
 
   protected function getName() {
-    return strtolower(str_replace('\\', '_', get_class($this)));
+    return str_pc_kebab(end(explode("\\", get_class($this))));
   }
 
   protected function havePermission($action, $throw = false) {
     $user = Phroper::context('user');
     $auth = Phroper::service('Auth');
-    $permName = strtolower($this->getName() . '_' . $action);
+    $permName = strtolower($action);
 
     $have = $auth->havePermission($user, $permName);
     if (!$have && $throw)
@@ -35,7 +35,7 @@ class Controller {
 
   protected function getRoutePermName($name, $method) {
     return strtolower(
-      $method . ($name ? ('_' . str_replace('/', '_', $name)) : '')
+      $method . "." . $this->getName() . ($name ? ('.' . $name) : '')
     );
   }
 

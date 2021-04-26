@@ -12,7 +12,7 @@ class FileUpload extends DefaultController {
     }
 
     public function upload() {
-        $dir = Phroper::ini("ROOT") . Phroper::ini("DS") . "uploads";
+        $dir = Phroper::ini("ROOT") . DIRECTORY_SEPARATOR . "uploads";
         if (!is_dir($dir))
             mkdir($dir);
 
@@ -22,7 +22,7 @@ class FileUpload extends DefaultController {
         $hash = md5_file($_FILES["file"]["tmp_name"]);
         $extension = strtolower(pathinfo($_FILES["file"]["name"], PATHINFO_EXTENSION));
 
-        $filepath = $dir . Phroper::ini("DS") . $hash . "." . $extension;
+        $filepath = $dir . DIRECTORY_SEPARATOR . $hash . "." . $extension;
 
         if (!file_exists($filepath))
             move_uploaded_file($_FILES["file"]["tmp_name"], $filepath);

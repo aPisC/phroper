@@ -108,11 +108,12 @@ class Router {
     $this->add($expression, function ($p, $next) use ($folder) {
 
       $pf = realpath($folder);
-      $fn = realpath($folder . Phroper::ini("DS") .  $p["url"]);
+      $fn = realpath($folder . DIRECTORY_SEPARATOR .  $p["url"]);
 
 
       if (is_dir($fn)) {
-        if (file_exists($fn . Phroper::ini("DS") . "index.html")) $fn .= Phroper::ini("DS") . "index.html";
+        if (file_exists($fn . DIRECTORY_SEPARATOR . "index.html"))
+          $fn .= DIRECTORY_SEPARATOR . "index.html";
       }
 
 

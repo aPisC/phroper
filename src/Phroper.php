@@ -39,7 +39,7 @@ class __Phroper__instance {
         // Register internal plugins
         $this->registerPlugin('store', 'Phroper\\Plugin_Store');
 
-        $this->router->addServeFolder("uploads/", Phroper::ini("ROOT") . Phroper::ini("DS") . "uploads");
+        $this->router->addServeFolder("uploads/", Phroper::ini("ROOT") . DIRECTORY_SEPARATOR . "uploads");
     }
 
     public function run() {
@@ -275,10 +275,10 @@ class __Phroper__instance {
     public function serveFolder($folder) {
         $this->router->addHandler(function ($p, $next) use ($folder) {
             $pf = realpath($folder);
-            $fn = realpath($folder . Phroper::ini("DS") .  $p["url"]);
+            $fn = realpath($folder . DIRECTORY_SEPARATOR .  $p["url"]);
 
             if (is_dir($fn)) {
-                if (file_exists($fn . Phroper::ini("DS") . "index.html")) $fn .=  Phroper::ini("DS") . "index.html";
+                if (file_exists($fn . DIRECTORY_SEPARATOR . "index.html")) $fn .=  DIRECTORY_SEPARATOR . "index.html";
             }
 
             if ($pf && $fn && str_starts_with($fn, $pf) && file_exists($fn)) {

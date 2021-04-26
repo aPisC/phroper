@@ -10,6 +10,13 @@ use Phroper\QueryBuilder\Traits\IJoinable;
 use Throwable;
 
 abstract class QueryBuilder {
+  private static $execStack = [];
+  public static function getExecutedQueries() {
+    return self::$execStack;
+  }
+  public static function resetExecutedQueries() {
+    self::$execStack = [];
+  }
 
   protected array $fields = [];
   protected BindCollector $bindings;
@@ -52,6 +59,8 @@ abstract class QueryBuilder {
     $this->lastSql = $this->getQuery();
 
     //var_dump($this->lastSql);
+
+    self::$execStack[] = $this->lastSql;
 
     $stmt = $mysqli->prepare($this->lastSql);
 

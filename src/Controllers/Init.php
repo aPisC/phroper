@@ -6,6 +6,7 @@ use Error;
 use Exception;
 use Phroper\Controller;
 use Phroper\Phroper;
+use Phroper\QueryBuilder;
 use Throwable;
 
 class Init extends Controller {
@@ -13,10 +14,17 @@ class Init extends Controller {
     try {
       echo "[" . $modelName . "]\n";
       $model = Phroper::model($modelName);
-      if ($model->init()) echo "done\n\n";
+      $success = $model->init();
+      foreach (QueryBuilder::getExecutedQueries() as $sql)
+        if (!str_starts_with($sql, "SELECT")) echo $sql . "\n";
+      QueryBuilder::resetExecutedQueries();
+      if ($success) echo "done\n\n";
       else echo "already initialized \n\n";
     } catch (Throwable $ex) {
-      echo $ex;
+      echo $ex . "\n";
+      foreach (QueryBuilder::getExecutedQueries() as $sql)
+        if (!str_starts_with($sql, "SELECT")) echo $sql . "\n";
+      QueryBuilder::resetExecutedQueries();
       echo "\n\n";
     }
   }

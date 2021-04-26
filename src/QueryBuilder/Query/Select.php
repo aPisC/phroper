@@ -42,6 +42,7 @@ class Select extends QueryBuilder implements IJoinable {
             . ($this->__filterable__filter ? ("WHERE " . $this->__filterable__filter . "\n") : "")
             . ($this->__orderable__order ? ("ORDER BY " . $this->__orderable__order . "\n") : "")
             . ($this->__limitable__limit ? ("LIMIT " . $this->__limitable__limit . "\n") : "")
-            . ($this->__limitable__offset ? ("OFFSET " . $this->__limitable__offset . "\n") : "");
+            . ($this->__limitable__offset ? ("OFFSET " . $this->__limitable__offset . "\n") : "")
+            . "\n";
     }
 }

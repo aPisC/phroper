@@ -20,6 +20,7 @@ class Delete extends QueryBuilder implements IJoinable {
         return
             "DELETE FROM " . "`" . $this->model->getTableName() . "` \n"
             . ($this->__joinable__sql ? $this->__joinable__sql . "\n" : "")
-            . ($this->__filterable__filter ? ("WHERE " . $this->__filterable__filter . "\n") : "");
+            . ($this->__filterable__filter ? ("WHERE " . $this->__filterable__filter . "\n") : "")
+            . "\n";
     }
 }

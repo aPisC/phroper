@@ -28,6 +28,6 @@ class CreateTable extends QueryBuilder {
             if ($fieldList) $fieldList .= ", \n";
             $fieldList .= "`" . $fn . "` " . $tp;
         }
-        return "CREATE TABLE `" . $this->model->getTableName()  . "` (\n" . $fieldList . ($constraint ? ",\n" . $constraint : "") . "\n)";
+        return "CREATE TABLE `" . $this->model->getTableName()  . "` (\n" . $fieldList . ($constraint ? ",\n" . $constraint : "") . "\n)\n";
     }
 }

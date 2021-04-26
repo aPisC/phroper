@@ -19,6 +19,7 @@ class Count extends QueryBuilder implements IJoinable {
     function getQuery() {
         return "SELECT count(*) FROM " . "`" . $this->model->getTableName() . "`\n"
             . ($this->__joinable__sql ? $this->__joinable__sql . "\n" : "")
-            . ($this->__filterable__filter ? ("WHERE " . $this->__filterable__filter . "\n") : "");
+            . ($this->__filterable__filter ? ("WHERE " . $this->__filterable__filter . "\n") : "")
+            . "\n";
     }
 }

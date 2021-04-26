@@ -399,10 +399,8 @@ class Model {
       // init self
       $q = new CreateTable($this);
       $mysqli = Phroper::instance()->getMysqli();
-      echo $q->getQuery() . "\n";
 
-      if (!$q->execute($mysqli))
-        error_log("Database error: " . $mysqli->error);
+      $q->execute($mysqli);
 
       // init virtual relations
       foreach ($this->fields as $field) {

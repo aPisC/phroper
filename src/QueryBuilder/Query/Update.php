@@ -57,7 +57,8 @@ class Update extends QueryBuilder implements IJoinable {
       "UPDATE `" . $this->model->getTableName() . "`\n"
       . ($this->__joinable__sql ? ($this->__joinable__sql . "\n") : "")
       . "SET " . $setList . "\n"
-      . ($this->__filterable__filter ? ("WHERE " . $this->__filterable__filter . "\n") : "");
+      . ($this->__filterable__filter ? ("WHERE " . $this->__filterable__filter . "\n") : "")
+      . "\n";
 
 
     //return "UPDATE " . $this->cmd_from . $this->cmd_join . " SET " . $setList . " \n " .  $this->cmd_filter;

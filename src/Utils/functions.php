@@ -7,6 +7,7 @@ function str_ends_with(string $haystack, string $needle) {
 }
 
 function str_pc_text($name) {
+  if (is_array($name)) return array_map("str_pc_text", $name);
   $matches = [];
   while (preg_match("/[a-z][A-Z]/", $name, $matches)) {
     $name = str_replace($matches[0], substr($matches[0], 0, 1) . " " . substr($matches[0], 1, 1), $name);
@@ -15,6 +16,7 @@ function str_pc_text($name) {
 }
 
 function str_pc_kebab($name) {
+  if (is_array($name)) return array_map("str_pc_kebab", $name);
   $matches = [];
   while (preg_match("/[a-z][A-Z]/", $name, $matches)) {
     $name = str_replace($matches[0], substr($matches[0], 0, 1) . "-" .  substr($matches[0], 1, 1), $name);
@@ -23,6 +25,7 @@ function str_pc_kebab($name) {
 }
 
 function str_kebab_pc($name) {
+  if (is_array($name)) return array_map("str_kebab_pc", $name);
   $matches = [];
   while (preg_match("/[a-z]-[a-z]/", $name, $matches)) {
     $name = str_replace($matches[0], substr($matches[0], 0, 1) .  ucfirst(substr($matches[0], 2, 1)), $name);
@@ -31,6 +34,7 @@ function str_kebab_pc($name) {
 }
 
 function str_text_pc($name) {
+  if (is_array($name)) return array_map("str_text_pc", $name);
   $matches = [];
   while (preg_match("/[a-z] [a-zA-Z]/", $name, $matches)) {
     $name = str_replace($matches[0], substr($matches[0], 0, 1) .  ucfirst(substr($matches[0], 2, 1)), $name);

@@ -34,6 +34,7 @@ class Controller {
   }
 
   protected function getRoutePermName($name, $method) {
+    $name = str_replace("/", ".", $name);
     return strtolower(
       $method . "." . $this->getName() . ($name ? ('.' . $name) : '')
     );
@@ -102,17 +103,17 @@ class Controller {
 
     foreach ($this->registeredHandlerInfos as $info) {
       $method = $info[1];
-      $name = str_replace('/', '_', $info[0]);
+      $name = str_replace('/', '.', $info[0]);
       if ($method === "*") {
-        $perms[] = strtolower($this->getName()) . '_' .  $this->getRoutePermName($name, "GET");
-        $perms[] = strtolower($this->getName()) . '_' . $this->getRoutePermName($name, "POST");
-        $perms[] = strtolower($this->getName()) . '_' . $this->getRoutePermName($name, "PUT");
-        $perms[] = strtolower($this->getName()) . '_' . $this->getRoutePermName($name, "DELETE");
+        $perms[] = strtolower($this->getRoutePermName($name, "GET"));
+        $perms[] = strtolower($this->getRoutePermName($name, "POST"));
+        $perms[] = strtolower($this->getRoutePermName($name, "PUT"));
+        $perms[] = strtolower($this->getRoutePermName($name, "DELETE"));
       } else if (is_string($method))
-        $perms[] = strtolower($this->getName()) . '_' . $this->getRoutePermName($name, $method);
+        $perms[] = strtolower($this->getRoutePermName($name, $method));
       else if (is_array($method)) {
         foreach ($method as $m)
-          $perms[] = strtolower($this->getName()) . '_' . $this->getRoutePermName($name, $m);
+          $perms[] = strtolower($this->getRoutePermName($name, $m));
       }
     }
     sort($perms);

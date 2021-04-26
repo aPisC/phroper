@@ -9,7 +9,7 @@ class Role extends DefaultService {
   private Model $permModel;
 
   public function __construct() {
-    parent::__construct("Role");
+    parent::__construct("AuthRole");
     $this->permModel = Phroper::model("AuthPermission");
   }
 

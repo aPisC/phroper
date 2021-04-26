@@ -37,11 +37,11 @@ abstract class Field {
   public function getSQLType() {
     return $this->data["sql_type"]
       . ($this->data["sql_length"] ? "(" .  $this->data["sql_length"] . ")" : "")
+      . ($this->data["required"] ? " NOT NULL" : " NULL")
       . ($this->data["sql_unsigned"] ? " UNSIGNED" : "")
       . ($this->data["sql_autoincrement"] ? " AUTO_INCREMENT" : "")
       . ($this->data["sql_primary"] ? " PRIMARY KEY" : "")
       . ($this->data["unique"] ? " UNIQUE" : "")
-      . ($this->data["required"] ? " NOT NULL" : "")
       . ($this->data["sql_extra"] ? " " . $this->data["sql_extra"] : "");
   }
 

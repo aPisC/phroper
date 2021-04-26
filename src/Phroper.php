@@ -7,6 +7,7 @@ use mysqli;
 use Phroper\Controllers\DefaultController;
 use Phroper\Model\JsonModel;
 use Phroper\Services\DefaultService;
+use Throwable;
 
 class __Phroper__instance {
     public Router $router;
@@ -71,16 +72,9 @@ class __Phroper__instance {
     // ------------------
     // Mysqli
     // ------------------
-    private ?mysqli $mysqli = null;
-
-    public function setMysqli($mysqli) {
-        $this->mysqli = $mysqli;
-    }
 
     public function getMysqli() {
-        if ($this->mysqli == null)
-            throw new Exception("Mysqli must be set in phroper instance!");
-        return $this->mysqli;
+        return Phroper::ini("MYSQLI");
     }
 
     // ------------------
@@ -312,6 +306,14 @@ class Phroper {
         if (self::$_phroper_ini)
             throw new Exception("Phroper is already initialized");
 
+        if (isset($data["CONFIG_FILE"])) {
+            try {
+                $d2 = require($data["CONFIG_FILE"]);
+                if ($d2 && is_array($d2)) $data = array_merge($d2, $data);
+            } catch (Throwable $e) {
+            }
+        }
+
         self::$_phroper_ini = $data;
 
         if (self::$_instance == null)
@@ -321,7 +323,7 @@ class Phroper {
     public static function ini($key) {
         if (isset(self::$_phroper_ini[$key]))
             return self::$_phroper_ini[$key];
-        return null;
+        throw new Exception($key . " is not configured in Phroper::ini");
     }
 
     // Singleton factory

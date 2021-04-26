@@ -2,10 +2,10 @@
 
 namespace Phroper\Controllers;
 
-use Services\User as UserService;
+use Phroper\Services\User as ServicesUser;
 
 class User extends DefaultController {
-  protected UserService $user_service;
+  protected ServicesUser $user_service;
   public function __construct() {
     parent::__construct("User");
 

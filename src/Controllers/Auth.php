@@ -4,10 +4,10 @@ namespace Phroper\Controllers;
 
 use Phroper\Controller;
 use Phroper\Phroper;
-use Services\Auth as AuthService;
+use Phroper\Services\Auth as ServicesAuth;
 
 class Auth extends Controller {
-  private AuthService $service;
+  private ServicesAuth $service;
 
   public function __construct() {
     parent::__construct();

@@ -1,6 +1,6 @@
 <?php
 
-namespace Services;
+namespace Phroper\Services;
 
 use Phroper\Model;
 use Phroper\Phroper;

@@ -2,10 +2,10 @@
 
 namespace Phroper\Controllers;
 
-use Services\Role as RoleService;
+use Phroper\Services\Role as ServicesRole;
 
 class Role extends DefaultController {
-  protected RoleService $role_service;
+  protected ServicesRole $role_service;
   public function __construct() {
     parent::__construct("Role");
 

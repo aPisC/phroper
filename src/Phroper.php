@@ -6,7 +6,7 @@ use Exception;
 use mysqli;
 use Phroper\Controllers\DefaultController;
 use Phroper\Model\JsonModel;
-use Services\DefaultService;
+use Phroper\Services\DefaultService;
 
 class __Phroper__instance {
     public Router $router;

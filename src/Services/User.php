@@ -1,6 +1,6 @@
 <?php
 
-namespace Services;
+namespace Phroper\Services;
 
 class User extends DefaultService {
 

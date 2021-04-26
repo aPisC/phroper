@@ -15,6 +15,9 @@
   "autoload": {
     "psr-4": {
       "Phroper\\": "src/"
-    }
+    },
+    "files": [
+      "src/Utils/functions.php"
+    ]
   }
 }

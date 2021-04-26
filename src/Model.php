@@ -23,7 +23,8 @@ class Model {
   public function __construct($data = null) {
     Phroper::model_cache_callback($this);
 
-    $name = end(explode("\\", get_class($this)));
+    $name = explode("\\", get_class($this));
+    $name = end($name);
     $key = str_pc_kebab($name);
     $name = str_pc_text($name);
 

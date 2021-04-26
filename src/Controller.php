@@ -19,7 +19,8 @@ class Controller {
   }
 
   protected function getName() {
-    return str_pc_kebab(end(explode("\\", get_class($this))));
+    $name = explode("\\", get_class($this));
+    return str_pc_kebab(end($name));
   }
 
   protected function havePermission($action, $throw = false) {

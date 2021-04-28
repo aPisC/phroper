@@ -28,6 +28,8 @@ class __Phroper__instance {
             "Services\\Auth" => "Phroper\\Services\\Auth",
             "Services\\Role" => "Phroper\\Services\\Role",
             "Services\\User" => "Phroper\\Services\\User",
+            "Services\\Email" => "Phroper\\Services\\Email",
+            "Services\\Log" => "Phroper\\Services\\Log",
         ];
 
         $this->router = new Router();
@@ -36,9 +38,6 @@ class __Phroper__instance {
         $this->router->addHandler(function ($p, $n) {
             return JWT::TokenParserMiddleware($p, $n);
         }, 1000);
-
-        // Register internal plugins
-        $this->registerPlugin('store', 'Phroper\\Plugin_Store');
 
         $this->router->addServeFolder("uploads/", Phroper::ini("ROOT") . DIRECTORY_SEPARATOR . "uploads");
     }
@@ -78,23 +77,6 @@ class __Phroper__instance {
     }
 
     // ------------------
-    // Plugin handler
-    // ------------------
-    private array $plugins = [];
-
-    public function registerPlugin($name, $obj) {
-        $this->plugins[$name] = $obj;
-        return $obj;
-    }
-
-    public function plugin($name) {
-        $plugin = $this->plugins[$name];
-        if (is_string($plugin) && class_exists($plugin))
-            return $this->registerPlugin($name, new $plugin());
-        return  $plugin;
-    }
-
-    // ------------------
     // Context handler
     // ------------------
     private array $contextValues = [];
@@ -116,6 +98,11 @@ class __Phroper__instance {
 
     public function getCachedTypes() {
         return array_keys($this->__cache);
+    }
+    public function getCachedType($key) {
+        if (isset($this->__cache[$key]))
+            return $this->__cache[$key];
+        return null;
     }
 
     public function cacheType($key, $value) {

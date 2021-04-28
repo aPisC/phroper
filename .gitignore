@@ -2,6 +2,7 @@
 /index.php
 /Models
 /Controllers
+/EmailTemplates
 /Services
 /Routers
 /public

@@ -26,7 +26,7 @@ class Auth extends Service {
       throw new Exception('The given credentials are incorrect', 403);
 
     Phroper::service("log")->info(
-      "User logged in " . $user["username"] . " (" . $user["id"] . ")"
+      "User logged in: " . $user["username"] . " (" . $user["id"] . ")"
     );
 
     return [
@@ -71,7 +71,7 @@ class Auth extends Service {
     ]);
 
     Phroper::service("log")->info(
-      "User registered " . $entity["username"] . " (" . $entity["id"] . ")"
+      "User registered: " . $entity["username"] . " (" . $entity["id"] . ")"
     );
 
     return $this->userModel->sanitizeEntity($entity);

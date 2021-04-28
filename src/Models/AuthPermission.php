@@ -12,10 +12,11 @@ class AuthPermission extends Model {
     parent::__construct([
       "sql_table" => 'permission',
       "display" => "permission",
-      "populate" => []
+      "populate" => [],
+      "default_service" => false
     ]);
 
-    $this->fields["role"] = new RelationToOne("AuthRole", ["required", "sql_delete_action" => "CASCADE", "default_service" => false]);
+    $this->fields["role"] = new RelationToOne("AuthRole", ["required", "sql_delete_action" => "CASCADE"]);
     $this->fields["permission"] = new Text(["required" => true]);
   }
 

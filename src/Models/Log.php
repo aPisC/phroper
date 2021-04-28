@@ -17,7 +17,7 @@ class Log extends Model {
       "warn",
       "error",
     ]);
-    $this->fields['message'] = new Text();
+    $this->fields['message'] = new Text(["sql_length" => 1024, "sql_truncate" => true]);
   }
 
   public function allowDefaultService() {

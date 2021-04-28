@@ -24,6 +24,11 @@ class Auth extends Service {
     $user = $this->userModel->findOne(array('username' => $username));
     if ($user == null || !password_verify($password, $user['password']))
       throw new Exception('The given credentials are incorrect', 403);
+
+    Phroper::service("log")->info(
+      "User logged in " . $user["username"] . " (" . $user["id"] . ")"
+    );
+
     return [
       'user' => $this->userModel->sanitizeEntity($user),
       'jwt' => JWT::generate([
@@ -64,6 +69,10 @@ class Auth extends Service {
       'email' => $email,
       'role' => $role,
     ]);
+
+    Phroper::service("log")->info(
+      "User registered " . $entity["username"] . " (" . $entity["id"] . ")"
+    );
 
     return $this->userModel->sanitizeEntity($entity);
   }

@@ -18,6 +18,11 @@ class Log extends Model {
       "error",
     ]);
     $this->fields['message'] = new Text(["sql_length" => 1024, "sql_truncate" => true]);
+    $this->fields['remote_address'] = new Text([
+      "default" => function () {
+        return $_SERVER["REMOTE_ADDR"];
+      }
+    ]);
   }
 
   public function allowDefaultService() {

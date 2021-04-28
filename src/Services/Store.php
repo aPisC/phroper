@@ -1,8 +1,10 @@
 <?php
 
-namespace Phroper;
+namespace Phroper\Services;
 
 use Phroper\Model;
+use Phroper\Phroper;
+use Phroper\Service;
 
 class BoundStore {
     private $service;
@@ -22,7 +24,7 @@ class BoundStore {
     }
 }
 
-class Plugin_Store {
+class Store extends Service {
     private Model $storeModel;
 
     public function __construct() {
@@ -44,5 +46,9 @@ class Plugin_Store {
 
     public function bind($key) {
         return new BoundStore($this, $key);
+    }
+
+    public function allowDefaultController() {
+        return false;
     }
 }

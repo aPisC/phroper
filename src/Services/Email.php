@@ -22,9 +22,9 @@ class Email extends Service {
         $path = $this->getTemplatePath($template);
         if (!$path) {
             Phroper::service("log")->error(
-                "Mail template not found: " . $template
+                "Email template not found: " . $template
             );
-            return false;
+            throw new Exception("Email template not found: " . $template);
         }
 
         // Save old template data

@@ -39,19 +39,28 @@ class EmbeddedObject extends Field {
         }
     }
     public function onLoad($value, $key, $assoc, $populates) {
-        $fields = $this->fields;
-        return new LazyResult(function () use ($fields, $key, $assoc, $populates, $value) {
-            $a = [];
-            foreach ($fields as $fk => $field) {
-                $a[$fk] = $field->onLoad(
-                    isset($assoc[$key . "." . $fk]) ? $assoc[$key . "." . $fk] : $value,
-                    $key . "." . $fk,
-                    $assoc,
-                    $populates
-                );
-                if ($a[$fk] instanceof LazyResult) $a[$fk] = $a[$fk]->get();
-            }
-            return $a;
-        });
+        $a = [];
+        foreach ($this->fields as $fk => $field) {
+            $a[$fk] = $field->onLoad(
+                isset($assoc[$key . "." . $fk]) ? $assoc[$key . "." . $fk] : $value,
+                $key . "." . $fk,
+                $assoc,
+                $populates
+            );
+        }
+        return $a;
+    }
+
+    public function getSanitizedValue($value) {
+        $ne = [];
+        foreach ($this->fields as $fk => $field) {
+            $v = null;
+            if (isset($value[$fk])) $v = $value[$fk];
+            if ($v instanceof LazyResult) $v = $v->get();
+            $v = $field->getSanitizedValue($v);
+            if ($v instanceof IgnoreField) continue;
+            $ne[$fk] = $v;
+        }
+        return $ne;
     }
 }

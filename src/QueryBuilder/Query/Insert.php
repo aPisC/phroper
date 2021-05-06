@@ -56,16 +56,17 @@ class Insert extends QueryBuilder {
         for ($eid = 0; $eid < $entityCount; $eid++) {
             if ($eid !== 0) $valueList .= ", ";
 
+            $vl2 = "";
             foreach ($this->__modifiable__values->getFields() as $index => $key) {
                 if (!$key) continue;
-                if ($valueList) $valueList .= ", ";
+                if ($vl2) $vl2 .= ", ";
                 $value = $this->__modifiable__values->getValue($key, $eid);
                 // Exceptions is stored to indicate it has to be overwritten
                 if ($value instanceof Exception)
                     throw $value;
-                $valueList .= $this->bindings->push($value, "values");
+                $vl2 .= $this->bindings->push($value, "values");
             }
-            $valueList =  "(" . $valueList . ")";
+            $valueList .=  "(" . $vl2 . ")";
         }
 
         return "INSERT INTO `" . $this->model->getTableName() . "` (" . $columnList . ")\n"

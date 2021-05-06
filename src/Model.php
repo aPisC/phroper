@@ -113,7 +113,7 @@ class Model {
   public function sanitizeEntity($entity) {
     if ($entity instanceof Model\LazyResult)
       $entity = $entity->get();
-    if ($entity == null) return null;
+    if ($entity === null) return null;
     if (is_scalar($entity)) return $entity;
     $ne = array();
     foreach ($this->fields as $key => $field) {
@@ -320,7 +320,7 @@ class Model {
         $updated = $this->find([
           "_limit" => count($entities),
           "id_ge" => $insid
-        ], []);
+        ]);
       }
 
       return $updated;
@@ -359,7 +359,7 @@ class Model {
   }
 
   public function delete($filter, $returnEntities = true) {
-    $entity = $returnEntities ?  $this->find($filter) : null;
+    $entity = $returnEntities ?  $this->find($filter)->sanitizeEntity() : null;
 
     if ($entity || !$returnEntities) {
       $q = new Delete($this);
@@ -374,8 +374,8 @@ class Model {
         throw new Exception('Database error ' . $mysqli->error);
       }
     }
-    if (!$returnEntities || $entity->count() == 0) return null;
-    if ($entity->count() == 1) return $entity[0];
+    if (!$returnEntities || count($entity) == 0) return null;
+    if (count($entity) == 1) return $entity[0];
     return $entity;
   }
 

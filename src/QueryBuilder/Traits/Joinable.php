@@ -3,6 +3,7 @@
 namespace Phroper\QueryBuilder\Traits;
 
 use Phroper\Phroper;
+use Throwable;
 
 trait Joinable {
     protected bool $__trait__joinable = true;
@@ -71,7 +72,10 @@ trait Joinable {
 
     function populate($populate) {
         foreach ($populate as $p) {
-            $this->join($p);
+            try {
+                $this->join($p);
+            } catch (Throwable $t) {
+            }
         }
     }
 }

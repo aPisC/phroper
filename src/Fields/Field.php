@@ -152,4 +152,19 @@ abstract class Field {
   public function is($type) {
     return $this instanceof $type;
   }
+
+  public static function createField($field) {
+    if (is_string($field))
+      $fcn = "Phroper\\Fields\\" . str_kebab_pc($field);
+    else if (is_array($field))
+      $fcn = "Phroper\\Fields\\" . str_kebab_pc($field[0]);
+    else return $field;
+
+    $arg = is_array($field)
+      ? array_filter($field, function ($i) {
+        return  $i > 0;
+      }, ARRAY_FILTER_USE_KEY)
+      : [];
+    return new $fcn(...$arg);
+  }
 }

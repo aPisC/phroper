@@ -15,7 +15,7 @@ class EmbeddedArray_Model extends Model {
             "sql_delete_action" => "CASCADE"
         ]);
         foreach ($fields as $fn  => $f) {
-            $this->fields[$fn] = $f;
+            $this->fields[$fn] = Field::createField($f);
         }
     }
 }

@@ -32,7 +32,7 @@ class EmbeddedObject extends Field {
         parent::bindModel($model, $fieldName);
 
         foreach ($this->fields as $key => $field) {
-            $this->model->fields->addInternalField($fieldName . "." . $key, new EmbeddedObjectVirtualField($field));
+            $this->model->fields->addInternalField($fieldName . "." . $key, new EmbeddedObjectVirtualField(Field::createField($field)));
         }
     }
     public function onLoad($value, $key, $assoc, $populates) {

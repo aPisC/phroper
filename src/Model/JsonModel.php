@@ -4,6 +4,7 @@ namespace Phroper\Model;
 
 use Error;
 use Exception;
+use Phroper\Fields\Field;
 use Phroper\Model;
 
 class JsonModel extends Model {
@@ -29,16 +30,8 @@ class JsonModel extends Model {
                     $this->fields[$key] = null;
                     continue;
                 }
-                if (is_string($value))
-                    $fcn = "Phroper\\Fields\\" . str_kebab_pc($value);
-                else
-                    $fcn = "Phroper\\Fields\\" . str_kebab_pc($value[0]);
-                $arg = is_array($value)
-                    ? array_filter($value, function ($i) {
-                        return  $i > 0;
-                    }, ARRAY_FILTER_USE_KEY)
-                    : [];
-                $this->fields[$key] = new $fcn(...$arg);
+
+                $this->fields[$key] = Field::createField($value);
             }
         } catch (Exception $ex) {
             error_log($ex);

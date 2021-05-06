@@ -9,6 +9,10 @@ abstract class FieldExtension extends Field {
     $this->base = $base;
   }
 
+  public function getSQLConstraint() {
+    return $this->base->getSQLConstraint();
+  }
+
   public function getSQLType() {
     return $this->base->getSQLType();
   }

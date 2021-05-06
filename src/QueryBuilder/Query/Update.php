@@ -44,7 +44,8 @@ class Update extends QueryBuilder implements IJoinable {
 
     $setList = "";
     foreach ($this->__modifiable__values->getFields() as $index => $key) {
-      if ($index++ !== 0) $setList .= ", ";
+      if (!$key) continue;
+      if ($setList) $setList .= ", ";
       $value = $this->__modifiable__values->getValue($key, 0);
       // Exceptions is stored to indicate it has to be overwritten
       if ($value instanceof Exception)

@@ -4,6 +4,7 @@ namespace Phroper\QueryBuilder\Traits;
 
 use Exception;
 use Phroper;
+use Phroper\Fields\EmbeddedObject;
 use Phroper\QueryBuilder\QBModificationCollector;
 use Phroper\QueryBuilder\Query\Insert;
 
@@ -20,11 +21,15 @@ trait Modifiable {
     }
 
     public function setValue($key, $value, $rawUpdate = false) {
-        $pos = strrpos($key, ".");
-        if ($pos != false) throw new Exception("Updating relation value is not supported");
 
         $key_resolved = $this->resolve($key);
         if (!$key_resolved) return;
+        if ($key_resolved["in_relation"])
+            throw new Exception("Updating relation value is not supported");
+        if (!$key_resolved["source"] && $key_resolved["field"]->is(EmbeddedObject::class)) {
+            $key_resolved["field"]->handleQuerySet($value, $key, $this, $rawUpdate);
+        }
+
 
         $field = $this->fields[$key]["field"];
         if (($field->isReadonly() && !($this instanceof Insert)) || ($field->isAuto()))
@@ -34,7 +39,7 @@ trait Modifiable {
         if ($newValue instanceof Phroper\Fields\IgnoreField)
             return;
 
-        $this->__modifiable__values->setValue($key_resolved, $newValue);
+        $this->__modifiable__values->setValue($key_resolved["source"], $newValue);
     }
 
     public function setAllValue($values, $prefix = "") {

@@ -148,4 +148,8 @@ abstract class Field {
       return new Exception($this->data["msg_error_" . $key], 400);
     return new Exception($default, 400);
   }
+
+  public function is($type) {
+    return $this instanceof $type;
+  }
 }

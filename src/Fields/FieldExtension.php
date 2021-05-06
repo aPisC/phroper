@@ -89,4 +89,12 @@ abstract class FieldExtension extends Field {
   protected function updateData($data) {
     $this->base->updateData($data);
   }
+
+  public function is($type) {
+    return $this->base->is($type);
+  }
+
+  public function handleQuerySet($value, $key, $query, $rawUpdate) {
+    return $this->base->handleQuerySet($value, $key, $query, $rawUpdate);
+  }
 }

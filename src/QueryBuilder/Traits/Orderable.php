@@ -21,18 +21,18 @@ trait Orderable {
                 $id = false;
             }
             $key = $this->resolve($f);
-            if (!$key) continue;
+            if (!$key || $key["source"]) continue;
             if ($this->__orderable__order) $this->__orderable__order .= ", ";
             $this->__orderable__order .=
-                $key . ($id ? " DESC" : " ASC");
+                $key["source"] . ($id ? " DESC" : " ASC");
         }
     }
 
     public function orderByEq($field, $value, $isDesc = true) {
         $key = $this->resolve($field);
-        if (!$key) return;
+        if (!$key || !$key["source"]) return;
         if ($this->__orderable__order) $this->__orderable__order =  ", " . $this->__orderable__order;
         $this->__orderable__order =
-            $key . " = " . intval($value) . ($isDesc ? " DESC" : " ASC") . $this->__orderable__order;
+            $key["source"] . " = " . intval($value) . ($isDesc ? " DESC" : " ASC") . $this->__orderable__order;
     }
 }

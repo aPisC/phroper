@@ -19,7 +19,8 @@ trait Joinable {
         // Create join if not exist
         if (!isset($this->__joinable__joins[$join])) {
             // Resolve base field of join
-            if (!$this->resolve($join)) return;
+            $resolved_join = $this->resolve($join);
+            if (!$resolved_join || !$resolved_join["source"]) return;
 
             // Test if the field can be joined
             if (!($this->fields[$join]["field"] && $this->fields[$join]["field"]->isJoinable()))
@@ -31,7 +32,7 @@ trait Joinable {
             $this->__joinable__tables[$join] = "`" . $model->getTableName() . "_" . count($this->__joinable__tables) . "`";
 
             // Add sql for join
-            if ($this->__joinable__sql) $this->__joinable__sql .= '\n';
+            if ($this->__joinable__sql) $this->__joinable__sql .= "\n";
             $this->__joinable__sql .= "LEFT OUTER JOIN `" . $model->getTableName() . "` as " . $this->__joinable__tables[$join] . " ";
 
             // Filter join
@@ -63,6 +64,7 @@ trait Joinable {
                 "alias" => $alias,
                 "field" => $field,
                 "hidden" => $field->isVirtual(),
+                "in_relation" => true,
             );
         }
     }

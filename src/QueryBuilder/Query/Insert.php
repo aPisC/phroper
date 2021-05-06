@@ -48,22 +48,24 @@ class Insert extends QueryBuilder {
         $columnList = "";
         $valueList = "";
         foreach ($this->__modifiable__values->getFields() as $index => $key) {
-            if ($index++ !== 0) $columnList .= ", ";
+            if (!$key) continue;
+            if ($columnList) $columnList .= ", ";
             $columnList .= $key;
         }
         $entityCount = $this->__modifiable__values->getEntityCount();
         for ($eid = 0; $eid < $entityCount; $eid++) {
             if ($eid !== 0) $valueList .= ", ";
-            $valueList .= "(";
+
             foreach ($this->__modifiable__values->getFields() as $index => $key) {
-                if ($index++ !== 0) $valueList .= ", ";
+                if (!$key) continue;
+                if ($valueList) $valueList .= ", ";
                 $value = $this->__modifiable__values->getValue($key, $eid);
                 // Exceptions is stored to indicate it has to be overwritten
                 if ($value instanceof Exception)
                     throw $value;
                 $valueList .= $this->bindings->push($value, "values");
             }
-            $valueList .= ")";
+            $valueList =  "(" . $valueList . ")";
         }
 
         return "INSERT INTO `" . $this->model->getTableName() . "` (" . $columnList . ")\n"

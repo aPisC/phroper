@@ -4,6 +4,7 @@ namespace Phroper\Model;
 
 use ArrayAccess;
 use ArrayObject;
+use Exception;
 use IteratorAggregate;
 use Phroper\Model;
 
@@ -15,7 +16,15 @@ class FieldCollection implements ArrayAccess, IteratorAggregate {
         $this->model = $model;
     }
 
+    public function addInternalField($key, $field) {
+        $this->fields[$key] = $field;
+        $field->bindModel($this->model, $key);
+    }
+
     public function offsetSet($offset, $field) {
+        if (strpos($offset, ".") !== false)
+            throw new Exception("Field name " . $offset . " can not contain dots.");
+
         if (!$field) {
             unset($this->fields[$offset]);
             return;

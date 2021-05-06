@@ -154,8 +154,8 @@ trait Filterable {
     private function __filterable__value2sql($value) {
         if ($value instanceof QB_Ref) {
             $resolved = $this->resolve($value->alias);
-            if (!$resolved) throw new Exception("Field '" . $value->alias . "' could not be resolved.");
-            return $resolved;
+            if (!$resolved || !$resolved["source"]) throw new Exception("Field '" . $value->alias . "' could not be resolved.");
+            return $resolved["source"];
         }
         return $this->bindings->push($value, "filter");
     }

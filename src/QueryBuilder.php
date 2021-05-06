@@ -65,7 +65,7 @@ abstract class QueryBuilder {
     $stmt = $mysqli->prepare($this->lastSql);
 
     if ($stmt === false) {
-      error_log("SQL statement could not be prepared.\n\n" . $this->lastSql . "\n\n" . $mysqli->error);
+      error_log("SQL statement could not be prepared.\n\n" . "\n\n" . $mysqli->error . $this->lastSql);
       throw new Exception("SQL statement could not be prepared.");
     }
 
@@ -106,7 +106,7 @@ abstract class QueryBuilder {
       $key = $key->alias;
 
     if (isset($this->fields[$key]))
-      return $this->fields[$key]["source"];
+      return $this->fields[$key];
 
     // Test if the key is single field
     $pos = strrpos($key, ".");
@@ -125,7 +125,8 @@ abstract class QueryBuilder {
     $fn = substr($key, $pos + 1);
 
     // Test if join field is resolveable
-    if (!$this->resolve($rel))
+    $resolved_rel = $this->resolve($rel);
+    if (!$resolved_rel || !$resolved_rel["source"])
       throw new Exception(
         "Field " . $key . " clould not be resolved, no join field available."
       );
@@ -141,7 +142,7 @@ abstract class QueryBuilder {
 
     // Get source of field
     if (isset($this->fields[$key]))
-      return $this->fields[$key]["source"];
+      return $this->fields[$key];
 
     throw new Exception("Field " . $key . " clould not be resolved");
   }
@@ -162,6 +163,7 @@ abstract class QueryBuilder {
         "alias" => $alias,
         "field" => $field,
         "hidden" => $field->isVirtual(),
+        "in_relation" => false,
       );
     }
   }

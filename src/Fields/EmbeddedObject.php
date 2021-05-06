@@ -13,9 +13,6 @@ class EmbeddedObjectVirtualField extends FieldExtension {
     public function onLoad($value, $key, $assoc, $populates) {
         return IgnoreField::instance();
     }
-    public function onSave($value) {
-        return;
-    }
 }
 
 class EmbeddedObject extends Field {
@@ -35,14 +32,14 @@ class EmbeddedObject extends Field {
         parent::bindModel($model, $fieldName);
 
         foreach ($this->fields as $key => $field) {
-            $this->model->fields[$fieldName . "." . $key] = new EmbeddedObjectVirtualField($field);
+            $this->model->fields->addInternalField($fieldName . "." . $key, new EmbeddedObjectVirtualField($field));
         }
     }
     public function onLoad($value, $key, $assoc, $populates) {
         $a = [];
         foreach ($this->fields as $fk => $field) {
             $a[$fk] = $field->onLoad(
-                isset($assoc[$key . "." . $fk]) ? $assoc[$key . "." . $fk] : $value,
+                array_key_exists($key . "." . $fk, $assoc) ? $assoc[$key . "." . $fk] : $value,
                 $key . "." . $fk,
                 $assoc,
                 $populates
@@ -52,15 +49,25 @@ class EmbeddedObject extends Field {
     }
 
     public function getSanitizedValue($value) {
+        if (!$value) return null;
         $ne = [];
         foreach ($this->fields as $fk => $field) {
             $v = null;
-            if (isset($value[$fk])) $v = $value[$fk];
+            if (array_key_exists($fk, $value)) $v = $value[$fk];
             if ($v instanceof LazyResult) $v = $v->get();
             $v = $field->getSanitizedValue($v);
             if ($v instanceof IgnoreField) continue;
             $ne[$fk] = $v;
         }
         return $ne;
+    }
+
+    public function handleQuerySet($value, $key, $query, $rawUpdate) {
+        if (!$value) return;
+
+        foreach ($value as $fk => $v) {
+            if (!isset($this->fields[$fk])) continue;
+            $query->setValue($key . "." . $fk, $v, $rawUpdate);
+        }
     }
 }

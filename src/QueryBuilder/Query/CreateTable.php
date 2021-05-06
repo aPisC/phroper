@@ -18,7 +18,7 @@ class CreateTable extends QueryBuilder {
             }
 
             if (!$field["source"]) continue;
-            if (strpos($field["alias"], ".") !== strrpos($field["alias"], ".")) continue;
+            //if (strpos($field["alias"], ".") !== strrpos($field["alias"], ".")) continue;
             if ($field["field"]->isVirtual()) continue;
             $fn = $field['field']->getFieldName($key);
             $tp = $field['field']->getSQLType();

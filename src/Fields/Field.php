@@ -4,6 +4,7 @@ namespace Phroper\Fields;
 
 use Exception;
 use Phroper\Model;
+use Phroper\QueryBuilder\Traits\IModifiableQuery;
 
 abstract class Field {
   protected ?Model $model = null;
@@ -47,6 +48,13 @@ abstract class Field {
 
   public function getSQLConstraint() {
     return null;
+  }
+
+  public function isHelperField(): bool {
+    return false;
+  }
+
+  public function handleSetValue(mixed $value, string $key, IModifiableQuery $query, int $flags) {
   }
 
   public function getFieldName() {

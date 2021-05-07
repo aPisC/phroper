@@ -5,6 +5,9 @@ namespace Phroper\Fields;
 use Phroper\Model;
 use Phroper\Model\Entity;
 use Phroper\Model\LazyResult;
+use Phroper\QueryBuilder;
+use Phroper\QueryBuilder\QBFlags;
+use Phroper\QueryBuilder\Traits\IModifiableQuery;
 
 class EmbeddedObjectVirtualField extends FieldExtension {
     public function __construct($field) {
@@ -12,6 +15,11 @@ class EmbeddedObjectVirtualField extends FieldExtension {
     }
     public function onLoad($value, $key, $assoc, $populates) {
         return IgnoreField::instance();
+    }
+
+
+    public function isHelperField(): bool {
+        return true;
     }
 }
 
@@ -32,7 +40,9 @@ class EmbeddedObject extends Field {
         parent::bindModel($model, $fieldName);
 
         foreach ($this->fields as $key => $field) {
-            $this->model->fields->addInternalField($fieldName . "." . $key, new EmbeddedObjectVirtualField(Field::createField($field)));
+            $field = Field::createField($field);
+            $this->fields[$key] = $field;
+            $this->model->fields->addInternalField($fieldName . "." . $key, new EmbeddedObjectVirtualField($field));
         }
     }
     public function onLoad($value, $key, $assoc, $populates) {
@@ -62,12 +72,8 @@ class EmbeddedObject extends Field {
         return $ne;
     }
 
-    public function handleQuerySet($value, $key, $query, $rawUpdate) {
+    public function handleSetValue(mixed $value, string $key, IModifiableQuery $query, int $flags) {
         if (!$value) return;
-
-        foreach ($value as $fk => $v) {
-            if (!isset($this->fields[$fk])) continue;
-            $query->setValue($key . "." . $fk, $v, $rawUpdate);
-        }
+        $query->setAllValue($value, $key, $flags | QBFlags::SET_HELPERS);
     }
 }

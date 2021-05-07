@@ -5,10 +5,11 @@ namespace Phroper\QueryBuilder\Query;
 use Exception;
 use Phroper\Fields\IgnoreField;
 use Phroper\QueryBuilder;
+use Phroper\QueryBuilder\Traits\IModifiableQuery;
 use Phroper\QueryBuilder\Traits\Modifiable;
 use Throwable;
 
-class Insert extends QueryBuilder {
+class Insert extends QueryBuilder implements IModifiableQuery {
 
     use Modifiable;
 

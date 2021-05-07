@@ -143,6 +143,7 @@ class Model {
     // Restore other fields
     foreach ($this->fields as $key => $field) {
       if (!$field) continue;
+      if ($field->isHelperField()) continue;
 
       $v = null;
       $memberName = $prefix == "" ? $key : ($prefix . "." . $key);

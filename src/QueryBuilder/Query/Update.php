@@ -6,11 +6,12 @@ use Exception;
 use Phroper\QueryBuilder;
 use Phroper\QueryBuilder\Traits\Filterable;
 use Phroper\QueryBuilder\Traits\IJoinable;
+use Phroper\QueryBuilder\Traits\IModifiableQuery;
 use Phroper\QueryBuilder\Traits\Joinable;
 use Phroper\QueryBuilder\Traits\Modifiable;
 use Throwable;
 
-class Update extends QueryBuilder implements IJoinable {
+class Update extends QueryBuilder implements IJoinable, IModifiableQuery {
   use Filterable;
   use Modifiable;
   use Joinable;

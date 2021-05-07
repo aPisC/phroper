@@ -5,10 +5,13 @@ namespace Phroper\QueryBuilder\Traits;
 use Exception;
 use Phroper;
 use Phroper\Fields\EmbeddedObject;
+use Phroper\QueryBuilder;
+use Phroper\QueryBuilder\QBFlags;
 use Phroper\QueryBuilder\QBModificationCollector;
 use Phroper\QueryBuilder\Query\Insert;
 
 trait Modifiable {
+
     private QBModificationCollector $__modifiable__values;
 
     private function __modifiable__init() {
@@ -16,36 +19,34 @@ trait Modifiable {
     }
 
 
-    public function nextEntity() {
+    public function nextEntity(): void {
         $this->__modifiable__values->next();
     }
 
-    public function setValue($key, $value, $rawUpdate = false) {
-
+    public function setValue(string $key, mixed $value, int $flags = 0): void {
         $key_resolved = $this->resolve($key);
         if (!$key_resolved) return;
         if ($key_resolved["in_relation"])
             throw new Exception("Updating relation value is not supported");
-        if (!$key_resolved["source"] && $key_resolved["field"]->is(EmbeddedObject::class)) {
-            $key_resolved["field"]->handleQuerySet($value, $key, $this, $rawUpdate);
-        }
-
 
         $field = $this->fields[$key]["field"];
-        if (($field->isReadonly() && !($this instanceof Insert)) || ($field->isAuto()))
-            return;
+        if ($field->isReadonly() && !($this instanceof Insert)) return;
+        if ($field->isAuto()) return;
+        if ($field->isHelperField() && !($flags && QBFlags::SET_HELPERS)) return;
 
-        $newValue = $rawUpdate ? $value : $field->onSave($value);
-        if ($newValue instanceof Phroper\Fields\IgnoreField)
-            return;
+        $key_resolved["field"]->handleSetValue($value, $key, $this, $flags);
+        if (!$key_resolved["source"]) return;
+
+        $newValue = ($flags & QBFlags::SET_RAW) ? $value : $field->onSave($value);
+        if ($newValue instanceof Phroper\Fields\IgnoreField) return;
 
         $this->__modifiable__values->setValue($key_resolved["source"], $newValue);
     }
 
-    public function setAllValue($values, $prefix = "") {
+    public function setAllValue($values, $prefix = "", $flags = 0): void {
         foreach ($values as $key => $value) {
             $memberName = $prefix == "" ? $key : $prefix . "." . $key;
-            $this->setValue($memberName, $value);
+            $this->setValue($memberName, $value, $flags);
         }
     }
 }

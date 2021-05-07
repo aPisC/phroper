@@ -101,4 +101,8 @@ abstract class FieldExtension extends Field {
   public function handleQuerySet($value, $key, $query, $rawUpdate) {
     return $this->base->handleQuerySet($value, $key, $query, $rawUpdate);
   }
+
+  public function isHelperField(): bool {
+    return $this->base->isHelperField();
+  }
 }

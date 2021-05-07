@@ -24,14 +24,14 @@ class EmbeddedArray extends RelationToMany {
 
     private $fields;
 
-    public function __construct($fields) {
+    public function __construct($fields, $data = null) {
         parent::__construct(null, "__parent__", [
             "min" => null,
             "max" => null,
             "default" => [],
             "populate" => true
         ]);
-
+        $this->updateData($data);
 
         $this->fields = $fields;
     }

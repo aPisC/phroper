@@ -4,11 +4,12 @@ namespace Phroper\Fields;
 
 use Phroper\Model;
 use Phroper\Model\EntityList;
+use Phroper\Model\LazyResult;
 
-class EmbeddedArray_Model extends Model {
+class EmbeddedArraySimple_Model extends Model {
     public ?int $parentId = null;
 
-    public function __construct($fields, $model, $tableName) {
+    public function __construct($field, $model, $tableName) {
         parent::__construct(["sql_table" => $tableName]);
         $this->fields->clear();
         $this->fields["id"] = new Identity(["private"]);
@@ -19,17 +20,15 @@ class EmbeddedArray_Model extends Model {
             "forced" => true,
             "default" => fn () => $this->parentId,
         ]);
-        foreach ($fields as $fn  => $f) {
-            $this->fields[$fn] = Field::createField($f);
-        }
+        $this->fields["value"] = Field::createField($field);
     }
 }
 
-class EmbeddedArray extends RelationToMany {
+class EmbeddedArraySimple extends RelationToMany {
 
-    private $fields;
+    private $field;
 
-    public function __construct($fields, $data = null) {
+    public function __construct($field, $data = null) {
         parent::__construct(null, "__parent__", [
             "min" => null,
             "max" => null,
@@ -38,29 +37,19 @@ class EmbeddedArray extends RelationToMany {
         ]);
         $this->updateData($data);
 
-        $this->fields = $fields;
+        $this->field = $field;
     }
 
     public function getUiInfo(): array {
         $data = parent::getUiInfo();
-        $data["fields"] = [];
-        foreach ($this->relationModel->fields as $key => $field) {
-            if (!$field) continue;
-            if ($field->isHelperField()) continue;
-
-            $fd = $field->getUiInfo();
-            if (!$fd) continue;
-
-            $data["fields"][$key] = $fd;
-        }
-
+        $data["field"] = $this->relationModel->fields["value"]->getUiInfo();
         return $data;
     }
 
     public function bindModel($model, $fieldName) {
         parent::bindModel($model, $fieldName);
 
-        $model = new EmbeddedArray_Model($this->fields, $model, $model->getTableName() . "." . $fieldName);
+        $model = new EmbeddedArraySimple_Model($this->field, $model, $model->getTableName() . "." . $fieldName);
         $this->relationModel = $model;
         $this->updateData([
             "model" => $model ? $this->getModel()->getName() : "",
@@ -81,10 +70,24 @@ class EmbeddedArray extends RelationToMany {
             $this->relationModel->delete(["__parent__" => $id], false);
 
             if (count($value) == 0) return true;
-            $this->relationModel->createMulti($value);
+            $this->relationModel->createMulti(array_map(fn ($v) => ["value" => $v], $value));
             return true;
         }
         return false;
+    }
+
+    public function onLoad($value, $key, $assoc, $populates) {
+        if (in_array($key, $populates)) {
+            $populates = array_filter($populates, fn ($p) => str_starts_with($p, $key));
+            $populates = array_map(fn ($p) => $key . ".value" . substr($p, strlen($key)), $populates);
+            $populates[] = $key;
+        } else return IgnoreField::instance();
+        $v = parent::onLoad($value, $key, $assoc, $populates);
+        return new LazyResult(function () use ($v) {
+            if ($v instanceof LazyResult) $v = $v->get();
+            if ($v instanceof IgnoreField) return $v;
+            return $v->map(fn ($v) => $v["value"]);
+        });
     }
 
     public function getSanitizedValue($value) {
@@ -99,7 +102,7 @@ class EmbeddedArray extends RelationToMany {
         if (is_array($value)) {
             $model = $this->getModel();
             return  array_map(function ($entity) use ($model) {
-                return $model->sanitizeEntity($entity);
+                return $model->fields["value"]->getSanitizedValue($entity);
             }, $value);
         }
         return IgnoreField::instance();

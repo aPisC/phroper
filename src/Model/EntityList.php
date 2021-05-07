@@ -7,15 +7,16 @@ use ArrayIterator;
 use ArrayObject;
 use Exception;
 use IteratorAggregate;
+use Phroper\Fields\IgnoreField;
 use Phroper\Model;
 
-class EntityList implements IteratorAggregate, ArrayAccess {
+class EntityList  extends Entity implements IteratorAggregate, ArrayAccess {
 
   protected array $values = array();
   private ?Model $model;
 
   public function __construct(?Model $model, ?array $values = null) {
-    $this->model = $model;
+    parent::__construct($model);
     if (is_array($values)) {
       foreach ($values as $v) {
         if (!($v  instanceof Entity))
@@ -39,7 +40,7 @@ class EntityList implements IteratorAggregate, ArrayAccess {
     unset($this->array[$offset]);
   }
 
-  public function offsetGet($offset): Entity {
+  public function offsetGet($offset): Entity|IgnoreField {
     $val = $this->values[$offset];
     if ($val instanceof LazyResult) return $val->get();
     return $val;

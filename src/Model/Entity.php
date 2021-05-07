@@ -3,6 +3,7 @@
 namespace Phroper\Model;
 
 use ArrayAccess;
+use Phroper\Fields\IgnoreField;
 use Phroper\Model;
 
 class Entity implements ArrayAccess {
@@ -26,7 +27,7 @@ class Entity implements ArrayAccess {
     unset($this->array[$offset]);
   }
 
-  public function offsetGet($offset): Entity|EntityList|array|int|float|string|bool|null {
+  public function offsetGet($offset): IgnoreField|Entity|array|int|float|string|bool|null {
     $val = $this->values[$offset];
     if ($val instanceof LazyResult) return $val->get();
     return $val;

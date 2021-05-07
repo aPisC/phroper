@@ -58,6 +58,8 @@ class Model {
     $data["fields"] = [];
     foreach ($this->fields as $key => $field) {
       if (!$field) continue;
+      if ($field->isHelperField()) continue;
+
       $fd = $field->getUiInfo();
       if (!$fd) continue;
 
@@ -303,7 +305,7 @@ class Model {
 
       $hadPostUpdate = false;
       foreach ($entities as $i => $entity) {
-        $hadPostUpdate = $hadPostUpdate || $this->postInsert($entity, $updated[$i]);
+        $hadPostUpdate = $this->postInsert($entity, $updated[$i]) || $hadPostUpdate;
       }
 
       if ($hadPostUpdate && isset($this->fields["id"])) {
@@ -336,7 +338,7 @@ class Model {
 
       $hadPostUpdate = false;
       foreach ($updated as $u) {
-        $hadPostUpdate = $hadPostUpdate || $this->postUpdate($entity, $u);
+        $hadPostUpdate = $this->postUpdate($entity, $u) ||  $hadPostUpdate;
       }
 
       if ($hadPostUpdate) $updated = $this->find($filter);
@@ -394,7 +396,7 @@ class Model {
 
       // init virtual relations
       foreach ($this->fields as $field) {
-        if ($field instanceof Relation && $field->isVirtual())
+        if ($field->is(Relation::class) && $field->isVirtual())
           $field->getModel()->init();
       }
       return true;

@@ -6,13 +6,18 @@ use Phroper\Model;
 use Phroper\Model\EntityList;
 
 class EmbeddedArray_Model extends Model {
+    public ?int $parentId = null;
+
     public function __construct($fields, $model, $tableName) {
         parent::__construct(["sql_table" => $tableName]);
         $this->fields->clear();
+        $this->fields["id"] = new Identity(["private"]);
         $this->fields["__parent__"] = new RelationToOne($model, [
-            "required",
             "private",
-            "sql_delete_action" => "CASCADE"
+            "sql_delete_action" => "CASCADE",
+            "auto" => true,
+            "forced" => true,
+            "default" => fn () => $this->parentId,
         ]);
         foreach ($fields as $fn  => $f) {
             $this->fields[$fn] = Field::createField($f);
@@ -36,6 +41,22 @@ class EmbeddedArray extends RelationToMany {
         $this->fields = $fields;
     }
 
+    public function getUiInfo(): array {
+        $data = parent::getUiInfo();
+        $data["fields"] = [];
+        foreach ($this->relationModel->fields as $key => $field) {
+            if (!$field) continue;
+            if ($field->isHelperField()) continue;
+
+            $fd = $field->getUiInfo();
+            if (!$fd) continue;
+
+            $data["fields"][$key] = $fd;
+        }
+
+        return $data;
+    }
+
     public function bindModel($model, $fieldName) {
         parent::bindModel($model, $fieldName);
 
@@ -55,19 +76,12 @@ class EmbeddedArray extends RelationToMany {
             if (isset($this->data["max"]) && count($value) > $this->data["max"])
                 throw $this->validationError("max", $this->data["name"] . " can have " . $this->data["max"] . " entry.");
             $id = $entity["id"];
+            $this->relationModel->parentId = $id;
 
             $this->relationModel->delete(["__parent__" => $id], false);
 
             if (count($value) == 0) return true;
-            $this->relationModel->createMulti(
-                array_map(
-                    function ($value) use ($id) {
-                        return array_merge($value, ["__parent__" => $id]);
-                    },
-                    $value
-                ),
-                false
-            );
+            $this->relationModel->createMulti($value);
             return true;
         }
         return false;

@@ -23,6 +23,18 @@ class EmbeddedObjectVirtualField extends FieldExtension {
     }
 }
 
+class EmbeddedObject_Identity extends Field {
+    public function __construct() {
+        parent::__construct([
+            "virtual" => true,
+            "private" => true,
+        ]);
+    }
+    public function onLoad($value, $key, $assoc, $populates) {
+        return $value;
+    }
+}
+
 class EmbeddedObject extends Field {
     private array $fields;
 
@@ -34,6 +46,23 @@ class EmbeddedObject extends Field {
         $this->updateData($data);
 
         $this->fields = $fields;
+        $this->fields["id"] = new EmbeddedObject_Identity();
+    }
+
+    public function getUiInfo(): array {
+        $data = parent::getUiInfo();
+        $data["fields"] = [];
+        foreach ($this->fields as $key => $field) {
+            if (!$field) continue;
+            if ($field->isHelperField()) continue;
+
+            $fd = $field->getUiInfo();
+            if (!$fd) continue;
+
+            $data["fields"][$key] = $fd;
+        }
+
+        return $data;
     }
 
     public function bindModel($model, $fieldName) {
@@ -56,6 +85,18 @@ class EmbeddedObject extends Field {
             );
         }
         return $a;
+    }
+
+    public function postUpdate($value, $key, $entity) {
+        $hadUpdate = false;
+        foreach ($this->fields as $fk => $field) {
+            $hadUpdate |= $field->postUpdate(
+                array_key_exists($fk, $value) ? $value[$fk] : $entity["id"],
+                $fk,
+                $entity[$key],
+            );
+        }
+        return $hadUpdate;
     }
 
     public function getSanitizedValue($value) {

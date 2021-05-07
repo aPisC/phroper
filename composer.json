@@ -9,7 +9,7 @@
   ],
   "minimum-stability": "dev",
   "require": {
-    "php": ">=7.4.0",
+    "php": "^8.0",
     "phpmailer/phpmailer": "^6.4"
   },
   "autoload": {

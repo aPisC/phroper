@@ -46,7 +46,6 @@ class EmbeddedObject extends Field {
         $this->updateData($data);
 
         $this->fields = $fields;
-        $this->fields["id"] = new EmbeddedObject_Identity();
     }
 
     public function getUiInfo(): array {
@@ -67,6 +66,8 @@ class EmbeddedObject extends Field {
 
     public function bindModel($model, $fieldName) {
         parent::bindModel($model, $fieldName);
+        if ($model->fields["id"])
+            $this->fields["id"] = new EmbeddedObject_Identity();
 
         foreach ($this->fields as $key => $field) {
             $field = Field::createField($field);

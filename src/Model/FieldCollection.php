@@ -45,7 +45,7 @@ class FieldCollection implements ArrayAccess, IteratorAggregate {
         unset($this->fields[$offset]);
     }
 
-    public function offsetGet($offset): Field {
+    public function offsetGet($offset): ?Field {
         if (isset($this->fields[$offset]))
             return $this->fields[$offset];
         return null;

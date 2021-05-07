@@ -2,6 +2,7 @@
 
 namespace Phroper\Fields;
 
+use Exception;
 use Phroper\Model;
 use Phroper\Model\EntityList;
 use Phroper\Model\LazyResult;
@@ -48,6 +49,8 @@ class EmbeddedArraySimple extends RelationToMany {
 
     public function bindModel($model, $fieldName) {
         parent::bindModel($model, $fieldName);
+        if (!$model->fields["id"])
+            throw new Exception("Model has to have id to use EmbeddedArray");
 
         $model = new EmbeddedArraySimple_Model($this->field, $model, $model->getTableName() . "." . $fieldName);
         $this->relationModel = $model;

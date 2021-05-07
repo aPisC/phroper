@@ -292,16 +292,15 @@ class Model {
         throw new Exception('Database error ' . $mysqli->error);
       }
 
-      if (!$processEntities) return;
+      if (!$processEntities) return null;
+      if (!isset($this->fields["id"])) return null;
 
-      $updated = $entities;
+
       $insid = $mysqli->insert_id;
-      if (isset($this->fields["id"])) {
-        $updated = $this->find([
-          "_limit" => count($entities),
-          "id_ge" => $insid
-        ]);
-      }
+      $updated = $this->find([
+        "_limit" => count($entities),
+        "id_ge" => $insid
+      ]);
 
       $hadPostUpdate = false;
       foreach ($entities as $i => $entity) {

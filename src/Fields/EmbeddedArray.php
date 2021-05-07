@@ -2,6 +2,7 @@
 
 namespace Phroper\Fields;
 
+use Exception;
 use Phroper\Model;
 use Phroper\Model\EntityList;
 
@@ -11,7 +12,6 @@ class EmbeddedArray_Model extends Model {
     public function __construct($fields, $model, $tableName) {
         parent::__construct(["sql_table" => $tableName]);
         $this->fields->clear();
-        $this->fields["id"] = new Identity(["private"]);
         $this->fields["__parent__"] = new RelationToOne($model, [
             "private",
             "sql_delete_action" => "CASCADE",
@@ -59,8 +59,11 @@ class EmbeddedArray extends RelationToMany {
 
     public function bindModel($model, $fieldName) {
         parent::bindModel($model, $fieldName);
+        if (!$model->fields["id"])
+            throw new Exception("Model has to have id to use EmbeddedArray");
 
         $model = new EmbeddedArray_Model($this->fields, $model, $model->getTableName() . "." . $fieldName);
+
         $this->relationModel = $model;
         $this->updateData([
             "model" => $model ? $this->getModel()->getName() : "",

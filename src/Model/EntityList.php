@@ -2,32 +2,61 @@
 
 namespace Phroper\Model;
 
+use ArrayAccess;
+use ArrayIterator;
 use ArrayObject;
+use Exception;
 use IteratorAggregate;
+use Phroper\Model;
 
-class EntityList extends Entity implements IteratorAggregate {
-  public function __construct($entities = null) {
-    parent::__construct(null);
-    $this->values = [];
-    if (is_array($entities)) $this->values = $entities;
+class EntityList implements IteratorAggregate, ArrayAccess {
+
+  protected array $values = array();
+  private ?Model $model;
+
+  public function __construct(?Model $model, ?array $values = null) {
+    $this->model = $model;
+    if (is_array($values)) {
+      foreach ($values as $v) {
+        if (!($v  instanceof Entity))
+          throw new Exception("EntityList must be initialized with Entities");
+      }
+      $this->values = $values;
+    }
   }
 
-  public function count() {
+  public function offsetSet($offset, $value): void {
+    if (!($value  instanceof Entity))
+      throw new Exception("EntityList only accepts with Entities");
+    $this->values[$offset] = $value;
+  }
+
+  public function offsetExists($offset): bool {
+    return array_key_exists($offset, $this->values);
+  }
+
+  public function offsetUnset($offset): void {
+    unset($this->array[$offset]);
+  }
+
+  public function offsetGet($offset): Entity {
+    $val = $this->values[$offset];
+    if ($val instanceof LazyResult) return $val->get();
+    return $val;
+  }
+  public function count(): int {
     return count($this->values);
   }
 
-  public function sanitizeEntity() {
-    return array_map(function ($e) {
-      if ($e instanceof Entity) return $e->sanitizeEntity();
-      return $e;
-    }, $this->values);
+  public function sanitizeEntity(): array {
+    return $this->map(fn ($e) =>  $e->sanitizeEntity());
   }
 
-  public function getIterator() {
+  public function getIterator(): ArrayIterator {
     return (new ArrayObject($this->values))->getIterator();
   }
 
-  public function map($callback) {
+  public function map($callback): array {
     return array_map($callback, $this->values);
   }
 }

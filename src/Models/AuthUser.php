@@ -33,7 +33,7 @@ class AuthUser extends Model {
   }
 
 
-  public function init() {
+  public function init(): bool {
     if (parent::init()) {
       $rMod = Phroper::model("AuthRole");
       $role = $rMod->findOne(["isDefault" => true]);
@@ -54,7 +54,7 @@ class AuthUser extends Model {
     return false;
   }
 
-  public function getPopulateList($populate = null) {
+  public function getPopulateList($populate = null): ?array {
     if (is_array($populate)) return $populate;
     return [];
   }

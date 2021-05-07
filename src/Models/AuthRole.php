@@ -19,7 +19,7 @@ class AuthRole extends Model {
     $this->fields["users"] = new Phroper\Fields\RelationToMany("AuthUser", "role");
   }
 
-  public function init() {
+  public function init(): bool {
     if (parent::init()) {
       $this->create([
         "name" => "default",

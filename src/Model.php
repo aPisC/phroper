@@ -47,7 +47,7 @@ class Model {
     $this->fields["updated_at"] = new Fields\UpdatedAt();
   }
 
-  public function getUiInfo() {
+  public function getUiInfo(): array {
     $data = [];
 
     foreach ($this->data as $key => $value) {
@@ -68,7 +68,7 @@ class Model {
   }
 
 
-  protected function updateData($data) {
+  protected function updateData($data): void {
     if (!$data) return;
 
     foreach ($data as $key => $value) {
@@ -76,27 +76,27 @@ class Model {
     }
   }
 
-  public function allowDefaultService() {
+  public function allowDefaultService(): bool {
     return $this->data["default_service"];
   }
 
-  public function getName() {
+  public function getName(): string {
     return $this->data["key"];
   }
 
-  public function getPrimaryField() {
+  public function getPrimaryField(): string | array {
     return $this->data["primary"];
   }
 
-  function getTableName() {
+  function getTableName(): string {
     return $this->data["sql_table"];
   }
 
-  function getDisplayField() {
+  function getDisplayField(): string {
     return $this->data["display"];
   }
 
-  function getPopulateList($populate = null) {
+  function getPopulateList($populate = null): ?array {
     if (is_array($populate)) return $populate;
 
     if (isset($this->data["populate"])) return $this->data["populate"];
@@ -110,7 +110,7 @@ class Model {
     return $populate;
   }
 
-  public function sanitizeEntity($entity) {
+  public function sanitizeEntity($entity): ?array {
     if ($entity instanceof Model\LazyResult)
       $entity = $entity->get();
     if ($entity === null) return null;
@@ -130,7 +130,7 @@ class Model {
     return $ne;
   }
 
-  public function restoreEntity($assoc, $populate, $prefix = "") {
+  public function restoreEntity($assoc, $populate, $prefix = ""): Entity {
     $entity = new Entity($this);
 
     // First of all, restore id, because it may be required for relation loading
@@ -157,20 +157,12 @@ class Model {
     return $entity;
   }
 
-  public static function fieldValueProcessor($value, $type) {
-    if ($type == 'password') return password_hash($value, PASSWORD_BCRYPT);
-    else if ($type == 'email' && !filter_var($value, FILTER_VALIDATE_EMAIL)) {
-      throw new Exception("Email format is invalid");
-    }
-    return $value;
-  }
-
 
   //--------------------------
   // Data managing functions
   //--------------------------
 
-  protected function postUpdate($entity, $updated) {
+  protected function postUpdate($entity, $updated): bool {
     $hadPostUpdate = false;
     foreach ($this->fields as $key => $field) {
       if (!$field) continue;
@@ -182,7 +174,7 @@ class Model {
     return $hadPostUpdate;
   }
 
-  protected function postInsert($entity, $updated) {
+  protected function postInsert($entity, $updated): bool {
     $hadPostUpdate = false;
     foreach ($this->fields as $key => $field) {
       if (!$field) continue;
@@ -196,7 +188,7 @@ class Model {
     return $hadPostUpdate;
   }
 
-  private function useFilter($q, $filter) {
+  private function useFilter($q, $filter): void {
     if (is_array($filter) && count($filter) > 0) {
       $q->filter($filter);
     } else if (is_string($filter) || is_numeric($filter)) {
@@ -204,7 +196,7 @@ class Model {
     }
   }
 
-  public function findOne($filter, $populate = null) {
+  public function findOne($filter, $populate = null): ?Entity {
     $populate = $this->getPopulateList($populate);
     $mysqli = Phroper::instance()->getMysqli();
 
@@ -229,7 +221,7 @@ class Model {
     return $this->restoreEntity($assoc, $populate);
   }
 
-  public function find($filter, $populate = null) {
+  public function find($filter, $populate = null): EntityList {
     $populate = $this->getPopulateList($populate);
     $mysqli = Phroper::instance()->getMysqli();
 
@@ -245,18 +237,15 @@ class Model {
 
     if ($result->num_rows == 0) {
       $result->free_result();
-      return new EntityList();
+      return new EntityList($this);
     }
 
     $assocs = $result->fetch_all(MYSQLI_ASSOC);
     $result->free_result();
-    $model = $this;
-    return new EntityList(array_map(function ($assoc) use ($populate, $model) {
-      return $model->restoreEntity($assoc, $populate);
-    }, $assocs));
+    return new EntityList($this, array_map(fn ($assoc) => $this->restoreEntity($assoc, $populate), $assocs));
   }
 
-  public function count($filter) {
+  public function count($filter): ?int {
     $mysqli = Phroper::instance()->getMysqli();
 
     $q = new Count($this);
@@ -277,11 +266,11 @@ class Model {
     return $entity[0];
   }
 
-  public function create($entity) {
+  public function create($entity): ?Entity {
     return $this->createMulti([$entity])[0];
   }
 
-  public function createMulti($entities, $processEntities = true) {
+  public function createMulti($entities, $processEntities = true): ?EntityList {
     if (count($entities) == 0) return [];
 
     $mysqli = Phroper::instance()->getMysqli();
@@ -327,7 +316,7 @@ class Model {
     });
   }
 
-  public function update($filter, $entity) {
+  public function update($filter, $entity): Entity|EntityList|null {
     $mysqli = Phroper::instance()->getMysqli();
 
     $q = new Update($this, "update");
@@ -358,7 +347,7 @@ class Model {
     });
   }
 
-  public function delete($filter, $returnEntities = true) {
+  public function delete($filter, $returnEntities = true): Entity|EntityList|null {
     $entity = $returnEntities ?  $this->find($filter)->sanitizeEntity() : null;
 
     if ($entity || !$returnEntities) {
@@ -381,7 +370,7 @@ class Model {
 
 
   private bool $__initializing = false;
-  public function init() {
+  public function init(): bool {
     try {
       $this->findOne([]);
     } catch (Exception $ex) {

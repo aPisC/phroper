@@ -20,7 +20,7 @@ class AuthPermission extends Model {
     $this->fields["permission"] = new Text(["required" => true]);
   }
 
-  public function init() {
+  public function init(): bool {
     if (parent::init()) {
       $rMod = Phroper::model("AuthRole");
       $role = $rMod->findOne(["isDefault" => true]);

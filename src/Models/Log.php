@@ -25,7 +25,7 @@ class Log extends Model {
     ]);
   }
 
-  public function allowDefaultService() {
+  public function allowDefaultService(): bool {
     return false;
   }
 }

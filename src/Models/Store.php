@@ -15,11 +15,11 @@ class Store extends Model {
     $this->fields["value"] = new Json();
   }
 
-  public function allowDefaultService() {
+  public function allowDefaultService(): bool {
     return false;
   }
 
-  public function getPrimaryField() {
+  public function getPrimaryField(): string|array {
     return "key";
   }
 }

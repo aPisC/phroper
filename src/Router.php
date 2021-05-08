@@ -2,6 +2,8 @@
 
 namespace Phroper;
 
+use Exception;
+
 class Router {
 
   private $routes = array();
@@ -24,7 +26,6 @@ class Router {
     $matches = [];
     $names = [];
 
-    $expression = "/" . $expression;
     if (preg_match_all("/(\\/:[^\\/]+)|(\\/::.+)/", $expression, $matches, 0,)) {
       foreach ($matches[0] as $m) {
         if (str_starts_with($m, "/::")) {
@@ -48,10 +49,14 @@ class Router {
     return $this->expressionCache[$key];
   }
 
-  public function matchUrl($expression, $url) {
-    if ($expression == "/")  return ["url" => $url];
+  public function matchUrl($expression, $url): array|false {
+    if ($expression == "//")  return ["url" => $url];
 
-    if ($expression == null) $expression = "";
+    if (!str_starts_with($expression, "/"))
+      throw new Exception("Url expression format is incorrect, must be start with /");
+
+    while (str_ends_with($url, "/")) $url = str_drop_end($url, 1);
+    while (str_starts_with($url, "/")) $url = substr($url, 1);
 
     $matcher = $this->getMatcher($expression);
 

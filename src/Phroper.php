@@ -43,6 +43,7 @@ class __Phroper__instance {
     }
 
     public function run() {
+
         if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS')
             return;
 
@@ -61,8 +62,33 @@ class __Phroper__instance {
         $this->router->run($parameters, function ($p) {
             http_response_code(404);
         });
+
+
+
+
+
+        if ($this->backgroundTasks) {
+            ignore_user_abort(true);
+            header('Connection: close');
+            header('Content-Length: ' . ob_get_length());
+            ob_end_flush();
+            //ob_flush();
+            flush();
+
+            foreach ($this->backgroundTasks as $task) {
+                try {
+                    $task();
+                } catch (Throwable $e) {
+                    error_log("Background task error: " . $e);
+                }
+            }
+        }
     }
 
+    private array $backgroundTasks = [];
+    public function addBackgroundTask($task) {
+        $this->backgroundTasks[] = $task;
+    }
 
     public function dir(...$args) {
         return Phroper::ini("ROOT") . DIRECTORY_SEPARATOR . implode(DIRECTORY_SEPARATOR, $args);

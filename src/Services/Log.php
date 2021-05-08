@@ -7,7 +7,9 @@ use Phroper\Service;
 
 class Log extends Service {
     public function insertLog($type, $message) {
-        Phroper::model("log")->createMulti([["type" => $type, "message" => $message]], false);
+        Phroper::addBackgroundTask(
+            fn () => Phroper::model("log")->createMulti([["type" => $type, "message" => $message]], false)
+        );
     }
 
     public function error($message) {

@@ -69,11 +69,17 @@ class __Phroper__instance {
 
         if ($this->backgroundTasks) {
             ignore_user_abort(true);
-            header('Connection: close');
-            header('Content-Length: ' . ob_get_length());
-            ob_end_flush();
-            //ob_flush();
-            flush();
+            if (is_callable('fastcgi_finish_request')) {
+                session_write_close();
+                fastcgi_finish_request();
+            } else {
+
+                header('Connection: close');
+                header('Content-Length: ' . ob_get_length());
+                ob_end_flush();
+                //ob_flush();
+                flush();
+            }
 
             foreach ($this->backgroundTasks as $task) {
                 try {

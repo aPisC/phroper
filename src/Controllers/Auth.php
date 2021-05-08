@@ -14,9 +14,9 @@ class Auth extends Controller {
 
     $this->service = Phroper::service('Auth');
 
-    $this->registerJsonHandler("me", "me", 'GET');
-    $this->registerJsonHandler("login", "login", 'POST');
-    $this->registerJsonHandler("register", "register", 'POST');
+    $this->registerJsonHandler("/me", "me", 'GET');
+    $this->registerJsonHandler("/login", "login", 'POST');
+    $this->registerJsonHandler("/register", "register", 'POST');
   }
 
   public function me() {

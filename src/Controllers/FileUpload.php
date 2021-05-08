@@ -8,7 +8,7 @@ use Phroper\Phroper;
 class FileUpload extends DefaultController {
     public function __construct() {
         parent::__construct("file-upload");
-        $this->registerJsonHandler('upload', null, 'POST');
+        $this->registerJsonHandler('/upload', null, 'POST');
     }
 
     public function upload() {

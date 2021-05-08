@@ -11,9 +11,9 @@ class Role extends DefaultController {
 
     $this->role_service = $this->service;
 
-    $this->registerJsonHandler("grant", "grant", 'POST');
-    $this->registerJsonHandler("revoke", "revoke", 'POST');
-    $this->registerJsonHandler("perms/:controller", "perms", 'GET');
+    $this->registerJsonHandler("/grant", "grant", 'POST');
+    $this->registerJsonHandler("/revoke", "revoke", 'POST');
+    $this->registerJsonHandler("/perms/:controller", "perms", 'GET');
   }
 
 

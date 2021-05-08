@@ -32,7 +32,7 @@ class Init extends Controller {
   public function __construct() {
     parent::__construct();
 
-    $this->router->add("all", function ($params, $next) {
+    $this->router->add("/all", function ($params, $next) {
       $list = Phroper::getCachedTypes();
       foreach ($list as $model) {
         if (!str_starts_with($model, "Models\\")) continue;
@@ -50,7 +50,7 @@ class Init extends Controller {
       }
     }, "GET");
 
-    $this->router->add(":model", function ($params, $next) {
+    $this->router->add("/:model", function ($params, $next) {
       $this->initModel($params["model"]);
     }, "GET", -1);
   }

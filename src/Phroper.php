@@ -63,10 +63,6 @@ class __Phroper__instance {
             http_response_code(404);
         });
 
-
-
-
-
         if ($this->backgroundTasks) {
             ignore_user_abort(true);
             if (is_callable('fastcgi_finish_request')) {

@@ -7,12 +7,10 @@ use Exception;
 class Router {
 
   private $routes = array();
-  private $parameters;
   private $middlewares = array();
   private $handlers = array();
 
   public function __construct($parameters = array()) {
-    $this->parameters = $parameters;
   }
 
   private array $expressionCache = [];

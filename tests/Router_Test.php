@@ -3,6 +3,8 @@
 use PHPUnit\Framework\TestCase;
 use Phroper\Router;
 
+use function PHPUnit\Framework\once;
+
 class Router_Test extends TestCase {
     public function testUrlMatching(): void {
         $router = new Router();
@@ -63,5 +65,62 @@ class Router_Test extends TestCase {
         $this->assertEquals("anything/long/path", $router->matchUrl("/::path/static", "/anything/long/path/static")['path']);
 
         $this->assertFalse($router->matchUrl("/::path/static", "/anything/long/path/else"));
+    }
+
+    public function testRouterHandlerExecutionOrder(): void {
+        $router = new Router();
+
+        $handlerCounter = 0;
+        $inc = function () use (&$handlerCounter) {
+            return $handlerCounter++;
+        };
+
+        $router->addHandler(fn ($p, $n) => [$this->assertEquals(2, $inc()), $n()], 0);
+        $router->addHandler(fn ($p, $n) => [$this->assertEquals(0, $inc()), $n()], 2);
+        $router->addHandler(fn ($p, $n) => [$this->assertEquals(1, $inc()), $n()], 1);
+        $router->addHandler(fn ($p, $n) => [$this->assertEquals(3, $inc()), $n()], -1);
+        $router->addHandler(fn ($p, $n) => 0, -3);
+        $router->addHandler(fn ($p, $n) => $this->assertTrue(false), -4);
+
+        $router->run([]);
+    }
+
+    public function testRoutedHandlerExecutions() {
+        $router = new Router();
+
+        $router->add("/get/:id", function ($p, $n) {
+            $this->assertEquals("3", $p["id"]);
+            $this->assertEquals("", $p["url"]);
+            $this->assertEquals(true, $p["custom"]);
+        }, "GET");
+
+        $router->add("/put/:id", function ($p, $n) {
+            $this->assertEquals("4", $p["id"]);
+            $this->assertEquals("", $p["url"]);
+            $this->assertEquals(true, $p["custom"]);
+        },);
+
+        $mock = $this
+            ->getMockBuilder(\stdclass::class)
+            ->addMethods(['__invoke'])
+            ->getMock();
+
+        $mock
+            ->expects(self::exactly(0))
+            ->method('__invoke');
+        $router->run(["url" => "get/3", "method" => "GET", "custom" => true], $mock);
+        $router->run(["url" => "put/4", "method" => "PUT", "custom" => true], $mock);
+
+
+
+        $mock = $this
+            ->getMockBuilder(\stdclass::class)
+            ->addMethods(['__invoke'])
+            ->getMock();
+
+        $mock
+            ->expects(self::exactly(1))
+            ->method('__invoke');
+        $router->run(["url" => "del/3", "method" => "GET", "custom" => true], $mock);
     }
 }

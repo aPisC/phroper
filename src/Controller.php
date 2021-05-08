@@ -6,12 +6,13 @@ use Exception;
 use Phroper\Model\Entity;
 
 class Controller {
+  public static string $RouterClassType = Router::class;
   protected Router $router;
 
   private $registeredHandlerInfos = [];
 
   public function __construct() {
-    $this->router =  new Router();
+    $this->router =  new Controller::$RouterClassType();
   }
 
   public function run($p, $next) {

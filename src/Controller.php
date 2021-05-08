@@ -35,6 +35,9 @@ class Controller {
   }
 
   protected function getRoutePermName($name, $method) {
+    while (str_ends_with($name, "/")) $name = str_drop_end($name, 1);
+    while (str_starts_with($name, "/")) $name = substr($name, 1);
+
     $name = str_replace("/", ".", $name);
     return strtolower(
       $method . "." . $this->getName() . ($name ? ('.' . $name) : '')

@@ -78,6 +78,10 @@ class Router {
   }
 
   public function add($expression, $handler, $method = '*', $priority = 0) {
+
+    if (!str_starts_with($expression, "/"))
+      throw new Exception("Url expression format is incorrect, must be start with /");
+
     $this->addHandler(function ($parameters, $next) use ($expression, $method, $handler) {
       if (!$this->matchMethod($method, $parameters['method'])) return $next();
 

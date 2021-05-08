@@ -39,7 +39,7 @@ class __Phroper__instance {
             return JWT::TokenParserMiddleware($p, $n);
         }, 1000);
 
-        $this->router->addServeFolder("uploads/", Phroper::ini("ROOT") . DIRECTORY_SEPARATOR . "uploads");
+        $this->router->addServeFolder("/uploads/", Phroper::ini("ROOT") . DIRECTORY_SEPARATOR . "uploads");
     }
 
     public function run() {

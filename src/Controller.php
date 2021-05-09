@@ -46,7 +46,7 @@ class Controller {
   }
 
   protected function registerHandler($name, $fun = null, $method = 'GET', $priority = 0) {
-    if ($fun == null) $fun = $name;
+    if ($fun == null) $fun = substr($name, 1);
     if (is_string($fun)) $fun = function ($p, $n) use ($fun) {
       return $this->$fun($p, $n);
     };
@@ -61,7 +61,7 @@ class Controller {
   }
 
   protected function registerJsonHandler($name, $fun = null, $method = 'GET', $priority = 0) {
-    if ($fun == null) $fun = $name;
+    if ($fun == null) $fun = substr($name, 1);
     if (is_string($fun)) $fun = function ($p, $n) use ($fun) {
       return $this->$fun($p, $n);
     };

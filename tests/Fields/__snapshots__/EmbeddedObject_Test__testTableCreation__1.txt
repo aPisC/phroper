@@ -1,0 +1,4 @@
+CREATE TABLE `model` (
+`field.a` VARCHAR(255) NULL, 
+`field.b` VARCHAR(255) NULL
+)

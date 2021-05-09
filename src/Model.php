@@ -153,7 +153,7 @@ class Model {
       if (array_key_exists($memberName, $assoc))
         $v = $field->onLoad($assoc[$memberName], $memberName, $assoc, $populate);
       else if ($field->isVirtual()) {
-        $v = $field->onLoad($entity["id"], $memberName, $assoc, $populate);
+        $v = $field->onLoad(isset($entity["id"]) ? $entity["id"] : null, $memberName, $assoc, $populate);
       }
       if (!($v instanceof Fields\IgnoreField)) $entity[$key] = $v;
     }

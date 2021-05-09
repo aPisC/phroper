@@ -28,6 +28,9 @@ class EmbeddedObject_Identity extends Field {
         parent::__construct([
             "virtual" => true,
             "private" => true,
+            "readonly" => true,
+            "auto" => true,
+            "visible" => false,
         ]);
     }
     public function onLoad($value, $key, $assoc, $populates) {
@@ -101,7 +104,11 @@ class EmbeddedObject extends Field {
     }
 
     public function getSanitizedValue($value) {
+        $value = parent::getSanitizedValue($value);
+
+        if ($value instanceof IgnoreField) return $value;
         if (!$value) return null;
+
         $ne = [];
         foreach ($this->fields as $fk => $field) {
             $v = null;

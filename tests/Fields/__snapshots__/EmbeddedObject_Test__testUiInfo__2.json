@@ -1,0 +1,57 @@
+{
+    "auto": true,
+    "default": "default",
+    "forced": true,
+    "private": true,
+    "populate": true,
+    "readonly": true,
+    "required": true,
+    "type": "number",
+    "unique": true,
+    "virtual": true,
+    "custom_info": "custom_value",
+    "key": "field",
+    "name": "Field",
+    "fields": {
+        "a": {
+            "auto": false,
+            "forced": false,
+            "private": false,
+            "populate": false,
+            "readonly": false,
+            "required": false,
+            "type": "text",
+            "unique": false,
+            "virtual": false,
+            "key": "field.a",
+            "name": "Field.a"
+        },
+        "b": {
+            "auto": false,
+            "forced": false,
+            "private": false,
+            "populate": false,
+            "readonly": false,
+            "required": false,
+            "type": "text",
+            "unique": false,
+            "virtual": false,
+            "key": "field.b",
+            "name": "Field.b"
+        },
+        "id": {
+            "auto": true,
+            "forced": false,
+            "private": true,
+            "populate": false,
+            "readonly": true,
+            "required": false,
+            "type": "text",
+            "unique": false,
+            "virtual": true,
+            "visible": false,
+            "key": "field.id",
+            "name": "Field.id"
+        }
+    }
+}

@@ -342,7 +342,7 @@ class Phroper {
     }
 
     public static function ini($key) {
-        if (isset(self::$_phroper_ini[$key]))
+        if (array_key_exists($key, self::$_phroper_ini))
             return self::$_phroper_ini[$key];
         throw new Exception($key . " is not configured in Phroper::ini");
     }

@@ -26,7 +26,8 @@ class Integer_Test extends TestCase {
 
     public function setUp(): void {
         Phroper::reinitialize([
-            "ROOT" => __DIR__
+            "ROOT" => __DIR__,
+            "MYSQLI" => null
         ]);
     }
 }

@@ -17,11 +17,21 @@ use Phroper\QueryBuilder\Query\Select;
 use Phroper\QueryBuilder\Query\Update;
 
 class Model {
+
   protected array $data = [];
   public FieldCollection $fields;
-
+  public array $QueryBuilderTypes;
   public function __construct($data = null) {
     Phroper::model_cache_callback($this);
+
+    $this->QueryBuilderTypes = [
+      "select" => Select::class,
+      "insert" => Insert::class,
+      "create_table" => CreateTable::class,
+      "update" => Update::class,
+      "delete" => Delete::class,
+      "count" => Count::class,
+    ];
 
     $name = explode("\\", get_class($this));
     $name = end($name);
@@ -203,7 +213,7 @@ class Model {
     $populate = $this->getPopulateList($populate);
     $mysqli = Phroper::instance()->getMysqli();
 
-    $q = new Select($this);
+    $q = new ($this->QueryBuilderTypes["select"])($this);
     $q->populate($populate);
     $this->useFilter($q, $filter);
     $q->limit(1);
@@ -228,7 +238,7 @@ class Model {
     $populate = $this->getPopulateList($populate);
     $mysqli = Phroper::instance()->getMysqli();
 
-    $q = new Select($this);
+    $q = new ($this->QueryBuilderTypes["select"])($this);
     $q->populate($populate);
     $this->useFilter($q, $filter);
 
@@ -251,7 +261,7 @@ class Model {
   public function count($filter): ?int {
     $mysqli = Phroper::instance()->getMysqli();
 
-    $q = new Count($this);
+    $q = new ($this->QueryBuilderTypes["count"])($this);
     $this->useFilter($q, $filter);
     $result = $q->execute($mysqli);
 
@@ -278,7 +288,7 @@ class Model {
 
     $mysqli = Phroper::instance()->getMysqli();
 
-    $q = new Insert($this);
+    $q = new ($this->QueryBuilderTypes["insert"])($this);
 
     return $q->withTransaction($mysqli, function () use ($q, $entities, $processEntities, $mysqli) {
       foreach ($entities as $index => $entity) {
@@ -321,7 +331,7 @@ class Model {
   public function update($filter, $entity): Entity|EntityList|null {
     $mysqli = Phroper::instance()->getMysqli();
 
-    $q = new Update($this, "update");
+    $q = new ($this->QueryBuilderTypes["update"])($this, "update");
 
     return $q->withTransaction($mysqli, function () use ($q, $filter, $entity, $mysqli) {
       $this->useFilter($q, $filter);
@@ -353,7 +363,7 @@ class Model {
     $entity = $returnEntities ?  $this->find($filter)->sanitizeEntity() : null;
 
     if ($entity || !$returnEntities) {
-      $q = new Delete($this);
+      $q = new ($this->QueryBuilderTypes["delete"])($this);
       $mysqli = Phroper::instance()->getMysqli();
 
       $this->useFilter($q, $filter);
@@ -388,7 +398,7 @@ class Model {
       }
 
       // init self
-      $q = new CreateTable($this);
+      $q = new ($this->QueryBuilderTypes["create_table"])($this);
       $mysqli = Phroper::instance()->getMysqli();
 
       $q->execute($mysqli);

@@ -37,6 +37,8 @@ class Enum extends Text {
   }
 
   public function onLoad($value, $key, $assoc, $populates) {
+    if (!is_string($value))
+      return null;
     if (!in_array($value, $this->allowedValues))
       return null;
     return $value;

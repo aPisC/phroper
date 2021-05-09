@@ -1,5 +1,6 @@
 <?php
 
+use Phroper\Fields\Field;
 use Phroper\Fields\IgnoreField;
 use Phroper\Model;
 use Phroper\Model\Entity;
@@ -7,6 +8,8 @@ use Phroper\Model\EntityList;
 use Phroper\QueryBuilder\Query\CreateTable;
 
 trait AutoFieldTest {
+
+
     public function testFieldParameters() {
 
         $f = new ($this->autoFieldTest__fieldType)(["auto"]);
@@ -176,5 +179,32 @@ trait AutoFieldTest {
         $f =  new ($this->autoFieldTest__fieldType)();
         $this->assertTrue($f->is(Field::class));
         $this->assertTrue($f->is($this->autoFieldTest__fieldType));
+    }
+
+    public function testEntityRestoring() {
+        if (!isset($this->autoFieldTest__assoc)) return;
+
+        $results = [];
+        foreach ($this->autoFieldTest__assoc as $assoc) {
+            $model = new Model();
+            $model->fields->clear();
+            $model->fields["field"] = new ($this->autoFieldTest__fieldType)();
+            $entity = $model->restoreEntity($assoc, $model->getPopulateList());
+            $results[] = $entity->toArray();
+        }
+        $this->assertMatchesJsonSnapshot($results);
+    }
+    public function testEntitySanitizing() {
+        if (!isset($this->autoFieldTest__assoc)) return;
+
+        $results = [];
+        foreach ($this->autoFieldTest__assoc as $assoc) {
+            $model = new Model();
+            $model->fields->clear();
+            $model->fields["field"] = new ($this->autoFieldTest__fieldType)();
+            $entity = $model->restoreEntity($assoc, $model->getPopulateList());
+            $results[] = $entity->sanitizeEntity();
+        }
+        $this->assertMatchesJsonSnapshot($results);
     }
 }

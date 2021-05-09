@@ -8,6 +8,17 @@ use Spatie\Snapshots\MatchesSnapshots;
 
 class TextKey_Test extends TestCase {
     private string $autoFieldTest__fieldType = TextKey::class;
+    private array $autoFieldTest__assoc = [
+        ["field" => true],
+        ["field" => false],
+        ["field" => null],
+        ["field" => 1],
+        ["field" => 0],
+        ["field" => ""],
+        ["field" => "string"],
+        ["field" => [1, 2, "string"]],
+        ["field" => ["a" => 1, "b" => 2, "c" => "string"]]
+    ];
     use MatchesSnapshots;
     use AutoFieldTest;
 

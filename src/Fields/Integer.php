@@ -18,4 +18,9 @@ class Integer extends Field {
 
     return parent::onSave($value);
   }
+
+  public function onLoad($value, $key, $assoc, $populates) {
+    if (!is_int($value)) return null;
+    return $value;
+  }
 }

@@ -36,4 +36,15 @@ class Entity implements ArrayAccess {
   public function sanitizeEntity(): array {
     return $this->model->sanitizeEntity($this);
   }
+
+  public function toArray(): array {
+    $a = [];
+    foreach ($this->values as $key => $value) {
+      if ($value instanceof Entity) $a[$key] = $value->toArray();
+      else if ($value instanceof LazyResult) $a[$key] = $value->get();
+      else if ($value instanceof IgnoreField); // nothing
+      else $a[$key] = $value;
+    }
+    return $a;
+  }
 }

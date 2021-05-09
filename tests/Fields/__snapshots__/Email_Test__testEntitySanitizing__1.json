@@ -1,0 +1,14 @@
+[
+    {
+        "field": "some string"
+    },
+    {
+        "field": "example@email.com"
+    },
+    {
+        "field": ""
+    },
+    {
+        "field": null
+    }
+]

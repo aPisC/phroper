@@ -20,6 +20,7 @@ class EmbeddedArraySimple_Model extends Model {
             "auto" => true,
             "forced" => true,
             "default" => fn () => $this->parentId,
+            "type" => "embedded_array_simple"
         ]);
         $this->fields["value"] = Field::createField($field);
     }

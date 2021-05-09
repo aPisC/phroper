@@ -31,6 +31,7 @@ class EmbeddedObject_Identity extends Field {
             "readonly" => true,
             "auto" => true,
             "visible" => false,
+            "type" => "embedded_object"
         ]);
     }
     public function onLoad($value, $key, $assoc, $populates) {

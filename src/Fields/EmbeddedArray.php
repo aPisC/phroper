@@ -18,6 +18,7 @@ class EmbeddedArray_Model extends Model {
             "auto" => true,
             "forced" => true,
             "default" => fn () => $this->parentId,
+            "type" => "embedded_array"
         ]);
         foreach ($fields as $fn  => $f) {
             $this->fields[$fn] = Field::createField($f);

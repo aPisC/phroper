@@ -20,7 +20,6 @@ class EmbeddedArraySimple_Model extends Model {
             "auto" => true,
             "forced" => true,
             "default" => fn () => $this->parentId,
-            "type" => "embedded_array_simple"
         ]);
         $this->fields["value"] = Field::createField($field);
     }
@@ -35,7 +34,8 @@ class EmbeddedArraySimple extends RelationToMany {
             "min" => null,
             "max" => null,
             "default" => [],
-            "populate" => false
+            "populate" => false,
+            "type" => "embedded_array_simple"
         ]);
         $this->updateData($data);
 

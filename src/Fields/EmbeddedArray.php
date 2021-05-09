@@ -18,7 +18,6 @@ class EmbeddedArray_Model extends Model {
             "auto" => true,
             "forced" => true,
             "default" => fn () => $this->parentId,
-            "type" => "embedded_array"
         ]);
         foreach ($fields as $fn  => $f) {
             $this->fields[$fn] = Field::createField($f);
@@ -35,7 +34,8 @@ class EmbeddedArray extends RelationToMany {
             "min" => null,
             "max" => null,
             "default" => [],
-            "populate" => false
+            "populate" => false,
+            "type" => "embedded_array"
         ]);
         $this->updateData($data);
 

@@ -5,6 +5,7 @@ use Phroper\Fields\IgnoreField;
 use Phroper\Model;
 use Phroper\Model\Entity;
 use Phroper\Model\EntityList;
+use Phroper\QueryBuilder\Query\CreateTable;
 
 trait AutoFieldTest {
     public function testFieldParameters() {
@@ -143,5 +144,32 @@ trait AutoFieldTest {
             "sql_length" => 200,
         ]);
         $this->assertMatchesSnapshot($model->fields["field"]->getSQLType());
+    }
+
+    public function testTableCreation() {
+        $model = new Model();
+        $model->fields->clear();
+        $model->fields["field"] = new ($this->autoFieldTest__fieldType)();
+        $this->assertMatchesSnapshot((new CreateTable($model))->getQuery());
+
+        $model = new Model();
+        $model->fields->clear();
+        $model->fields["field"] = new ($this->autoFieldTest__fieldType)([
+            "auto",
+            "default" => "default",
+            "forced",
+            "private",
+            "populate",
+            "readonly",
+            "required",
+            "unique",
+            "type" => "number",
+            "custom_info" => "custom_value",
+            "sql__custom" => 3,
+            "sql_field" => "custom_field",
+            "sql_type" => "VARCHAR",
+            "sql_length" => 200,
+        ]);
+        $this->assertMatchesSnapshot((new CreateTable($model))->getQuery());
     }
 }

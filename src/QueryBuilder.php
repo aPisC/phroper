@@ -48,7 +48,7 @@ abstract class QueryBuilder {
     return $value;
   }
 
-  abstract protected function getQuery();
+  abstract public function getQuery();
 
 
   protected function execHasResult() {

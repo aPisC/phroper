@@ -1,0 +1,4 @@
+CREATE TABLE `model` (
+`field` VARCHAR(255) NULL,
+CONSTRAINT CHECK (`field` IN ("a", "b", "c"))
+)

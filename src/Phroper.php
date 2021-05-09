@@ -223,7 +223,7 @@ class __Phroper__instance {
 
     public function model($modelName) {
         try {
-            if (is_subclass_of($modelName, 'Phroper\\Model'))
+            if (is_subclass_of($modelName, 'Phroper\\Model') || $modelName instanceof Model)
                 return $modelName;
 
             if (!is_string($modelName))

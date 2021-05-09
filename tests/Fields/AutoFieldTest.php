@@ -8,18 +8,6 @@ use Phroper\Model\EntityList;
 use Phroper\QueryBuilder\Query\CreateTable;
 use Phroper\QueryBuilder\Query\Select;
 
-class Query_Select_Exception extends Select {
-    public function execute($mysqli) {
-        throw new Exception("Statement could not be prepared");
-    }
-}
-
-class Query_CreateTable_Dummy extends CreateTable {
-    public function execute($mysqli) {
-        self::$execStack[] = $this->getQuery();
-    }
-}
-
 
 
 trait AutoFieldTest {
@@ -220,19 +208,5 @@ trait AutoFieldTest {
             $results[] = $entity->sanitizeEntity();
         }
         $this->assertMatchesJsonSnapshot($results);
-    }
-
-    public function testInitQueries() {
-        Query_CreateTable_Dummy::resetExecutedQueries();
-
-        $model = new Model();
-        $model->QueryBuilderTypes["select"] = Query_Select_Exception::class;
-        $model->QueryBuilderTypes["create_table"] = Query_CreateTable_Dummy::class;
-        $model->fields->clear();
-        $model->fields["field"] = new ($this->autoFieldTest__fieldType)();
-
-        $this->assertTrue($model->init());
-        $this->assertMatchesSnapshot(implode("\n#", Query_CreateTable_Dummy::getExecutedQueries()));
-        Query_CreateTable_Dummy::resetExecutedQueries();
     }
 }

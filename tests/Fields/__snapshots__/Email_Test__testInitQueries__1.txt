@@ -1,3 +1,0 @@
-CREATE TABLE `model` (
-`field` VARCHAR(255) NULL
-)

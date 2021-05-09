@@ -1,0 +1,15 @@
+{
+    "auto": true,
+    "default": "default",
+    "forced": true,
+    "private": true,
+    "populate": true,
+    "readonly": true,
+    "required": true,
+    "type": "number",
+    "unique": true,
+    "virtual": true,
+    "custom_info": "custom_value",
+    "key": "field",
+    "name": "Field"
+}

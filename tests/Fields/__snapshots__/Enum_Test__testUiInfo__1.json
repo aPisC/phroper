@@ -1,0 +1,18 @@
+{
+    "auto": false,
+    "forced": false,
+    "private": false,
+    "populate": false,
+    "readonly": false,
+    "required": false,
+    "type": "enum",
+    "unique": false,
+    "virtual": false,
+    "values": [
+        "a",
+        "b",
+        "c"
+    ],
+    "key": "field",
+    "name": "Field"
+}

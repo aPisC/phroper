@@ -1,0 +1,1 @@
+CONSTRAINT CHECK (`field` IN ("a", "b", "c"))

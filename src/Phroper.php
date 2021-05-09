@@ -335,6 +335,12 @@ class Phroper {
             self::$_instance = new __Phroper__instance();
     }
 
+    public static function reinitialize(array $data) {
+        self::$_instance = null;
+        self::$_phroper_ini = null;
+        self::initialize($data);
+    }
+
     public static function ini($key) {
         if (isset(self::$_phroper_ini[$key]))
             return self::$_phroper_ini[$key];
@@ -349,6 +355,8 @@ class Phroper {
 
     // CallStatic 
     public static function __callStatic($name, $arguments) {
+        if (!Phroper::instance())
+            throw new Exception("Phroper instance is not initialized.");
         return Phroper::instance()->$name(...$arguments);
     }
 }

@@ -1,0 +1,149 @@
+<?php
+
+use PhpParser\Node\Expr\Throw_;
+use Phroper\Fields\IgnoreField;
+use Phroper\Model;
+use Phroper\Model\Entity;
+use Phroper\Model\EntityList;
+
+use function PHPUnit\Framework\assertEquals;
+
+trait AutoFieldTest {
+    public function testFieldParameters() {
+
+        $f = new ($this->autoFieldTest__fieldType)(["auto"]);
+        $this->assertEquals(true, $f->isAuto());
+
+        $f = new ($this->autoFieldTest__fieldType)(["default" => 3]);
+        $this->assertEquals(3, $f->getDefault());
+
+        $f = new ($this->autoFieldTest__fieldType)(["forced"]);
+        $this->assertEquals(true, $f->forceUpdate());
+
+        $f = new ($this->autoFieldTest__fieldType)(["private"]);
+        $this->assertEquals(true, $f->isPrivate());
+
+        $f = new ($this->autoFieldTest__fieldType)(["populate"]);
+        $this->assertEquals(true, $f->isDefaultPopulated());
+
+        $f = new ($this->autoFieldTest__fieldType)(["readonly"]);
+        $this->assertEquals(true, $f->isReadonly());
+
+        $f = new ($this->autoFieldTest__fieldType)(["required"]);
+        $this->assertEquals(true, $f->isRequired());
+
+        $f = new ($this->autoFieldTest__fieldType)(["virtual"]);
+        $this->assertEquals(true, $f->isVirtual());
+    }
+
+    public function testUiInfo() {
+        $model = new Model();
+        $model->fields["field"] = new ($this->autoFieldTest__fieldType)();
+        $this->assertMatchesJsonSnapshot($model->fields["field"]->getUiInfo());
+
+        $model = new Model();
+        $model->fields["field"] = new ($this->autoFieldTest__fieldType)([
+            "auto",
+            "default" => "default",
+            "forced",
+            "private",
+            "populate",
+            "readonly",
+            "required",
+            "virtual",
+            "unique",
+            "type" => "number",
+            "custom_info" => "custom_value",
+            "sql__custom" => 3,
+        ]);
+        $this->assertMatchesJsonSnapshot($model->fields["field"]->getUiInfo());
+    }
+
+    public function testPrivateFieldSanitizing() {
+        $f = new ($this->autoFieldTest__fieldType)(["private"]);
+        $this->assertEquals(IgnoreField::instance(), $f->getSanitizedValue(null));
+        $this->assertEquals(IgnoreField::instance(), $f->getSanitizedValue(10));
+        $this->assertEquals(IgnoreField::instance(), $f->getSanitizedValue("string"));
+        $this->assertEquals(IgnoreField::instance(), $f->getSanitizedValue(["key" => "value"]));
+        $this->assertEquals(IgnoreField::instance(), $f->getSanitizedValue([1, 2, 3]));
+        $this->assertEquals(IgnoreField::instance(), $f->getSanitizedValue(new Entity(null, [])));
+        $this->assertEquals(IgnoreField::instance(), $f->getSanitizedValue(new EntityList(null, [])));
+    }
+
+    public function testRequiredSaving() {
+        try {
+            $f = new ($this->autoFieldTest__fieldType)([
+                "required",
+                "name" => "My Field"
+            ]);
+            $f->onSave(null);
+            $this->fail("Exception not thrown");
+        } catch (Throwable $e) {
+        }
+
+
+        try {
+            $f = new ($this->autoFieldTest__fieldType)([
+                "required",
+                "msg_error_required" => "custom error message",
+                "name" => "My Field"
+            ]);
+            $f->onSave(null);
+            $this->fail("Exception not thrown");
+        } catch (Throwable $e) {
+            $this->assertEquals("custom error message", $e->getMessage());
+        }
+    }
+
+    public function testConstraint() {
+        $model = new Model();
+        $model->fields["field"] = new ($this->autoFieldTest__fieldType)();
+        $this->assertMatchesSnapshot($model->fields["field"]->getSQLConstraint());
+
+        $model = new Model();
+        $model->fields["field"] = new ($this->autoFieldTest__fieldType)([
+            "auto",
+            "default" => "default",
+            "forced",
+            "private",
+            "populate",
+            "readonly",
+            "required",
+            "virtual",
+            "unique",
+            "type" => "number",
+            "custom_info" => "custom_value",
+            "sql__custom" => 3,
+            "sql_field" => "custom_field",
+            "sql_type" => "VARCHAR",
+            "sql_length" => 200,
+        ]);
+        $this->assertMatchesSnapshot($model->fields["field"]->getSQLConstraint());
+    }
+
+    public function testSqlType() {
+        $model = new Model();
+        $model->fields["field"] = new ($this->autoFieldTest__fieldType)();
+        $this->assertMatchesSnapshot($model->fields["field"]->getSQLType());
+
+        $model = new Model();
+        $model->fields["field"] = new ($this->autoFieldTest__fieldType)([
+            "auto",
+            "default" => "default",
+            "forced",
+            "private",
+            "populate",
+            "readonly",
+            "required",
+            "virtual",
+            "unique",
+            "type" => "number",
+            "custom_info" => "custom_value",
+            "sql__custom" => 3,
+            "sql_field" => "custom_field",
+            "sql_type" => "VARCHAR",
+            "sql_length" => 200,
+        ]);
+        $this->assertMatchesSnapshot($model->fields["field"]->getSQLType());
+    }
+}

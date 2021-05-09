@@ -30,6 +30,7 @@ abstract class Field {
       "type" => "text",
       "unique" => false,
       "virtual" => false,
+      "visible" => false,
     ]);
 
     $this->updateData($data);

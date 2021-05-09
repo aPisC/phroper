@@ -1,18 +1,13 @@
 <?php
 
 use PHPUnit\Framework\TestCase;
-use Phroper\Fields\Enum;
+use Phroper\Fields\Password;
 use Phroper\Phroper;
 use Spatie\Snapshots\MatchesSnapshots;
 
-class MyEnum extends Enum {
-    public function __construct(array $data = null) {
-        parent::__construct(["a", "b", "c"], $data);
-    }
-}
 
-class Enum_Test extends TestCase {
-    private string $autoFieldTest__fieldType = MyEnum::class;
+class Password_Test extends TestCase {
+    private string $autoFieldTest__fieldType = Password::class;
     use MatchesSnapshots;
     use AutoFieldTest;
 
@@ -20,5 +15,9 @@ class Enum_Test extends TestCase {
         Phroper::reinitialize([
             "ROOT" => __DIR__
         ]);
+    }
+
+    public function testRequiredSaving() {
+        $this->assertTrue(true);
     }
 }

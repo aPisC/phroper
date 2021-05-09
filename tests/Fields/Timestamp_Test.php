@@ -1,18 +1,13 @@
 <?php
 
 use PHPUnit\Framework\TestCase;
-use Phroper\Fields\Enum;
+use Phroper\Fields\Timestamp;
 use Phroper\Phroper;
 use Spatie\Snapshots\MatchesSnapshots;
 
-class MyEnum extends Enum {
-    public function __construct(array $data = null) {
-        parent::__construct(["a", "b", "c"], $data);
-    }
-}
 
-class Enum_Test extends TestCase {
-    private string $autoFieldTest__fieldType = MyEnum::class;
+class Timestamp_Test extends TestCase {
+    private string $autoFieldTest__fieldType = Timestamp::class;
     use MatchesSnapshots;
     use AutoFieldTest;
 

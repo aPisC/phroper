@@ -16,7 +16,9 @@ class Json extends Field {
   }
 
   public function onSave($value) {
+    $value = parent::onSave($value);
     $value = json_encode($value);
+
     return $value;
   }
 }

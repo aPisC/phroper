@@ -1,0 +1,13 @@
+{
+    "auto": true,
+    "forced": false,
+    "private": false,
+    "populate": false,
+    "readonly": true,
+    "required": false,
+    "type": "identity",
+    "unique": false,
+    "virtual": false,
+    "key": "field",
+    "name": "Field"
+}

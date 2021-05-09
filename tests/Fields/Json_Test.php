@@ -1,18 +1,13 @@
 <?php
 
 use PHPUnit\Framework\TestCase;
-use Phroper\Fields\Enum;
+use Phroper\Fields\Json;
 use Phroper\Phroper;
 use Spatie\Snapshots\MatchesSnapshots;
 
-class MyEnum extends Enum {
-    public function __construct(array $data = null) {
-        parent::__construct(["a", "b", "c"], $data);
-    }
-}
 
-class Enum_Test extends TestCase {
-    private string $autoFieldTest__fieldType = MyEnum::class;
+class Json_Test extends TestCase {
+    private string $autoFieldTest__fieldType = Json::class;
     use MatchesSnapshots;
     use AutoFieldTest;
 

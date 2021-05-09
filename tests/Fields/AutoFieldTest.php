@@ -6,8 +6,6 @@ use Phroper\Model;
 use Phroper\Model\Entity;
 use Phroper\Model\EntityList;
 
-use function PHPUnit\Framework\assertEquals;
-
 trait AutoFieldTest {
     public function testFieldParameters() {
 

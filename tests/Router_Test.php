@@ -3,8 +3,6 @@
 use PHPUnit\Framework\TestCase;
 use Phroper\Router;
 
-use function PHPUnit\Framework\once;
-
 class Router_Test extends TestCase {
     public function testUrlMatching(): void {
         $router = new Router();

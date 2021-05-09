@@ -1,0 +1,13 @@
+{
+    "auto": false,
+    "forced": false,
+    "private": false,
+    "populate": false,
+    "readonly": false,
+    "required": false,
+    "type": "json",
+    "unique": false,
+    "virtual": false,
+    "key": "field",
+    "name": "Field"
+}

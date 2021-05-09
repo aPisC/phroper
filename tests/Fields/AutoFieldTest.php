@@ -1,6 +1,5 @@
 <?php
 
-use PhpParser\Node\Expr\Throw_;
 use Phroper\Fields\IgnoreField;
 use Phroper\Model;
 use Phroper\Model\Entity;
@@ -171,5 +170,11 @@ trait AutoFieldTest {
             "sql_length" => 200,
         ]);
         $this->assertMatchesSnapshot((new CreateTable($model))->getQuery());
+    }
+
+    public function testFieldIsType() {
+        $f =  new ($this->autoFieldTest__fieldType)();
+        $this->assertTrue($f->is(Field::class));
+        $this->assertTrue($f->is($this->autoFieldTest__fieldType));
     }
 }

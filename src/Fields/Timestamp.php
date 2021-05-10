@@ -13,9 +13,10 @@ class Timestamp extends Field {
   }
   public function onSave($value) {
     if (!$value) $value == null;
+    if (is_string($value)) $value = strtotime($value);
 
     if ($value && is_numeric($value))
-      $value =  date("Y-m-d H:i:s", $value);
+      $value =  date("Y-m-d H:i:s.u", $value);
 
     return parent::onSave($value);
   }

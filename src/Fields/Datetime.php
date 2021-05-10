@@ -3,11 +3,11 @@
 
 namespace Phroper\Fields;
 
-class Timestamp extends Field {
+class Datetime extends Field {
   public function __construct(array $data = null) {
     parent::__construct([
-      "type" => "timestamp",
-      "sql_type" => 'TIMESTAMP',
+      "type" => "datetime",
+      "sql_type" => "DATETIME"
     ]);
     $this->updateData($data);
   }

@@ -3,11 +3,11 @@
 
 namespace Phroper\Fields;
 
-class Timestamp extends Field {
+class Date extends Field {
   public function __construct(array $data = null) {
     parent::__construct([
-      "type" => "timestamp",
-      "sql_type" => 'TIMESTAMP',
+      "type" => "date",
+      "sql_type" => "DATE"
     ]);
     $this->updateData($data);
   }
@@ -15,7 +15,7 @@ class Timestamp extends Field {
     if (!$value) $value == null;
 
     if ($value && is_numeric($value))
-      $value =  date("Y-m-d H:i:s", $value);
+      $value =  date("Y-m-d", $value);
 
     return parent::onSave($value);
   }

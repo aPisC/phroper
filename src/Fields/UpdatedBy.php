@@ -6,7 +6,7 @@ namespace Phroper\Fields;
 use Phroper\Phroper;
 
 class UpdatedBy extends RelationToOne {
-  public function __construct() {
+  public function __construct($data = null) {
     parent::__construct("AuthUser", [
       "sql_field" => "updated_by",
       "forced" => true,
@@ -16,6 +16,7 @@ class UpdatedBy extends RelationToOne {
       "sql_disable_constraint" => true,
       "listed" => false,
     ]);
+    $this->updateData($data);
   }
 
   public function onSave($value) {

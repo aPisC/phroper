@@ -3,7 +3,7 @@
 namespace Phroper\Fields;
 
 class CreatedAt extends Timestamp {
-  public function __construct() {
+  public function __construct($data = null) {
     parent::__construct([
       "sql_field" => "created_at",
       "type" => "timestamp",
@@ -13,6 +13,7 @@ class CreatedAt extends Timestamp {
       "sql_type" => "TIMESTAMP",
       "sql_extra" => "DEFAULT CURRENT_TIMESTAMP",
     ]);
+    $this->updateData($data);
   }
 
 

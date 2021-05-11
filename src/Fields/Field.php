@@ -15,6 +15,7 @@ abstract class Field {
     $this->updateData([
       "auto" => false,
       "default" => IgnoreField::instance(),
+      "listed" => true,
       "sql_field" => null,
       "sql_type" => null,
       "sql_length" => null,

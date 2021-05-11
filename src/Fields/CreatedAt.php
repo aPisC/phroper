@@ -9,6 +9,7 @@ class CreatedAt extends Timestamp {
       "type" => "timestamp",
       "auto" => true,
       "readonly" => true,
+      "listed" => false,
       "sql_type" => "TIMESTAMP",
       "sql_extra" => "DEFAULT CURRENT_TIMESTAMP",
     ]);

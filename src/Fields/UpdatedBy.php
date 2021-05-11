@@ -14,7 +14,7 @@ class UpdatedBy extends RelationToOne {
       "auto" => true,
       "sql_delete_action" => null,
       "sql_disable_constraint" => true,
-      "listed" => true,
+      "listed" => false,
     ]);
   }
 

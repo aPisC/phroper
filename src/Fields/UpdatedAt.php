@@ -12,7 +12,7 @@ class UpdatedAt extends Timestamp {
       "forced" => false,
       "sql_type" => "TIMESTAMP",
       "sql_extra" => "DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP",
-      "listed" => true,
+      "listed" => false,
     ]);
   }
 

@@ -135,8 +135,9 @@ abstract class Field {
   public function bindModel($model, $fieldName) {
     if ($this->model) throw new Exception("This field is already bound to a model");
 
-    $this->data["key"] = $fieldName;
-    $this->data["name"] = str_pc_text($fieldName);
+    $k = explode(".", $fieldName);
+    $this->data["key"] = $k[count($k) - 1];
+    $this->data["name"] = str_pc_text($k[count($k) - 1]);
     $this->data["sql_field"] = $this->data["sql_field"] ?  $this->data["sql_field"] : $fieldName;
 
     $this->model = $model;

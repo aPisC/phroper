@@ -359,7 +359,7 @@ class Model {
     });
   }
 
-  public function delete($filter, $returnEntities = true): Entity|EntityList|null {
+  public function delete($filter, $returnEntities = true): array|null {
     $entity = $returnEntities ?  $this->find($filter)->sanitizeEntity() : null;
 
     if ($entity || !$returnEntities) {

@@ -21,7 +21,7 @@ class __Phroper__instance {
             "Models\\Log" => "Phroper\\Models\\Log",
             "Models\\Store" => "Phroper\\Models\\Store",
             "Controllers\\Auth" => "Phroper\\Controllers\\Auth",
-            "Controllers\\FileUpload" => "Phroper\\Controllers\\fileUpload",
+            "Controllers\\FileUpload" => "Phroper\\Controllers\\FileUpload",
             "Controllers\\Init" => "Phroper\\Controllers\\Init",
             "Controllers\\Role" => "Phroper\\Controllers\\Role",
             "Controllers\\User" => "Phroper\\Controllers\\User",

@@ -10,7 +10,18 @@ use Phroper\Model;
 
 class Log extends Model {
   public function __construct() {
-    parent::__construct(['table' => "log", "editable" => false]);
+    parent::__construct([
+      'table' => "log",
+      "editable" => false,
+      "listing" => [
+        "id",
+        "type",
+        "message",
+        "created_at",
+        "updated_by",
+        "remote_address",
+      ]
+    ]);
 
     $this->fields['updated_at'] = null;
     $this->fields["updated_by"] = new UpdatedBy(["listed"]);

@@ -19,7 +19,7 @@ class Store extends Model {
     return false;
   }
 
-  public function getPrimaryField(): string|array {
+  public function getPrimaryField() {
     return "key";
   }
 }

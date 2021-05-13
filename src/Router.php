@@ -47,7 +47,7 @@ class Router {
     return $this->expressionCache[$key];
   }
 
-  public function matchUrl($expression, $url): array|false {
+  public function matchUrl($expression, $url) {
     if ($expression == "//")  return ["url" => $url];
 
     if (!str_starts_with($expression, "/"))

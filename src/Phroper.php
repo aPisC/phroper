@@ -282,30 +282,11 @@ class __Phroper__instance {
     }
 
     public function serveFolder($folder) {
-        $this->router->addHandler(function ($p, $next) use ($folder) {
-            $pf = realpath($folder);
-            $fn = realpath($folder . DIRECTORY_SEPARATOR .  $p["url"]);
-
-            if (is_dir($fn)) {
-                if (file_exists($fn . DIRECTORY_SEPARATOR . "index.html")) $fn .=  DIRECTORY_SEPARATOR . "index.html";
-            }
-
-            if ($pf && $fn && str_starts_with($fn, $pf) && file_exists($fn)) {
-                header('Content-Type: ' . mime_content_type($fn));
-                readfile($fn);
-            } else {
-                $next();
-            }
-        });
+        $this->router->addServeFolder("//", $folder);
     }
 
     public function serveFallbackFile($fn) {
-        $this->router->addHandler(function ($p, $next) use ($fn) {
-            if (file_exists($fn)) {
-                header('Content-Type: ' . mime_content_type($fn));
-                readfile($fn);
-            } else $next();
-        });
+        $this->router->addServeFile("//", $fn);
     }
 }
 

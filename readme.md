@@ -11,7 +11,7 @@ Example content of .htaccess:
 
 ```
 RewriteEngine On
-RewriteRule ^([^?]*) index.php?:__url__=$1 [L,QSA]
+RewriteRule ^([^?]*) index.php?__url__=$1 [L,QSA]
 
 <Limit GET POST PUT OPTIONS DELETE>
     Require all granted

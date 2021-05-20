@@ -27,7 +27,7 @@ class Date extends Field {
       $value = strtotime(substr(trim($value), 0, 10));
 
     if ($value && is_numeric($value))
-      $value =  gmdate("Y-m-d", $value);
+      $value =  date("Y-m-d", $value);
 
     return parent::onSave($value);
   }

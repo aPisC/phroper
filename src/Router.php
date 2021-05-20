@@ -125,7 +125,7 @@ class Router {
 
 
       if ($pf && $fn && str_starts_with($fn, $pf) && file_exists($fn) && !str_ends_with($fn, ".php")) {
-        header('Content-Type: ' . mime_content_type($fn));
+        header('Content-Type: ' . (new \Mimey\MimeTypes)->getMimeType(pathinfo($fn, PATHINFO_EXTENSION)));
         readfile($fn);
       } else {
         $next();
@@ -136,7 +136,7 @@ class Router {
   public function addServeFile($expression, $fn, $priority = -1100) {
     $this->add($expression, function ($p, $next) use ($fn) {
       if (file_exists($fn) && !str_ends_with($fn, ".php")) {
-        header('Content-Type: ' . mime_content_type($fn));
+        header('Content-Type: ' . (new \Mimey\MimeTypes)->getMimeType(pathinfo($fn, PATHINFO_EXTENSION)));
         readfile($fn);
       } else $next();
     }, "GET", $priority);

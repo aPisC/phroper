@@ -294,6 +294,14 @@ class Phroper {
     // -------------------
 
     private static ?array $_phroper_ini = null;
+    private static array $_init_hooks = [];
+
+    public static function registerInitialization($fn) {
+        self::$_init_hooks[] = $fn;
+
+        if (self::$_phroper_ini)
+            $fn();
+    }
 
     public static function initialize(array $data) {
         if (self::$_phroper_ini)
@@ -311,6 +319,10 @@ class Phroper {
 
         if (self::$_instance == null)
             self::$_instance = new __Phroper__instance();
+
+        foreach (self::$_init_hooks as $hook) {
+            $hook();
+        }
     }
 
     public static function reinitialize(array $data) {

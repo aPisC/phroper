@@ -283,7 +283,7 @@ class __Phroper__instance {
     }
 
     public function serveFallbackFile($fn) {
-        $this->router->addServeFile("//", $fn);
+        $this->router->addServeFile("//", $fn, -1200);
     }
 }
 

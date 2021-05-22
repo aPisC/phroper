@@ -45,31 +45,31 @@ class Controller {
     );
   }
 
-  protected function registerHandler($name, $fun = null, $method = 'GET', $priority = 0) {
+  protected function registerHandler($name, $fun = null, $method = 'GET', $priority = 0, $checkPerm = true) {
     if ($fun == null) $fun = substr($name, 1);
     if (is_string($fun)) $fun = function ($p, $n) use ($fun) {
       return $this->$fun($p, $n);
     };
 
-    $this->router->add($name, function ($params, $next) use ($fun, $name) {
+    $this->router->add($name, function ($params, $next) use ($fun, $name, $checkPerm) {
 
-      $this->havePermission($this->getRoutePermName($name, $params['method']), true);
+      if ($checkPerm) $this->havePermission($this->getRoutePermName($name, $params['method']), true);
 
       $fun($params, $next);
     }, $method, $priority);
     $this->registeredHandlerInfos[] = [$name, $method];
   }
 
-  protected function registerJsonHandler($name, $fun = null, $method = 'GET', $priority = 0) {
+  protected function registerJsonHandler($name, $fun = null, $method = 'GET', $priority = 0, $checkPerm = true) {
     if ($fun == null) $fun = substr($name, 1);
     if (is_string($fun)) $fun = function ($p, $n) use ($fun) {
       return $this->$fun($p, $n);
     };
 
-    $this->router->add($name, function ($params, $next) use ($fun, $name) {
+    $this->router->add($name, function ($params, $next) use ($fun, $name, $checkPerm) {
       try {
         // Throwing exception when user has no permission
-        $this->havePermission($this->getRoutePermName($name, $params['method']), true);
+        if ($checkPerm) $this->havePermission($this->getRoutePermName($name, $params['method']), true);
 
         $nextCalled = false;
         $result = $fun($params, function () use (&$nextCalled, $next) {

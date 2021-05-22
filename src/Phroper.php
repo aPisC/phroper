@@ -40,6 +40,7 @@ class __Phroper__instance {
         }, 1000);
 
         $this->router->addServeFolder("/uploads/", Phroper::ini("ROOT") . DIRECTORY_SEPARATOR . "uploads");
+        $this->router->add("/api/:controller/", "Phroper\\Routers\\ApiRouter");
     }
 
     public function run() {
@@ -275,10 +276,6 @@ class __Phroper__instance {
 
     function serve($expression, $handler, $method = "*") {
         $this->router->add($expression, $handler, $method);
-    }
-
-    function serveApi($apiPrefix = "") {
-        $this->router->add($apiPrefix . ":controller/", "Phroper\\Routers\\ApiRouter");
     }
 
     public function serveFolder($folder) {

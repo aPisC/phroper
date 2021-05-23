@@ -77,7 +77,7 @@ class Email extends Service {
         return false;
     }
 
-    private array $templateData = [];
+    private $templateData = [];
     public function getTemplateData() {
         return $this->templateData;
     }

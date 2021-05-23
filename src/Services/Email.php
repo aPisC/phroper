@@ -41,6 +41,10 @@ class Email extends Service {
     }
 
     public function send($template, $address, $data = []) {
+        Phroper::addBackgroundTask(fn () => $this->sendSync($template, $address, $data));
+    }
+
+    public function sendSync($template, $address, $data = []) {
         try {
             // Initialize mailer
             $mail = Phroper::ini("MAIL");

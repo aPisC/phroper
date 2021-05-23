@@ -30,6 +30,7 @@ class __Phroper__instance {
             "Services\\User" => "Phroper\\Services\\User",
             "Services\\Email" => "Phroper\\Services\\Email",
             "Services\\Log" => "Phroper\\Services\\Log",
+            "Services\\Store" => "Phroper\\Services\\Store",
         ];
 
         $this->router = new Router();

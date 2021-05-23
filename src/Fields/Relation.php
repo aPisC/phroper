@@ -11,7 +11,7 @@ abstract class Relation extends Field {
     $this->relationModel = $model;
     parent::__construct([
       "model" => $model ? $this->getModel()->getName() : "",
-      "model_display" => $model ? $this->getModel()->getDisplayField() : "",
+      "display" => $model ? $this->getModel()->getDisplayField() : "",
       "populate" => true,
       "virtual" => true,
     ]);

@@ -52,7 +52,7 @@ class RelationMulti extends Relation {
     $this->relationModel = $model;
     $this->updateData([
       "model" => $model ? $this->getModel()->getName() : "",
-      "model_display" => $model ? $this->getModel()->getDisplayField() : "",
+      "display" => $this->data["display"] ? $this->data["display"] : ($model ? $this->getModel()->getDisplayField() : ""),
     ]);
   }
 

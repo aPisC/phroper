@@ -205,7 +205,7 @@ class Model {
     if (is_array($filter) && count($filter) > 0) {
       $q->filter($filter);
     } else if (is_string($filter) || is_numeric($filter)) {
-      $q->addRawFilter("=", new QueryBuilder\QB_Ref('id'), $filter);
+      $q->addRawFilter("=", new QueryBuilder\QB_Ref($this->data["primary"]), $filter);
     }
   }
 
@@ -348,6 +348,9 @@ class Model {
       if (!$result) {
         throw new Exception('Database error ' . $mysqli->error);
       }
+
+      if (is_scalar($filter) && isset($entity[$this->data["primary"]]))
+        $filter = $entity[$this->data["primary"]];
 
       $updated = $this->find($filter);
 

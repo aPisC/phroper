@@ -303,14 +303,20 @@ class Model {
       }
 
       if (!$processEntities) return null;
-      if (!isset($this->fields["id"])) return null;
 
-
-      $insid = $mysqli->insert_id;
-      $updated = $this->find([
-        "_limit" => count($entities),
-        "id_ge" => $insid
-      ]);
+      // Select inserted entities
+      if ($mysqli->insert_id) {
+        $insid = $mysqli->insert_id;
+        $updated = $this->find([
+          "_limit" => count($entities),
+          $this->data["primary"] . "_ge" => $insid
+        ]);
+      } else {
+        $updated = $this->find([
+          "_limit" => count($entities),
+          $this->data["primary"] . "_in" => array_map(fn ($e) => $e[$this->data["primary"]], $entities)
+        ]);
+      }
 
       $hadPostUpdate = false;
       foreach ($entities as $i => $entity) {

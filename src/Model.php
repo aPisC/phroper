@@ -311,12 +311,12 @@ class Model {
           "_limit" => count($entities),
           $this->data["primary"] . "_ge" => $insid
         ]);
-      } else {
+      } else if ($this->data["primary"]) {
         $updated = $this->find([
           "_limit" => count($entities),
           $this->data["primary"] . "_in" => array_map(fn ($e) => $e[$this->data["primary"]], $entities)
         ]);
-      }
+      } else return null;
 
       $hadPostUpdate = false;
       foreach ($entities as $i => $entity) {

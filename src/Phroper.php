@@ -60,10 +60,15 @@ class __Phroper__instance {
         $parameters['method'] = $_SERVER['REQUEST_METHOD'];
         $parameters['url'] = $url;
 
-        // Start router, redirect fallback to 404
+        // Start router
         $this->router->run($parameters, function ($p) {
+            // Redirect to error 404 when the request is unhandled
             http_response_code(404);
         });
+
+        if (Phroper::ini("qb_log")) {
+            Phroper::service("log")->debug(implode("\n\n", QueryBuilder::getExecutedQueries()));
+        }
 
         if ($this->backgroundTasks) {
             ignore_user_abort(true);

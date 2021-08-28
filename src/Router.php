@@ -124,7 +124,7 @@ class Router {
       }
 
 
-      if ($pf && $fn && str_starts_with($fn, $pf) && file_exists($fn) && !str_ends_with($fn, ".php")) {
+      if (!is_dir($fn) && $pf && $fn && str_starts_with($fn, $pf) && file_exists($fn) && !str_ends_with($fn, ".php")) {
         header('Content-Type: ' . (new \Mimey\MimeTypes)->getMimeType(pathinfo($fn, PATHINFO_EXTENSION)));
         readfile($fn);
       } else {

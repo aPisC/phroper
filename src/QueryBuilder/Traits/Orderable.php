@@ -21,7 +21,7 @@ trait Orderable {
                 $id = false;
             }
             $key = $this->resolve($f);
-            if (!$key || $key["source"]) continue;
+            if (!$key || !$key["source"]) continue;
             if ($this->__orderable__order) $this->__orderable__order .= ", ";
             $this->__orderable__order .=
                 $key["source"] . ($id ? " DESC" : " ASC");

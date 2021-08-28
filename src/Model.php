@@ -47,6 +47,7 @@ class Model {
       "display" => "id",
       "visible" => true,
       "editable" => true,
+      "sort" => null,
     ]);
     $this->updateData($data);
 

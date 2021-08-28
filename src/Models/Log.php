@@ -13,6 +13,7 @@ class Log extends Model {
     parent::__construct([
       'table' => "log",
       "editable" => false,
+      "sort" => "created_at:desc",
       "listing" => [
         "id",
         "type",

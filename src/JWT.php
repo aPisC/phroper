@@ -108,7 +108,7 @@ class JWT {
         $payload = JWT::validate($token);
 
       if ($payload != null) {
-        Phroper::setContext('user', Phroper::service('Auth')->getUser($payload['userid']));
+        Phroper::instance()->context->set('user', Phroper::service('Auth')->getUser($payload['userid']));
       }
     } catch (Exception $e) {
     }

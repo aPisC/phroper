@@ -33,7 +33,7 @@ class Init extends Controller {
     parent::__construct();
 
     $this->router->add("/all", function ($params, $next) {
-      $list = Phroper::getCachedTypes();
+      $list = Phroper::instance()->injector->listTypes();
       foreach ($list as $model) {
         if (!str_starts_with($model, "Models\\")) continue;
         $this->initModel(substr($model, 7));

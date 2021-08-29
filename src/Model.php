@@ -212,7 +212,7 @@ class Model {
 
   public function findOne($filter, $populate = null): ?Entity {
     $populate = $this->getPopulateList($populate);
-    $mysqli = Phroper::instance()->getMysqli();
+    $mysqli = Phroper::ini('MYSQLI');
 
     $q = new ($this->QueryBuilderTypes["select"])($this);
     $q->populate($populate);
@@ -237,7 +237,7 @@ class Model {
 
   public function find($filter, $populate = null): EntityList {
     $populate = $this->getPopulateList($populate);
-    $mysqli = Phroper::instance()->getMysqli();
+    $mysqli = Phroper::ini('MYSQLI');
 
     $q = new ($this->QueryBuilderTypes["select"])($this);
     $q->populate($populate);
@@ -260,7 +260,7 @@ class Model {
   }
 
   public function count($filter): ?int {
-    $mysqli = Phroper::instance()->getMysqli();
+    $mysqli = Phroper::ini('MYSQLI');
 
     $q = new ($this->QueryBuilderTypes["count"])($this);
     $this->useFilter($q, $filter);
@@ -287,7 +287,7 @@ class Model {
   public function createMulti($entities, $processEntities = true): ?EntityList {
     if (count($entities) == 0) return [];
 
-    $mysqli = Phroper::instance()->getMysqli();
+    $mysqli = Phroper::ini('MYSQLI');
 
     $q = new ($this->QueryBuilderTypes["insert"])($this);
 
@@ -336,7 +336,7 @@ class Model {
   }
 
   public function update($filter, $entity): Entity|EntityList|null {
-    $mysqli = Phroper::instance()->getMysqli();
+    $mysqli = Phroper::ini('MYSQLI');
 
     $q = new ($this->QueryBuilderTypes["update"])($this, "update");
 
@@ -374,7 +374,7 @@ class Model {
 
     if ($entity || !$returnEntities) {
       $q = new ($this->QueryBuilderTypes["delete"])($this);
-      $mysqli = Phroper::instance()->getMysqli();
+      $mysqli = Phroper::ini('MYSQLI');
 
       $this->useFilter($q, $filter);
 
@@ -409,7 +409,7 @@ class Model {
 
       // init self
       $q = new ($this->QueryBuilderTypes["create_table"])($this);
-      $mysqli = Phroper::instance()->getMysqli();
+      $mysqli = Phroper::ini('MYSQLI');
 
       $q->execute($mysqli);
 

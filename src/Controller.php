@@ -25,7 +25,7 @@ class Controller {
   }
 
   protected function havePermission($action, $throw = false) {
-    $user = Phroper::context('user');
+    $user = Phroper::instance()->context->get('user');
     $auth = Phroper::service('Auth');
     $permName = strtolower($action);
 

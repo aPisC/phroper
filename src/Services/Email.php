@@ -14,8 +14,8 @@ class Email extends Service {
         $template = str_kebab_pc($template);
         if (file_exists(Phroper::dir("EmailTemplates", $template . ".php")))
             return Phroper::dir("EmailTemplates", $template . ".php");
-        if (Phroper::getCachedType("EmailTemplates\\" . $template))
-            return Phroper::getCachedType("EmailTemplates\\" . $template);
+        if (Phroper::instance()->injector->instantiate("EmailTemplates\\" . $template))
+            return Phroper::instance()->injector->instantiate("EmailTemplates\\" . $template);
         return false;
     }
 

@@ -19,32 +19,15 @@ class __Phroper__instance {
     private array $backgroundTasks = [];
 
     public function __construct() {
-        // Initialize Context
         $this->context = new Context();
-
-        // Initialize router
         $this->router = new Router();
-
-
-        // Initialize injector
         $this->injector = new Injector();
-
-
-
-        $this->addPostRequestTask(function () {
-            if (Phroper::ini("qb_log")) {
-                foreach (QueryBuilder::getExecutedQueries() as  $query) {
-                    Phroper::service("log")->debug('Query executed: ' . $query);
-                }
-            }
-        });
     }
 
     public function run() {
-        // Execute preRequest tasks
-        foreach ($this->preRequestTasks as  $task) {
-            $task();
-        }
+
+        // if (ob_get_level() == 0)
+        ob_start();
 
         if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS')
             return;
@@ -59,6 +42,15 @@ class __Phroper__instance {
         $parameters = array();
         $parameters['method'] = $_SERVER['REQUEST_METHOD'];
         $parameters['url'] = $url;
+        $this->context->set("url", $url);
+        $this->context->set("method", $_SERVER['REQUEST_METHOD']);
+
+
+
+        // Execute preRequest tasks
+        foreach ($this->preRequestTasks as  $task) {
+            $task();
+        }
 
         // Start router
         $this->router->run($parameters, function ($p) {
@@ -78,11 +70,11 @@ class __Phroper__instance {
                 session_write_close();
                 fastcgi_finish_request();
             } else {
-
-                header('Connection: close');
-                header('Content-Length: ' . ob_get_length());
-                ob_end_flush();
-                //ob_flush();
+                if (ob_get_level() > 0) {
+                    header('Connection: close');
+                    header('Content-Length: ' . ob_get_length());
+                    ob_end_flush();
+                }
                 flush();
             }
 

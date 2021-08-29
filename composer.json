@@ -19,7 +19,8 @@
       "": ""
     },
     "files": [
-      "src/Utils/functions.php"
+      "src/Utils/functions.php",
+      "src/index.php"
     ]
   },
   "require-dev": {

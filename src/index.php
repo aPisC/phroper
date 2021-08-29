@@ -38,12 +38,4 @@ Phroper::addInitializer(function () {
   $injector->provideType("Services\\Email", "Phroper\\Services\\Email");
   $injector->provideType("Services\\Log", "Phroper\\Services\\Log");
   $injector->provideType("Services\\Store", "Phroper\\Services\\Store");
-
-  Phroper::instance()->addPostRequestTask(function () {
-    if (Phroper::ini("qb_log")) {
-      foreach (QueryBuilder::getExecutedQueries() as  $query) {
-        Phroper::service("log")->debug('Query executed: ' . $query);
-      }
-    }
-  });
 });

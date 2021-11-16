@@ -10,7 +10,7 @@ use Phroper\Phroper;
 class AuthPermission extends Model {
   public function __construct() {
     parent::__construct([
-      "sql_table" => 'permission',
+      "sql_table" => 'phroper_permission',
       "display" => "permission",
       "populate" => [],
       "default_service" => false

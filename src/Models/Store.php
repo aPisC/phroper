@@ -9,7 +9,7 @@ use Phroper\Model;
 class Store extends Model {
   public function __construct() {
     parent::__construct([
-      "table" => "store",
+      "sql_table" => "phroper_store",
       "visible" => false,
       "primary" => "key",
       "display" => "key",

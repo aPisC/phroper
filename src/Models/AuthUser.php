@@ -13,7 +13,7 @@ use Phroper\Phroper;
 class AuthUser extends Model {
   public function __construct() {
     parent::__construct([
-      "sql_table" => "user",
+      "sql_table" => "phroper_user",
       "display" => "username"
     ]);
 

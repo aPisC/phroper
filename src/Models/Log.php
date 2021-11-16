@@ -12,7 +12,7 @@ use Phroper\Model;
 class Log extends Model {
   public function __construct() {
     parent::__construct([
-      'table' => "log",
+      'sql_table' => "phroper_log",
       "editable" => false,
       "sort" => "id:desc",
       "listing" => [

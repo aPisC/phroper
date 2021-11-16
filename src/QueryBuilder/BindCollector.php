@@ -3,9 +3,9 @@
 namespace Phroper\QueryBuilder;
 
 class BindCollector {
-    private $groups = [];
-    private $bindStr = "";
-    private $bindValues = array();
+    private array $groups = [];
+    private string $bindStr = "";
+    private array $bindValues = array();
 
     private function getGroup($group) {
         if (isset($this->groups[$group]))

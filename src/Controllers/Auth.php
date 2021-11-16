@@ -20,7 +20,7 @@ class Auth extends Controller {
   }
 
   public function me() {
-    return Phroper::context('user');
+    return Phroper::instance()->context->get('user');
   }
 
   public function login() {

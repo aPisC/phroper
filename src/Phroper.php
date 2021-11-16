@@ -11,38 +11,23 @@ use Throwable;
 
 class __Phroper__instance {
     public Router $router;
+    public Injector $injector;
+    public Context $context;
+
+    private array $preRequestTasks = [];
+    private array $postRequestTasks = [];
+    private array $backgroundTasks = [];
 
     public function __construct() {
-        $this->__cache = [
-            "Models\\AuthPermission" => "Phroper\\Models\\AuthPermission",
-            "Models\\AuthRole" => "Phroper\\Models\\AuthRole",
-            "Models\\AuthUser" => "Phroper\\Models\\AuthUser",
-            "Models\\FileUpload" => "Phroper\\Models\\FileUpload",
-            "Models\\Log" => "Phroper\\Models\\Log",
-            "Models\\Store" => "Phroper\\Models\\Store",
-            "Controllers\\Auth" => "Phroper\\Controllers\\Auth",
-            "Controllers\\FileUpload" => "Phroper\\Controllers\\FileUpload",
-            "Controllers\\Init" => "Phroper\\Controllers\\Init",
-            "Controllers\\Role" => "Phroper\\Controllers\\Role",
-            "Controllers\\User" => "Phroper\\Controllers\\User",
-            "Services\\Auth" => "Phroper\\Services\\Auth",
-            "Services\\Role" => "Phroper\\Services\\Role",
-            "Services\\User" => "Phroper\\Services\\User",
-            "Services\\Email" => "Phroper\\Services\\Email",
-            "Services\\Log" => "Phroper\\Services\\Log",
-        ];
-
+        $this->context = new Context();
         $this->router = new Router();
-
-        // Register JWT token processor middleware
-        $this->router->addHandler(function ($p, $n) {
-            return JWT::TokenParserMiddleware($p, $n);
-        }, 1000);
-
-        $this->router->addServeFolder("/uploads/", Phroper::ini("ROOT") . DIRECTORY_SEPARATOR . "uploads");
+        $this->injector = new Injector();
     }
 
     public function run() {
+
+        // if (ob_get_level() == 0)
+        ob_start();
 
         if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS')
             return;
@@ -57,23 +42,39 @@ class __Phroper__instance {
         $parameters = array();
         $parameters['method'] = $_SERVER['REQUEST_METHOD'];
         $parameters['url'] = $url;
+        $this->context->set("url", $url);
+        $this->context->set("method", $_SERVER['REQUEST_METHOD']);
 
-        // Start router, redirect fallback to 404
+
+
+        // Execute preRequest tasks
+        foreach ($this->preRequestTasks as  $task) {
+            $task();
+        }
+
+        // Start router
         $this->router->run($parameters, function ($p) {
+            // Redirect to error 404 when the request is unhandled
             http_response_code(404);
         });
 
+        // Execute postRequest tasks
+        foreach ($this->postRequestTasks as  $task) {
+            $task();
+        }
+
+        // Executing background tasks
         if ($this->backgroundTasks) {
             ignore_user_abort(true);
             if (is_callable('fastcgi_finish_request')) {
                 session_write_close();
                 fastcgi_finish_request();
             } else {
-
-                header('Connection: close');
-                header('Content-Length: ' . ob_get_length());
-                ob_end_flush();
-                //ob_flush();
+                if (ob_get_level() > 0) {
+                    header('Connection: close');
+                    header('Content-Length: ' . ob_get_length());
+                    ob_end_flush();
+                }
                 flush();
             }
 
@@ -87,55 +88,21 @@ class __Phroper__instance {
         }
     }
 
-    private array $backgroundTasks = [];
+    // Task registering functions
     public function addBackgroundTask($task) {
         $this->backgroundTasks[] = $task;
     }
 
+    public function addPreRequestTask($task) {
+        $this->preRequestTasks[] = $task;
+    }
+
+    public function addPostRequestTask($task) {
+        $this->postRequestTasks[] = $task;
+    }
+
     public function dir(...$args) {
         return Phroper::ini("ROOT") . DIRECTORY_SEPARATOR . implode(DIRECTORY_SEPARATOR, $args);
-    }
-
-    // ------------------
-    // Mysqli
-    // ------------------
-
-    public function getMysqli() {
-        return Phroper::ini("MYSQLI");
-    }
-
-    // ------------------
-    // Context handler
-    // ------------------
-    private array $contextValues = [];
-
-    public function setContext($name, $value) {
-        $this->contextValues[$name] = $value;
-    }
-
-    public function context($name) {
-        if (!isset($this->contextValues[$name]))
-            return null;
-        return $this->contextValues[$name];
-    }
-
-    // -----------------
-    // Cache
-    // -----------------
-    private array $__cache = [];
-
-    public function getCachedTypes() {
-        return array_keys($this->__cache);
-    }
-    public function getCachedType($key) {
-        if (isset($this->__cache[$key]))
-            return $this->__cache[$key];
-        return null;
-    }
-
-    public function cacheType($key, $value) {
-        $key = implode("\\", str_kebab_pc(explode("\\", $key)));
-        $this->__cache[$key] = $value;
     }
 
     // ------------------
@@ -151,30 +118,25 @@ class __Phroper__instance {
         $serviceName = str_kebab_pc($serviceName);
 
         // Test if the model is already cached
-        if (isset($this->__cache["Services\\" . $serviceName]) && !is_string($this->__cache["Services\\" . $serviceName]))
-            return $this->__cache["Services\\" . $serviceName];
-
+        if ($this->injector->hasEntityCached("Services\\" . $serviceName))
+            return $this->injector->tryInstantiate("Services\\" . $serviceName);
 
         // Initialize by php file
         if (class_exists("Services\\" . $serviceName)) {
             $class = "Services\\" . $serviceName;
             $service = new $class();
-            $this->__cache["Services\\" . $serviceName] = $service;
+            $this->injector->provideEntity("Services\\" . $serviceName, $service);
             return $service;
         }
 
-        // Initialize by mapped type
-        if (isset($this->__cache["Services\\" . $serviceName]) && is_string($this->__cache["Services\\" . $serviceName])) {
-            $class = $this->__cache["Services\\" . $serviceName];
-            $service = new $class();
-            $this->__cache["Services\\" . $serviceName] = $service;
-            return $service;
-        }
+        // Initialize from injector
+        if ($this->injector->hasType("Services\\" . $serviceName))
+            return $this->injector->instantiate("Services\\" . $serviceName);
 
         // Initialize default service
-        $controller = new DefaultService($serviceName);
-        $this->__cache["Services\\" . $serviceName] = $controller;
-        return $controller;
+        $service = new DefaultService($serviceName);
+        $this->injector->provideEntity("Services\\" . $serviceName, $service);
+        return $service;
     }
 
     public function controller($controllerName) {
@@ -186,30 +148,26 @@ class __Phroper__instance {
 
         $controllerName = str_kebab_pc($controllerName);
 
-        // Test if the model is already cached
-        if (isset($this->__cache["Controllers\\" . $controllerName]) && !is_string($this->__cache["Controllers\\" . $controllerName]))
-            return $this->__cache["Controllers\\" . $controllerName];
+        // Test if the controller is already cached
+        if ($this->injector->hasEntityCached("Controllers\\" . $controllerName))
+            return $this->injector->tryInstantiate("Controllers\\" . $controllerName);
 
 
         // Initialize by php file
         if (class_exists("Controllers\\" . $controllerName)) {
             $class = "Controllers\\" . $controllerName;
             $controller = new $class();
-            $this->__cache["Controllers\\" . $controllerName] = $controller;
+            $this->injector->provideEntity("Controllers\\" . $controllerName, $controller);
             return $controller;
         }
 
-        // Initialize by mapped type
-        if (isset($this->__cache["Controllers\\" . $controllerName]) && is_string($this->__cache["Controllers\\" . $controllerName])) {
-            $class = $this->__cache["Controllers\\" . $controllerName];
-            $controller = new $class();
-            $this->__cache["Controllers\\" . $controllerName] = $controller;
-            return $controller;
-        }
+        // Initialize from injector
+        if ($this->injector->hasType("Controllers\\" . $controllerName))
+            return $this->injector->instantiate("Controllers\\" . $controllerName);
 
         // Initialize default controller
         $controller = new DefaultController($controllerName);
-        $this->__cache["Controllers\\" . $controllerName] = $controller;
+        $this->injector->provideEntity("Controllers\\" . $controllerName,  $controller);
         return $controller;
     }
 
@@ -217,7 +175,7 @@ class __Phroper__instance {
     private ?string $model_cache_key = null;
     public function model_cache_callback($model) {
         if ($this->model_cache_key)
-            $this->__cache[$this->model_cache_key] = $model;
+            $this->injector->provideEntity($this->model_cache_key, $model);
         $this->model_cache_key = null;
     }
 
@@ -232,8 +190,8 @@ class __Phroper__instance {
             $modelName = str_kebab_pc($modelName);
 
             // Test if the model is already cached
-            if (isset($this->__cache["Models\\" . $modelName]) && !is_string($this->__cache["Models\\" . $modelName]))
-                return $this->__cache["Models\\" . $modelName];
+            if ($this->injector->hasEntityCached("Models\\" . $modelName))
+                return $this->injector->tryInstantiate("Models\\" . $modelName);
 
             $basePath = Phroper::dir("Models", $modelName);
 
@@ -241,62 +199,41 @@ class __Phroper__instance {
             if (file_exists($basePath . ".json")) {
                 $this->model_cache_key = "Models\\" . $modelName;
                 $model = new JsonModel($basePath . ".json");
-                $this->__cache["Models\\" . $modelName] = $model;
+                $this->injector->provideEntity("Models\\" . $modelName, $model);
                 return $model;
             }
 
-            // Initialize by class name
+            // Initialize by php file
             if (class_exists("Models\\" . $modelName)) {
                 $this->model_cache_key = "Models\\" . $modelName;
                 $class = "Models\\" . $modelName;
                 $model = new $class();
-                $this->__cache["Models\\" . $modelName] = $model;
+                $this->injector->provideEntity("Models\\" . $modelName, $model);
                 return $model;
             }
 
-            // initialize by mapped type
-            if (isset($this->__cache["Models\\" . $modelName]) && is_string($this->__cache["Models\\" . $modelName])) {
+            // Initialize from injector
+            if ($this->injector->hasType("Models\\" . $modelName)) {
                 $this->model_cache_key = "Models\\" . $modelName;
-                $class = $this->__cache["Models\\" . $modelName];
-                $model = new $class();
-                $this->__cache["Models\\" . $modelName] = $model;
-                return $model;
+                return $this->injector->tryInstantiate("Models\\" . $modelName);
             }
-
-            throw new Exception("Model could not be found (" . $modelName . ")");
         } finally {
             $this->model_cache_key = null;
         }
     }
-
-    // ------------------
-    // Content serving functions
-    // ------------------
-
-    function serve($expression, $handler, $method = "*") {
-        $this->router->add($expression, $handler, $method);
-    }
-
-    function serveApi($apiPrefix = "") {
-        $this->router->add($apiPrefix . ":controller/", "Phroper\\Routers\\ApiRouter");
-    }
-
-    public function serveFolder($folder) {
-        $this->router->addServeFolder("//", $folder);
-    }
-
-    public function serveFallbackFile($fn) {
-        $this->router->addServeFile("//", $fn);
-    }
 }
 
 class Phroper {
-
-    // -------------------
-    // Static members
-    // -------------------
-
     private static ?array $_phroper_ini = null;
+    private static array $_init_hooks = [];
+    private static ?__Phroper__instance $_instance = null;
+
+    public static function addInitializer($fn) {
+        self::$_init_hooks[] = $fn;
+
+        if (self::$_phroper_ini)
+            $fn();
+    }
 
     public static function initialize(array $data) {
         if (self::$_phroper_ini)
@@ -314,6 +251,10 @@ class Phroper {
 
         if (self::$_instance == null)
             self::$_instance = new __Phroper__instance();
+
+        foreach (self::$_init_hooks as $hook) {
+            $hook();
+        }
     }
 
     public static function reinitialize(array $data) {
@@ -329,15 +270,14 @@ class Phroper {
     }
 
     // Singleton factory
-    private static ?__Phroper__instance $_instance = null;
     public static function instance() {
         return self::$_instance;
     }
 
-    // CallStatic 
+    // Magic methods
     public static function __callStatic($name, $arguments) {
-        if (!Phroper::instance())
+        if (!self::$_instance)
             throw new Exception("Phroper instance is not initialized.");
-        return Phroper::instance()->$name(...$arguments);
+        return self::$_instance->$name(...$arguments);
     }
 }

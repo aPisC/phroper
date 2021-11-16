@@ -9,6 +9,7 @@ class TextKey extends Text {
       "sql_type" => "VARCHAR",
       "sql_length" => 255,
       "sql_primary" => true,
+      "regex" => "^[a-zA-Z.\-_:]*$"
     ]);
     $this->updateData($data);
   }

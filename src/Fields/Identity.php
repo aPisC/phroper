@@ -9,6 +9,7 @@ class Identity extends Field {
       "readonly" => true,
       "auto" => true,
 
+      "sql_not_null" => true,
       "sql_type" => "INTEGER",
       "sql_unsigned" => true,
       "sql_autoincrement" => true,

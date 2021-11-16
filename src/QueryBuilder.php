@@ -10,7 +10,7 @@ use Phroper\QueryBuilder\Traits\IJoinable;
 use Throwable;
 
 abstract class QueryBuilder {
-  protected static $execStack = [];
+  protected static array $execStack = [];
   public static function getExecutedQueries() {
     return self::$execStack;
   }

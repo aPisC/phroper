@@ -6,9 +6,9 @@ use Exception;
 
 class Router {
 
-  private $routes = array();
-  private $middlewares = array();
-  private $handlers = array();
+  private array $routes = array();
+  private array $middlewares = array();
+  private array $handlers = array();
 
   public function __construct($parameters = array()) {
   }
@@ -47,6 +47,9 @@ class Router {
     return $this->expressionCache[$key];
   }
 
+  /**
+   * @return mixed[]|bool
+   */
   public function matchUrl($expression, $url) {
     if ($expression == "//")  return ["url" => $url];
 
@@ -124,9 +127,8 @@ class Router {
       }
 
 
-      if ($pf && $fn && str_starts_with($fn, $pf) && file_exists($fn) && !str_ends_with($fn, ".php")) {
-        header('Content-Type: ' . (new \Mimey\MimeTypes)->getMimeType(pathinfo($fn, PATHINFO_EXTENSION)));
-        readfile($fn);
+      if (!is_dir($fn) && $pf && $fn && str_starts_with($fn, $pf) && file_exists($fn) && !str_ends_with($fn, ".php")) {
+        self::sendFile($fn);
       } else {
         $next();
       }
@@ -136,12 +138,23 @@ class Router {
   public function addServeFile($expression, $fn, $priority = -1100) {
     $this->add($expression, function ($p, $next) use ($fn) {
       if (file_exists($fn) && !str_ends_with($fn, ".php")) {
-        header('Content-Type: ' . (new \Mimey\MimeTypes)->getMimeType(pathinfo($fn, PATHINFO_EXTENSION)));
-        readfile($fn);
+        self::sendFile($fn);
       } else $next();
     }, "GET", $priority);
   }
 
+  private static function sendFile($fn) {
+    header('Content-Type: ' . (new \Mimey\MimeTypes)->getMimeType(pathinfo($fn, PATHINFO_EXTENSION)));
+    header('Content-Length: ' . filesize($fn));
+    set_time_limit(0);
+    while (ob_get_level() > 0) ob_end_clean();
+    flush();
+    $handle = fopen($fn, "rb");
+    while (!feof($handle) && connection_aborted() == 0) {
+      echo fread($handle, 8192 * 8);
+    }
+    fclose($handle);
+  }
 
   public function addServeCode($expression, $fn, $priority = -1100) {
     $this->add($expression, function ($p, $next) use ($fn) {
@@ -150,6 +163,8 @@ class Router {
       } else $next();
     }, "*", $priority);
   }
+
+
 
   public function run($parameters, $next = null) {
     array_multisort(array_map(function ($v) {

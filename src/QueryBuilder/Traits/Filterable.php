@@ -190,9 +190,11 @@ trait Filterable {
             return $args;
         } else if ($key === "_sort" && $isRoot) {
             $args = ["sort"];
-            foreach ($value as $part) {
-                $args[] = $part;
-            }
+            if (is_array($value)) {
+                foreach ($value as $part) {
+                    $args[] = $part;
+                }
+            } else $args[] = $value;
             return $args;
         } else if ($key === "_limit" && $isRoot) {
             return ["limit", intval($value)];

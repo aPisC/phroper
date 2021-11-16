@@ -47,6 +47,7 @@ class Model {
       "display" => "id",
       "visible" => true,
       "editable" => true,
+      "sort" => null,
     ]);
     $this->updateData($data);
 
@@ -96,6 +97,9 @@ class Model {
     return $this->data["key"];
   }
 
+  /**
+   * @return mixed[]|string
+   */
   public function getPrimaryField() {
     return $this->data["primary"];
   }
@@ -205,13 +209,13 @@ class Model {
     if (is_array($filter) && count($filter) > 0) {
       $q->filter($filter);
     } else if (is_string($filter) || is_numeric($filter)) {
-      $q->addRawFilter("=", new QueryBuilder\QB_Ref('id'), $filter);
+      $q->addRawFilter("=", new QueryBuilder\QB_Ref($this->data["primary"]), $filter);
     }
   }
 
   public function findOne($filter, $populate = null): ?Entity {
     $populate = $this->getPopulateList($populate);
-    $mysqli = Phroper::instance()->getMysqli();
+    $mysqli = Phroper::ini('MYSQLI');
 
     $q = new ($this->QueryBuilderTypes["select"])($this);
     $q->populate($populate);
@@ -236,7 +240,7 @@ class Model {
 
   public function find($filter, $populate = null): EntityList {
     $populate = $this->getPopulateList($populate);
-    $mysqli = Phroper::instance()->getMysqli();
+    $mysqli = Phroper::ini('MYSQLI');
 
     $q = new ($this->QueryBuilderTypes["select"])($this);
     $q->populate($populate);
@@ -259,7 +263,7 @@ class Model {
   }
 
   public function count($filter): ?int {
-    $mysqli = Phroper::instance()->getMysqli();
+    $mysqli = Phroper::ini('MYSQLI');
 
     $q = new ($this->QueryBuilderTypes["count"])($this);
     $this->useFilter($q, $filter);
@@ -286,7 +290,7 @@ class Model {
   public function createMulti($entities, $processEntities = true): ?EntityList {
     if (count($entities) == 0) return [];
 
-    $mysqli = Phroper::instance()->getMysqli();
+    $mysqli = Phroper::ini('MYSQLI');
 
     $q = new ($this->QueryBuilderTypes["insert"])($this);
 
@@ -303,14 +307,20 @@ class Model {
       }
 
       if (!$processEntities) return null;
-      if (!isset($this->fields["id"])) return null;
 
-
-      $insid = $mysqli->insert_id;
-      $updated = $this->find([
-        "_limit" => count($entities),
-        "id_ge" => $insid
-      ]);
+      // Select inserted entities
+      if ($mysqli->insert_id) {
+        $insid = $mysqli->insert_id;
+        $updated = $this->find([
+          "_limit" => count($entities),
+          $this->data["primary"] . "_ge" => $insid
+        ]);
+      } else if ($this->data["primary"]) {
+        $updated = $this->find([
+          "_limit" => count($entities),
+          $this->data["primary"] . "_in" => array_map(fn ($e) => $e[$this->data["primary"]], $entities)
+        ]);
+      } else return null;
 
       $hadPostUpdate = false;
       foreach ($entities as $i => $entity) {
@@ -328,8 +338,11 @@ class Model {
     });
   }
 
+  /**
+   * @return \Phroper\Model\Entity|\Phroper\Model\EntityList|null
+   */
   public function update($filter, $entity) {
-    $mysqli = Phroper::instance()->getMysqli();
+    $mysqli = Phroper::ini('MYSQLI');
 
     $q = new ($this->QueryBuilderTypes["update"])($this, "update");
 
@@ -342,6 +355,9 @@ class Model {
       if (!$result) {
         throw new Exception('Database error ' . $mysqli->error);
       }
+
+      if (is_scalar($filter) && isset($entity[$this->data["primary"]]))
+        $filter = $entity[$this->data["primary"]];
 
       $updated = $this->find($filter);
 
@@ -359,12 +375,15 @@ class Model {
     });
   }
 
+  /**
+   * @return mixed[]|null
+   */
   public function delete($filter, $returnEntities = true) {
     $entity = $returnEntities ?  $this->find($filter)->sanitizeEntity() : null;
 
     if ($entity || !$returnEntities) {
       $q = new ($this->QueryBuilderTypes["delete"])($this);
-      $mysqli = Phroper::instance()->getMysqli();
+      $mysqli = Phroper::ini('MYSQLI');
 
       $this->useFilter($q, $filter);
 
@@ -399,7 +418,7 @@ class Model {
 
       // init self
       $q = new ($this->QueryBuilderTypes["create_table"])($this);
-      $mysqli = Phroper::instance()->getMysqli();
+      $mysqli = Phroper::ini('MYSQLI');
 
       $q->execute($mysqli);
 

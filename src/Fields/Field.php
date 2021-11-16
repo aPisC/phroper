@@ -23,6 +23,7 @@ abstract class Field {
       "sql_autoincrement" => false,
       "sql_unsigned" => false,
       "sql_extra" => null,
+      "sql_not_null" => false,
       "forced" => false,
       "private" => false,
       "populate" => false,
@@ -41,7 +42,7 @@ abstract class Field {
     return $this->data["sql_type"]
       . ($this->data["sql_length"] ? "(" .  $this->data["sql_length"] . ")" : "")
       . ($this->data["sql_unsigned"] ? " UNSIGNED" : "")
-      . ($this->data["required"] ? " NOT NULL" : " NULL")
+      . ($this->data["required"] || $this->data["sql_not_null"]  ? " NOT NULL" : " NULL")
       . ($this->data["sql_autoincrement"] ? " AUTO_INCREMENT" : "")
       . ($this->data["sql_primary"] ? " PRIMARY KEY" : "")
       . ($this->data["unique"] ? " UNIQUE" : "")

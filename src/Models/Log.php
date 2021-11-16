@@ -4,6 +4,7 @@ namespace Phroper\Models;
 
 use Phroper\Fields\CreatedAt;
 use Phroper\Fields\Enum;
+use Phroper\Fields\Integer;
 use Phroper\Fields\Text;
 use Phroper\Fields\UpdatedBy;
 use Phroper\Model;
@@ -13,6 +14,7 @@ class Log extends Model {
     parent::__construct([
       'table' => "log",
       "editable" => false,
+      "sort" => "id:desc",
       "listing" => [
         "id",
         "type",
@@ -20,6 +22,7 @@ class Log extends Model {
         "created_at",
         "updated_by",
         "remote_address",
+        "pid",
       ]
     ]);
 
@@ -36,7 +39,12 @@ class Log extends Model {
     $this->fields['remote_address'] = new Text([
       "default" => function () {
         return $_SERVER["REMOTE_ADDR"];
-      }
+      },
+      "auto" => true,
+    ]);
+    $this->fields['pid'] = new Integer([
+      "default" => fn () => getmypid(),
+      "auto" => true,
     ]);
   }
 

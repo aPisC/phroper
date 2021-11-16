@@ -27,6 +27,9 @@ class Entity implements ArrayAccess {
     unset($this->array[$offset]);
   }
 
+  /**
+   * @return mixed[]|bool|float|int|\Phroper\Fields\IgnoreField|\Phroper\Model\Entity|string|null
+   */
   public function offsetGet($offset) {
     $val = $this->values[$offset];
     if ($val instanceof LazyResult) return $val->get();

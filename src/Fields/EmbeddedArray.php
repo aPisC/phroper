@@ -10,7 +10,7 @@ class EmbeddedArray_Model extends Model {
     public ?int $parentId = null;
 
     public function __construct($fields, $model, $tableName) {
-        parent::__construct(["sql_table" => $tableName]);
+        parent::__construct(["sql_table" => $tableName, "primary" => null]);
         $this->fields->clear();
         $this->fields["__parent__"] = new RelationToOne($model, [
             "private",
@@ -69,7 +69,7 @@ class EmbeddedArray extends RelationToMany {
         $this->relationModel = $model;
         $this->updateData([
             "model" => $model ? $this->getModel()->getName() : "",
-            "model_display" => $model ? $this->getModel()->getDisplayField() : "",
+            "display" => $this->data["display"] ? $this->data["display"] : ($model ? $this->getModel()->getDisplayField() : ""),
         ]);
     }
     public function postUpdate($value, $key, $entity) {

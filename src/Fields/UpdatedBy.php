@@ -20,7 +20,7 @@ class UpdatedBy extends RelationToOne {
   }
 
   public function onSave($value) {
-    $user = Phroper::context('user');
+    $user = Phroper::instance()->context->get('user');
     if ($user) return $user["id"];
     return null;
   }

@@ -40,7 +40,10 @@ class EntityList  extends Entity implements IteratorAggregate, ArrayAccess {
     unset($this->array[$offset]);
   }
 
-  public function offsetGet($offset): Entity|IgnoreField {
+  /**
+   * @return \Phroper\Fields\IgnoreField|\Phroper\Model\Entity
+   */
+  public function offsetGet($offset) {
     $val = $this->values[$offset];
     if ($val instanceof LazyResult) return $val->get();
     return $val;

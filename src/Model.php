@@ -97,7 +97,10 @@ class Model {
     return $this->data["key"];
   }
 
-  public function getPrimaryField(): string | array {
+  /**
+   * @return mixed[]|string
+   */
+  public function getPrimaryField() {
     return $this->data["primary"];
   }
 
@@ -335,7 +338,10 @@ class Model {
     });
   }
 
-  public function update($filter, $entity): Entity|EntityList|null {
+  /**
+   * @return \Phroper\Model\Entity|\Phroper\Model\EntityList|null
+   */
+  public function update($filter, $entity) {
     $mysqli = Phroper::ini('MYSQLI');
 
     $q = new ($this->QueryBuilderTypes["update"])($this, "update");
@@ -369,7 +375,10 @@ class Model {
     });
   }
 
-  public function delete($filter, $returnEntities = true): array|null {
+  /**
+   * @return mixed[]|null
+   */
+  public function delete($filter, $returnEntities = true) {
     $entity = $returnEntities ?  $this->find($filter)->sanitizeEntity() : null;
 
     if ($entity || !$returnEntities) {

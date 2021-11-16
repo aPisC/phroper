@@ -9,7 +9,7 @@ class Controller {
   public static string $RouterClassType = Router::class;
   protected Router $router;
 
-  private $registeredHandlerInfos = [];
+  private array $registeredHandlerInfos = [];
 
   public function __construct() {
     $this->router =  new Controller::$RouterClassType();

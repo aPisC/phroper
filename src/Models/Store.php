@@ -24,7 +24,10 @@ class Store extends Model {
     return false;
   }
 
-  public function getPrimaryField(): string|array {
+  /**
+   * @return mixed[]|string
+   */
+  public function getPrimaryField() {
     return "key";
   }
 }

@@ -6,9 +6,9 @@ use Exception;
 
 class Router {
 
-  private $routes = array();
-  private $middlewares = array();
-  private $handlers = array();
+  private array $routes = array();
+  private array $middlewares = array();
+  private array $handlers = array();
 
   public function __construct($parameters = array()) {
   }
@@ -47,7 +47,10 @@ class Router {
     return $this->expressionCache[$key];
   }
 
-  public function matchUrl($expression, $url): array|false {
+  /**
+   * @return mixed[]|bool
+   */
+  public function matchUrl($expression, $url) {
     if ($expression == "//")  return ["url" => $url];
 
     if (!str_starts_with($expression, "/"))
